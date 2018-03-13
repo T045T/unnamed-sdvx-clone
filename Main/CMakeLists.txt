@@ -16,7 +16,7 @@ source_group("Header Files\\GUI" FILES ${GUI_include})
 source_group("Source Files\\GUI" FILES ${GUI_src})
 
 # Compiler stuff
-enable_cpp11()
+enable_cpp17()
 enable_precompiled_headers("${Main_src}" stdafx.cpp)
 precompiled_header_exclude("Resource.rc")
 
@@ -44,6 +44,7 @@ if(WIN32)
 	target_link_libraries(Main SDL2)
 	target_link_libraries(Main png)
 	target_link_libraries(Main jpeg)
+	target_link_libraries(Main discord_rpc)
 	target_include_directories(Main PUBLIC ${SDL2_SOURCE_DIR}/include/)
 else()
 	set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third_party/)

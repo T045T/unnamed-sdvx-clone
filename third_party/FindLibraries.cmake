@@ -6,6 +6,7 @@ find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(OGG REQUIRED)
+find_package(DiscordRPC REQUIRED)
 
 # Linux include directories
 include_directories(
@@ -13,4 +14,6 @@ include_directories(
 	${ZLIB_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIR}
 	${VORBIS_INCLUDE_DIR}
-	${OGG_INCLUDE_DIR})
+	${OGG_INCLUDE_DIR}
+	${DISCORD_INCLUDE_DIR}
+)
