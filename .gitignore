@@ -42,3 +42,4 @@ Makefile
 
 # Not adding photoshop source files for textures
 *.psd
+/third_party/rapidjson-1.1.0

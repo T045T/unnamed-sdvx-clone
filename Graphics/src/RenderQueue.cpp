@@ -203,10 +203,10 @@ namespace Graphics
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
-		sdc->mesh = text->GetMesh();
+		sdc->mesh = text->get_mesh();
 		sdc->params = params;
 		// Set Font texture map
-		sdc->params.SetParameter("mainTex", text->GetTexture());
+		sdc->params.SetParameter("mainTex", text->get_texture());
 		sdc->worldTransform = worldTransform;
 		m_orderedCommands.push_back(sdc);
 	}
@@ -225,10 +225,10 @@ namespace Graphics
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
-		sdc->mesh = text->GetMesh();
+		sdc->mesh = text->get_mesh();
 		sdc->params = params;
 		// Set Font texture map
-		sdc->params.SetParameter("mainTex", text->GetTexture());
+		sdc->params.SetParameter("mainTex", text->get_texture());
 		sdc->worldTransform = worldTransform;
 		sdc->scissorRect = scissor;
 		m_orderedCommands.push_back(sdc);

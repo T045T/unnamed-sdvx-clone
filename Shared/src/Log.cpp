@@ -54,7 +54,7 @@ Logger& Logger::Get()
 	return logger;
 }
 
-void Logger::SetColor(Color color)
+void Logger::SetColor(Color color) const
 {
 #ifdef _WIN32
 	if (consoleHandle)
@@ -70,7 +70,7 @@ void Logger::SetColor(Color color)
 			FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY, // White
 			FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN, // Gray
 		};
-		SetConsoleTextAttribute(consoleHandle, params[(size_t)color]);
+		SetConsoleTextAttribute(consoleHandle, params[static_cast<size_t>(color)]);
 	}
 #else
 	if (color == Color::White)
@@ -79,7 +79,8 @@ void Logger::SetColor(Color color)
 		printf("\x1b[38;2;%sm", params[color]);
 #endif
 }
-void Logger::Log(const String& msg, Logger::Severity severity)
+
+void Logger::Log(const String& msg, Severity severity)
 {
 	switch (severity)
 	{
@@ -107,11 +108,12 @@ void Logger::WriteHeader(Severity severity)
 	// Format a timestamp string
 	char timeStr[64];
 	time_t currentTime = time(0);
-	tm* currentLocalTime = localtime(&currentTime);
-	strftime(timeStr, sizeof(timeStr), "%T", currentLocalTime);
+	tm currentLocalTime;
+	localtime_s(&currentLocalTime, &currentTime);
+	strftime(timeStr, sizeof(timeStr), "%T", &currentLocalTime);
 
 	// Write the formated header
-	Write(Utility::Sprintf("[%s][%s] ", timeStr, severityNames[(size_t)severity]));
+	Write(Utility::Sprintf("[%s][%s] ", timeStr, severityNames[static_cast<size_t>(severity)]));
 }
 
 void Logger::Write(const String& msg)

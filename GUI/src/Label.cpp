@@ -72,6 +72,6 @@ void Label::m_UpdateText(class GUIRenderer* renderer)
 	Graphics::Font fontToUse = m_font;
 	if(!fontToUse)
 		fontToUse = renderer->font;
-	m_text = fontToUse->CreateText(m_textString, m_fontSize, m_textOptions);
+	m_text = fontToUse->create_text(m_textString, m_fontSize, m_textOptions);
 	m_dirty = false;
 }

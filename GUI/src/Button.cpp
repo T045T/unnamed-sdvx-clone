@@ -30,7 +30,7 @@ void Button::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	if(m_dirty)
 	{
-		m_text = rd.guiRenderer->font->CreateText(m_textString, m_fontSize);
+		m_text = rd.guiRenderer->font->create_text(m_textString, m_fontSize);
 	}
 
 	m_cachedInnerRect = m_style->buttonBorder.Apply(rd.area);
@@ -97,7 +97,7 @@ Vector2 Button::GetDesiredSize(GUIRenderData rd)
 {
 	if(m_dirty)
 	{
-		m_text = rd.guiRenderer->font->CreateText(m_textString, m_fontSize);
+		m_text = rd.guiRenderer->font->create_text(m_textString, m_fontSize);
 	}
 
 	Vector2 sizeOut;

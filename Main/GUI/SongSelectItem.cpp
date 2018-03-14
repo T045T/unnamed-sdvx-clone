@@ -46,7 +46,7 @@ public:
 		if(!m_lvlText)
 		{
 			WString lvlStr = Utility::WSprintf(L"%d", m_diff->settings.level);
-			m_lvlText = rd.guiRenderer->font->CreateText(lvlStr, 20);
+			m_lvlText = rd.guiRenderer->font->create_text(lvlStr, 20);
 		}
 
 		Rect area = GUISlotBase::ApplyFill(FillMode::Fit, m_size, rd.area);

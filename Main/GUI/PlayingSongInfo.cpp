@@ -102,9 +102,9 @@ void SongTitleArtist::Render(GUIRenderData rd)
 
 
 	/// TODO: Cache stuff and only regen if the resolution changes.
-	std::shared_ptr<TextRes> title = rd.guiRenderer->font->CreateText(m_title, rd.area.size.y / 2);
-	std::shared_ptr<TextRes> artist = rd.guiRenderer->font->CreateText(m_artist, rd.area.size.y / 3);
-	std::shared_ptr<TextRes> speedTextGraphic = rd.guiRenderer->font->CreateText(speedText, rd.area.size.y / 3);
+	std::shared_ptr<TextRes> title = rd.guiRenderer->font->create_text(m_title, rd.area.size.y / 2);
+	std::shared_ptr<TextRes> artist = rd.guiRenderer->font->create_text(m_artist, rd.area.size.y / 3);
+	std::shared_ptr<TextRes> speedTextGraphic = rd.guiRenderer->font->create_text(speedText, rd.area.size.y / 3);
 	Rect titleRect = rd.area;
 	Rect artistRect = rd.area;
 	Rect speedRect = rd.area;
@@ -119,9 +119,9 @@ void SongTitleArtist::Render(GUIRenderData rd)
 	artistRect = GUISlotBase::ApplyFill(FillMode::Fit, artist->size, artistRect);
 	speedRect = GUISlotBase::ApplyFill(FillMode::Fit, speedTextGraphic->size, speedRect);
 
-	title = rd.guiRenderer->font->CreateText(m_title, titleRect.size.y * 0.75);
-	artist = rd.guiRenderer->font->CreateText(m_artist, artistRect.size.y * 0.75);
-	speedTextGraphic = rd.guiRenderer->font->CreateText(speedText, (speedRect.size.y / 2) * 0.75);
+	title = rd.guiRenderer->font->create_text(m_title, titleRect.size.y * 0.75);
+	artist = rd.guiRenderer->font->create_text(m_artist, artistRect.size.y * 0.75);
+	speedTextGraphic = rd.guiRenderer->font->create_text(speedText, (speedRect.size.y / 2) * 0.75);
 
 	titleRect.pos.y = rd.area.pos.y + (0.5f * m_titleSize * rd.area.size.y) - (0.5f * title->size.y);
 	artistRect.pos.y = rd.area.pos.y + (m_titleSize * rd.area.size.y) + (0.5f * m_artistSize * rd.area.size.y) - (0.5f * artist->size.y);;

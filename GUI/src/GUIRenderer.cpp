@@ -253,7 +253,7 @@ const GUITextInput& GUIRenderer::GetTextInput() const
 }
 Vector2i GUIRenderer::GetTextSize(const WString& str, uint32 fontSize /*= 16*/)
 {
-	Text text = font->CreateText(str, fontSize);
+	Text text = font->create_text(str, fontSize);
 	return text->size;
 }
 Vector2i GUIRenderer::GetTextSize(const String& str, uint32 fontSize /*= 16*/)
@@ -265,7 +265,7 @@ Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, co
 	if(m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return Vector2i(0, 0);
 
-	Text text = font->CreateText(str, fontSize);
+	Text text = font->create_text(str, fontSize);
 	Transform textTransform;
 	textTransform *= Transform::Translation(position);
 	MaterialParameterSet params;

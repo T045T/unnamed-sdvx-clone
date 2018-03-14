@@ -37,7 +37,7 @@ public:
 	static Logger& Get();
 
 	// Sets the foreground color of the output, if applicable
-	void SetColor(Color color);
+	void SetColor(Color color) const;
 
 	// Log a string to the logging output, 
 	void Log(const String& msg, Severity severity);
