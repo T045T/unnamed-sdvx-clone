@@ -2,7 +2,7 @@
 #include "Spinner.hpp"
 #include "GUIRenderer.hpp"
 
-Spinner::Spinner(Ref<CommonGUIStyle> style)
+Spinner::Spinner(std::shared_ptr<CommonGUIStyle> style)
 {
 	m_style = style;
 }

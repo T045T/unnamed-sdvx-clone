@@ -58,7 +58,7 @@ namespace Graphics
 		void SetParameter(const String & name, const Vector3 & vec3);
 		void SetParameter(const String& name, const Vector2i& vec2);
 		void SetParameter(const String& name, const Transform& tf);
-		void SetParameter(const String& name, Ref<class TextureRes> tex);
+		void SetParameter(const String& name, std::shared_ptr<class TextureRes> tex);
 	};
 
 	enum class MaterialBlendMode
@@ -76,9 +76,9 @@ namespace Graphics
 	public:
 		virtual ~MaterialRes() = default;
 		// Create a default material
-		static Ref<MaterialRes> Create(class OpenGL* gl);
+		static std::shared_ptr<MaterialRes> Create(class OpenGL* gl);
 		// Create a material that has both a vertex and fragment shader
-		static Ref<MaterialRes> Create(class OpenGL* gl, const String& vsPath, const String& fsPath);
+		static std::shared_ptr<MaterialRes> Create(class OpenGL* gl, const String& vsPath, const String& fsPath);
 
 		bool opaque = true;
 		MaterialBlendMode blendMode = MaterialBlendMode::Normal;
@@ -94,7 +94,7 @@ namespace Graphics
 		virtual void BindToContext() = 0;
 	};
 
-	typedef Ref<MaterialRes> Material;
+	typedef std::shared_ptr<MaterialRes> Material;
 
 	DEFINE_RESOURCE_TYPE(Material, MaterialRes);
 }

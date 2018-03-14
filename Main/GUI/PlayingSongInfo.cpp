@@ -11,7 +11,7 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 
 
 	LayoutBox* layoutBox = new LayoutBox();
-	m_layout = Ref<LayoutBox>(layoutBox);
+	m_layout = std::shared_ptr<LayoutBox>(layoutBox);
 	layoutBox->layoutDirection = LayoutBox::LayoutDirection::Horizontal;
 	{
 		Slot* layoutSlot = Add(layoutBox->MakeShared());
@@ -20,7 +20,7 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 
 	// Jacket
 	Panel* jacketPanel = new Panel();
-	m_jacket = Ref<Panel>(jacketPanel);
+	m_jacket = std::shared_ptr<Panel>(jacketPanel);
 	jacketPanel->color = Color::White;
 	jacketPanel->imageFillMode = FillMode::Fit;
 	{
@@ -30,7 +30,7 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 	}
 
 	SongTitleArtist* sta = new SongTitleArtist(m_settings.title, m_settings.artist, this);
-	m_titleArtist = Ref<SongTitleArtist>(sta);
+	m_titleArtist = std::shared_ptr<SongTitleArtist>(sta);
 	sta->color = Color::White;
 	{
 		LayoutBox::Slot* titleSlot = layoutBox->Add(sta->MakeShared());
@@ -102,9 +102,9 @@ void SongTitleArtist::Render(GUIRenderData rd)
 
 
 	/// TODO: Cache stuff and only regen if the resolution changes.
-	Ref<TextRes> title = rd.guiRenderer->font->CreateText(m_title, rd.area.size.y / 2);
-	Ref<TextRes> artist = rd.guiRenderer->font->CreateText(m_artist, rd.area.size.y / 3);
-	Ref<TextRes> speedTextGraphic = rd.guiRenderer->font->CreateText(speedText, rd.area.size.y / 3);
+	std::shared_ptr<TextRes> title = rd.guiRenderer->font->CreateText(m_title, rd.area.size.y / 2);
+	std::shared_ptr<TextRes> artist = rd.guiRenderer->font->CreateText(m_artist, rd.area.size.y / 3);
+	std::shared_ptr<TextRes> speedTextGraphic = rd.guiRenderer->font->CreateText(speedText, rd.area.size.y / 3);
 	Rect titleRect = rd.area;
 	Rect artistRect = rd.area;
 	Rect speedRect = rd.area;

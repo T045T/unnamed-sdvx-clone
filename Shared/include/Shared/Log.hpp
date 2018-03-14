@@ -1,8 +1,10 @@
 #pragma once
 #include "Shared/String.hpp"
 #include "Shared/Unique.hpp"
+#include "File.hpp"
+#include "FileStream.hpp"
 
-/* 
+/*
 	Logging utility class
 	formats loggin messages with time stamps and module names
 	allows message coloring on platforms that support it
@@ -21,6 +23,7 @@ public:
 		White,
 		Gray
 	};
+
 	enum Severity
 	{
 		Normal,
@@ -29,23 +32,29 @@ public:
 		Info
 	};
 
-public:
 	Logger();
 	~Logger();
 	static Logger& Get();
 
 	// Sets the foreground color of the output, if applicable
 	void SetColor(Color color);
+
 	// Log a string to the logging output, 
-	void Log(const String& msg, Logger::Severity severity);
+	void Log(const String& msg, Severity severity);
 
 	// Write log message header, (timestamp, etc..)
-	void WriteHeader(Logger::Severity severity);
+	void WriteHeader(Severity severity);
+
 	// Writes string without newline
 	void Write(const String& msg);
 
 private:
-	class Logger_Impl* m_impl;
+#ifdef _WIN32
+	HANDLE consoleHandle;
+#endif
+	String moduleName;
+	File m_logFile;
+	FileWriter m_writer;
 };
 
 // Log to Logger::Get() with formatting string

@@ -14,11 +14,11 @@ namespace Graphics
 	{
 		friend class Font_Impl;
 		struct FontSize* fontSize;
-		Ref<class MeshRes> mesh;
+		std::shared_ptr<class MeshRes> mesh;
 	public:
 		~TextRes();
-		Ref<class TextureRes> GetTexture();
-		Ref<class MeshRes> GetMesh() { return mesh; }
+		std::shared_ptr<class TextureRes> GetTexture();
+		std::shared_ptr<class MeshRes> GetMesh() { return mesh; }
 		void Draw();
 		Vector2 size;
 	};
@@ -30,7 +30,7 @@ namespace Graphics
 	{
 	public:
 		virtual ~FontRes() = default;
-		static Ref<FontRes> Create(class OpenGL* gl, const String& assetPath);
+		static std::shared_ptr<FontRes> Create(class OpenGL* gl, const String& assetPath);
 	public:
 		// Text rendering options
 		enum TextOptions
@@ -40,12 +40,12 @@ namespace Graphics
 		};
 
 		// Renders the input string into a drawable text object
-		virtual Ref<TextRes> CreateText(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None) = 0;
+		virtual std::shared_ptr<TextRes> CreateText(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None) = 0;
 
 	};
 
-	typedef Ref<FontRes> Font;
-	typedef Ref<TextRes> Text;
+	typedef std::shared_ptr<FontRes> Font;
+	typedef std::shared_ptr<TextRes> Text;
 
 	DEFINE_RESOURCE_TYPE(Font, FontRes);
 }

@@ -104,7 +104,7 @@ namespace Graphics
 			// Release gamepads
 			for(auto it : m_gamepads)
 			{
-				it.second.Destroy();
+				it.second.reset();
 			}
 
 			SDL_DestroyWindow(m_window);
@@ -200,7 +200,7 @@ namespace Graphics
 			SDL_SetWindowTitle(m_window, *titleUtf8);
 		}
 
-		void SetCursor(Ref<class ImageRes> image, Vector2i hotspot)
+		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot)
 		{
 #ifdef _WIN32
 			if(currentCursor)
@@ -376,7 +376,7 @@ namespace Graphics
 		ModifierKeys m_modKeys = ModifierKeys::None;
 
 		// Gamepad input
-		Map<int32, Ref<Gamepad_Impl>> m_gamepads;
+		Map<int32, std::shared_ptr<Gamepad_Impl>> m_gamepads;
 		Map<SDL_JoystickID, Gamepad_Impl*> m_joystickMap;
 
 		// Text input / IME stuff
@@ -430,7 +430,7 @@ namespace Graphics
 		SDL_GetMouseState(&res.x, &res.y);
 		return res;
 	}
-	void Window::SetCursor(Ref<class ImageRes> image, Vector2i hotspot /*= Vector2i(0,0)*/)
+	void Window::SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot /*= Vector2i(0,0)*/)
 	{
 		m_impl->SetCursor(image, hotspot);
 	}
@@ -533,18 +533,19 @@ namespace Graphics
 		return ret;
 	}
 
-	Ref<Gamepad> Window::OpenGamepad(int32 deviceIndex)
+	std::shared_ptr<Gamepad> Window::OpenGamepad(int32 deviceIndex)
 	{
-		Ref<Gamepad_Impl>* openGamepad = m_impl->m_gamepads.Find(deviceIndex);
+		std::shared_ptr<Gamepad_Impl> openGamepad = *(m_impl->m_gamepads.Find(deviceIndex));	// HACK: should fix this
 		if(openGamepad)
-			return openGamepad->As<Gamepad>();
-		Ref<Gamepad_Impl> newGamepad;
+			return std::dynamic_pointer_cast<Gamepad>(openGamepad);
+
+		std::shared_ptr<Gamepad_Impl> newGamepad;
 
 		Gamepad_Impl* gamepadImpl = new Gamepad_Impl();
 		// Try to initialize new device
 		if(gamepadImpl->Init(this, deviceIndex))
 		{
-			newGamepad = Ref<Gamepad_Impl>(gamepadImpl);
+			newGamepad = std::shared_ptr<Gamepad_Impl>(gamepadImpl);
 
 			// Receive joystick events
 			SDL_JoystickEventState(SDL_ENABLE);
@@ -553,12 +554,13 @@ namespace Graphics
 		{
 			delete gamepadImpl;
 		}
+
 		if(newGamepad)
 		{
 			m_impl->m_gamepads.Add(deviceIndex, newGamepad);
 			m_impl->m_joystickMap.Add(SDL_JoystickInstanceID(gamepadImpl->m_joystick), gamepadImpl);
 		}
-		return newGamepad.As<Gamepad>();
+		return std::dynamic_pointer_cast<Gamepad>(newGamepad);
 	}
 
 	void Window::SetMousePos(const Vector2i& pos)

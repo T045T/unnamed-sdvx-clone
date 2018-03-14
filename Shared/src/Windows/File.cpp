@@ -18,12 +18,13 @@ public:
 };
 
 File::File()
-{
-}
+{}
+
 File::~File()
 {
 	Close();
 }
+
 bool File::OpenRead(const String& path)
 {
 	Close();
@@ -43,6 +44,7 @@ bool File::OpenRead(const String& path)
 	m_impl = new File_Impl(h);
 	return true;
 }
+
 bool File::OpenWrite(const String& path, bool append /*= false*/)
 {
 	Close(); 
@@ -66,6 +68,7 @@ bool File::OpenWrite(const String& path, bool append /*= false*/)
 
 	return true;
 }
+
 void File::Close()
 {
 	if(m_impl)
@@ -74,6 +77,7 @@ void File::Close()
 		m_impl = nullptr;
 	}
 }
+
 void File::Seek(size_t pos)
 {
 	assert(m_impl);
@@ -83,6 +87,7 @@ void File::Seek(size_t pos)
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 0);
 	assert(ok && newPos.QuadPart == pos);
 }
+
 void File::Skip(int64 amount)
 {
 	assert(m_impl);
@@ -92,6 +97,7 @@ void File::Skip(int64 amount)
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 1);
 	assert(ok);
 }
+
 void File::SeekReverse(size_t pos)
 {
 	assert(m_impl);
@@ -101,6 +107,7 @@ void File::SeekReverse(size_t pos)
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 2);
 	assert(ok);
 }
+
 size_t File::Tell() const
 {
 	assert(m_impl);
@@ -109,6 +116,7 @@ size_t File::Tell() const
 	SetFilePointerEx(m_impl->handle, move, &pos, 1);
 	return (size_t)pos.QuadPart;
 }
+
 size_t File::GetSize() const
 {
 	assert(m_impl);
@@ -116,6 +124,7 @@ size_t File::GetSize() const
 	GetFileSizeEx(m_impl->handle, &size);
 	return (size_t)size.QuadPart;
 }
+
 size_t File::Read(void* data, size_t len)
 {
 	assert(m_impl);
@@ -123,6 +132,7 @@ size_t File::Read(void* data, size_t len)
 	ReadFile(m_impl->handle, data, (DWORD)len, (DWORD*)&actual, 0);
 	return actual;
 }
+
 size_t File::Write(const void* data, size_t len)
 {
 	assert(m_impl);
@@ -172,10 +182,12 @@ bool LoadResourceInternal(const char* name, const char* type, Buffer& out)
 
 	return true;
 }
+
 bool EmbeddedResource::LoadResource(const ::String& resourceName, Buffer& out, ResourceType resourceType)
 {
 	return LoadResourceInternal(*resourceName, MAKEINTRESOURCEA(resourceType), out);
 }
+
 bool EmbeddedResource::LoadResource(uint32 resourceID, Buffer& out, ResourceType resourceType /*= RCData*/)
 {
 	return LoadResourceInternal(MAKEINTRESOURCEA(resourceID), MAKEINTRESOURCEA(resourceType), out);

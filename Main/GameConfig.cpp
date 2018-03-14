@@ -12,7 +12,7 @@ GameConfig::GameConfig()
 	Clear();
 }
 
-void GameConfig::SetKeyBinding(GameConfigKeys key, Graphics::Key value)
+void GameConfig::SetKeyBinding(GameConfigKeys key, Key value)
 {
 	SetEnum<Enum_Key>(key, value);
 }

@@ -180,7 +180,7 @@ namespace Graphics
 			assert(nIndex < m_segments.size());
 			return m_segments[nIndex]->coords;
 		}
-		virtual Ref<ImageRes> GetImage() override
+		virtual std::shared_ptr<ImageRes> GetImage() override
 		{
 			return m_image;
 		}

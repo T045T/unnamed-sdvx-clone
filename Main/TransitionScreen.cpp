@@ -8,7 +8,7 @@
 
 class TransitionScreen_Impl : public TransitionScreen
 {
-	Ref<Canvas> m_loadingOverlay;
+	std::shared_ptr<Canvas> m_loadingOverlay;
 	IAsyncLoadableApplicationTickable* m_tickableToLoad;
 	Job m_loadingJob;
 
@@ -57,7 +57,7 @@ public:
 		if(!m_tickableToLoad)
 			return false;
 
-		m_loadingOverlay = Ref<Canvas>(new Canvas());
+		m_loadingOverlay = std::shared_ptr<Canvas>(new Canvas());
 
 		// Fill screen with black
 		Panel* black = new Panel();

@@ -3,7 +3,7 @@
 #include "GUIRenderer.hpp"
 #include "Slider.hpp"
 
-ScrollBox::ScrollBox(Ref<CommonGUIStyle> style)
+ScrollBox::ScrollBox(std::shared_ptr<CommonGUIStyle> style)
 {
 	m_style = style;
 
@@ -123,7 +123,7 @@ ScrollBox::Slot* ScrollBox::GetContentSlot()
 
 void ScrollBox::m_AnimateScrollDelta(int32 delta)
 {
-	Ref<IGUIAnimation> currentAnimation = GetAnimation(0u);
+	std::shared_ptr<IGUIAnimation> currentAnimation = GetAnimation(0u);
 	if(currentAnimation)
 	{
 		// Apply scroll to target for current animation
@@ -133,7 +133,7 @@ void ScrollBox::m_AnimateScrollDelta(int32 delta)
 	{
 		m_scrollTarget = m_content->GetScroll() + delta;
 	}
-	Ref<IGUIAnimation> anim = IGUIAnimation::CreateCallback(m_scrollTarget, m_content->GetScroll(), 0.1f,
+	std::shared_ptr<IGUIAnimation> anim = IGUIAnimation::CreateCallback(m_scrollTarget, m_content->GetScroll(), 0.1f,
 		[&](int32 scroll)
 	{
 		m_content->SetScroll(scroll);

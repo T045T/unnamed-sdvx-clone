@@ -6,7 +6,7 @@
 class TextInputField : public LayoutBox
 {
 public:
-	TextInputField(Ref<CommonGUIStyle> style);
+	TextInputField(std::shared_ptr<CommonGUIStyle> style);
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
 
@@ -31,7 +31,7 @@ public:
 	Delegate<const WString&> OnTextUpdated;
 
 protected:
-	Ref<CommonGUIStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_style;
 
 	Rect m_cachedInnerRect;
 	Rect m_cachedTextRect;

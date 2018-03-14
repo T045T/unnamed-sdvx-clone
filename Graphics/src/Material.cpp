@@ -414,7 +414,7 @@ namespace Graphics
 	{
 		Add(name, MaterialParameter::Create(tf, GL_FLOAT_MAT4));
 	}
-	void MaterialParameterSet::SetParameter(const String& name, Ref<class TextureRes> tex)
+	void MaterialParameterSet::SetParameter(const String& name, std::shared_ptr<class TextureRes> tex)
 	{
 		Add(name, MaterialParameter::Create(tex->Handle(), GL_SAMPLER_2D));
 	}

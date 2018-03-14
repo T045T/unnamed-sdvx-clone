@@ -47,7 +47,7 @@ namespace Graphics
 		bool GetRelativeMouseMode();
 
 		// Sets cursor to use
-		void SetCursor(Ref<class ImageRes> image, Vector2i hotspot = Vector2i(0,0));
+		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0,0));
 		void SetCursorVisible(bool visible);
 
 		// Switches between borderless and windowed
@@ -91,7 +91,7 @@ namespace Graphics
 		// List of gamepad device names
 		Vector<String> GetGamepadDeviceNames() const;
 		// Open a gamepad within the range of the number of gamepads
-		Ref<Gamepad> OpenGamepad(int32 deviceIndex);
+		std::shared_ptr<Gamepad> OpenGamepad(int32 deviceIndex);
 
 		Delegate<int32> OnKeyPressed;
 		Delegate<int32> OnKeyReleased;

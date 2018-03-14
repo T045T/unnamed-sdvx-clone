@@ -2,8 +2,8 @@
 	Systems for performing asynchronous tasks and waiting for them, etc.
 */
 #pragma once
+#include <memory>
 #include "Shared/Unique.hpp"
-#include "Shared/Ref.hpp"
 #include "Shared/Delegate.hpp"
 
 /*
@@ -46,11 +46,11 @@ public:
 
 	// Called when finished
 	//	called from main thread when JobSheduler::Update is called
-	Delegate<Ref<JobBase>> OnFinished;
+	Delegate<std::shared_ptr<JobBase>> OnFinished;
 
 	// Create job from lambda function
 	template<typename Lambda, typename... Args>
-	static Ref<JobBase> CreateLambda(Lambda&& obj, Args...);
+	static std::shared_ptr<JobBase> CreateLambda(Lambda&& obj, Args...);
 
 private:
 	bool m_ret = false;
@@ -85,7 +85,7 @@ private:
 	std::tuple<Args...> m_args;
 	Lambda m_lambda;
 };
-typedef Ref<JobBase> Job;
+typedef std::shared_ptr<JobBase> Job;
 
 template<typename Lambda, typename... Args>
 Job JobBase::CreateLambda(Lambda&& obj, Args... args)

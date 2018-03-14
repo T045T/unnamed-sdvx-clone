@@ -37,6 +37,7 @@ protected:
 	{
 		m_isReading = isReading;
 	}
+
 public:
 	// Reads or writes strings
 	bool SerializeObject(String& obj);
@@ -64,7 +65,7 @@ public:
 	{
 		T* tempObj = &obj;
 		bool r = T::StaticSerialize(*this, tempObj);
-		if(IsReading())
+		if (IsReading())
 			obj = *tempObj;
 		return r;
 	}
@@ -79,20 +80,25 @@ public:
 
 	// Reads or writes data based on the stream's mode of operation
 	virtual size_t Serialize(void* data, size_t len) = 0;
+
 	// Seeks to a position in the stream
 	virtual void Seek(size_t pos) = 0;
+
 	// Seeks from the end, where 0 is the end of the stream
 	virtual void SeekReverse(size_t pos)
 	{
 		Seek(GetSize() - pos);
 	}
+
 	// Seeks relative from current position
 	virtual void Skip(size_t pos)
 	{
 		Seek(Tell() + pos);
 	}
+
 	// Tells the position of the stream
 	virtual size_t Tell() const = 0;
+
 	// Returns the current size of the stream
 	//	either the max amount of readable data or the amount of currently written data
 	virtual size_t GetSize() const = 0;
@@ -105,14 +111,16 @@ public:
 		return *this;
 	}
 
-	bool IsReading() const 
+	bool IsReading() const
 	{
 		return m_isReading;
 	}
+
 	bool IsWriting() const
 	{
 		return !m_isReading;
 	}
+
 protected:
 	bool m_isReading;
 };
@@ -120,12 +128,12 @@ protected:
 template<typename T>
 bool BinaryStream::SerializeObject(Vector<T>& obj)
 {
-	if(IsReading())
+	if (IsReading())
 	{
 		obj.clear();
 		uint32 len;
-		*this << len; 
-		for(uint32 i = 0; i < len; i++)
+		*this << len;
+		for (uint32 i = 0; i < len; i++)
 		{
 			T v;
 			bool ok = SerializeObject(v);
@@ -137,7 +145,7 @@ bool BinaryStream::SerializeObject(Vector<T>& obj)
 	{
 		uint32 len = (uint32)obj.size();
 		*this << len;
-		for(uint32 i = 0; i < len; i++)
+		for (uint32 i = 0; i < len; i++)
 		{
 			bool ok = SerializeObject(obj[i]);
 			assert(ok);
@@ -145,15 +153,16 @@ bool BinaryStream::SerializeObject(Vector<T>& obj)
 	}
 	return true;
 }
+
 template<typename K, typename V>
 bool BinaryStream::SerializeObject(Map<K, V>& obj)
 {
-	if(IsReading())
+	if (IsReading())
 	{
 		obj.clear();
 		uint32 len;
 		*this << len;
-		for(uint32 i = 0; i < len; i++)
+		for (uint32 i = 0; i < len; i++)
 		{
 			K k;
 			V v;
@@ -168,7 +177,7 @@ bool BinaryStream::SerializeObject(Map<K, V>& obj)
 	{
 		uint32 len = (uint32)obj.size();
 		*this << len;
-		for(auto& p : obj)
+		for (auto& p : obj)
 		{
 			bool ok = true;
 			ok = ok && SerializeObject(const_cast<K&>(p.first));

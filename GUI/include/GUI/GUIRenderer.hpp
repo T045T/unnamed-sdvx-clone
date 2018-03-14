@@ -23,7 +23,7 @@ public:
 
 	// Loads gui shaders/textures/etc.
 	bool Init(class OpenGL* gl, Graphics::Window* window = nullptr, String skin = "Default");
-	void Render(float deltaTime, Rect viewportSize, Ref<class GUIElementBase> rootElement);
+	void Render(float deltaTime, Rect viewportSize, std::shared_ptr<class GUIElementBase> rootElement);
 
 	// Use to manually start rendering GUI elements
 	RenderQueue& Begin();

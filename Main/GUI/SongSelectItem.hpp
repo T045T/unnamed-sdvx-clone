@@ -60,7 +60,7 @@ private:
 class SongSelectItem : public Canvas
 {
 public:
-	SongSelectItem(Ref<SongSelectStyle> style);
+	SongSelectItem(std::shared_ptr<SongSelectStyle> style);
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
 	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
@@ -82,7 +82,7 @@ public:
 	float innerOffset = 0.0f;
 
 private:
-	Ref<SongSelectStyle> m_style;
+	std::shared_ptr<SongSelectStyle> m_style;
 	Vector<class SongDifficultyFrame*> m_diffSelectors;
 	int32 m_selectedDifficulty = 0;
 	class Panel* m_bg = nullptr;
@@ -97,9 +97,9 @@ private:
 class SongStatistics : public Canvas
 {
 public:
-	SongStatistics(Ref<SongSelectStyle> style);
+	SongStatistics(std::shared_ptr<SongSelectStyle> style);
 
 private:
-	Ref<SongSelectStyle> m_style;
+	std::shared_ptr<SongSelectStyle> m_style;
 	class Panel* m_bg = nullptr;
 };

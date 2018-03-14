@@ -1,5 +1,5 @@
 #pragma once
-#include <math.h>
+#include <cmath>
 #include <cmath>
 
 namespace Math
@@ -63,11 +63,13 @@ namespace Math
 	{
 		return std::floor(t);
 	}
+
 	template<typename T>
 	T Ceil(T t)
 	{
 		return std::ceil(t);
 	}
+
 	template<typename T>
 	T Round(T t)
 	{

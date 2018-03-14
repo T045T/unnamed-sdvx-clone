@@ -10,12 +10,6 @@
 #include <tchar.h>
 #endif
 
-// C RunTime Header Files
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <cinttypes>
-
 // TODO: reference additional headers your program requires here
 #include <Shared/Shared.hpp>
 
@@ -35,4 +29,4 @@
 using namespace Graphics;
 
 // Asset loading macro
-#define CheckedLoad(__stmt) if(!(__stmt)){Logf("Failed to load asset [%s]", Logger::Error, #__stmt); return false; }
+#define CheckedLoad(__stmt) \if(!(__stmt)){Logf("Failed to load asset [%s]", Logger::Error, #__stmt); return false; }

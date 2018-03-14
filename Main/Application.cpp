@@ -25,14 +25,14 @@
 
 GameConfig g_gameConfig;
 OpenGL* g_gl = nullptr;
-Graphics::Window* g_gameWindow = nullptr;
+Window* g_gameWindow = nullptr;
 Application* g_application = nullptr;
 JobSheduler* g_jobSheduler = nullptr;
 Input g_input;
 
 GUIRenderer* g_guiRenderer = nullptr;
-Ref<Canvas> g_rootCanvas;
-Ref<class CommonGUIStyle> g_commonGUIStyle;
+shared_ptr<Canvas> g_rootCanvas;
+shared_ptr<CommonGUIStyle> g_commonGUIStyle;
 
 // Tickable queue
 static Vector<IApplicationTickable*> g_tickables;
@@ -67,35 +67,80 @@ Application::Application()
 	assert(!g_application);
 	g_application = this;
 }
+
 Application::~Application()
 {
-	m_Cleanup();
+	{
+		ProfilerScope $("Application Cleanup");
+
+		for (auto it : g_tickables)
+		{
+			delete it;
+		}
+
+		g_tickables.clear();
+
+		if (g_audio)
+		{
+			delete g_audio;
+			g_audio = nullptr;
+		}
+
+		if (g_gl)
+		{
+			delete g_gl;
+			g_gl = nullptr;
+		}
+
+		// Cleanup input
+		g_input.Cleanup();
+
+		// Cleanup window after this
+		if (g_gameWindow)
+		{
+			delete g_gameWindow;
+			g_gameWindow = nullptr;
+		}
+
+		if (g_jobSheduler)
+		{
+			delete g_jobSheduler;
+			g_jobSheduler = nullptr;
+		}
+
+		// Finally, save config
+		m_SaveConfig();
+	}
+
 	assert(g_application == this);
 	g_application = nullptr;
 }
+
 void Application::SetCommandLine(int32 argc, char** argv)
 {
 	m_commandLine.clear();
-	
+
 	// Split up command line parameters
-	for(int32 i = 0 ; i < argc; i++)
+	for (int32 i = 0; i < argc; i++)
 	{
 		m_commandLine.Add(argv[i]);
 	}
 }
+
 void Application::SetCommandLine(const char* cmdLine)
 {
 	m_commandLine.clear();
-	
+
 	// Split up command line parameters
 	m_commandLine = Path::SplitCommandLine(cmdLine);
 }
-int32 Application::Run()
-{
-	if(!m_Init())
-		return 1;
 
-	if(m_commandLine.Contains("-test")) 
+bool Application::Run()
+{
+	if (!m_Init())
+		return false;
+
+	if (m_commandLine.Contains("-test"))
 	{
 		// Create test scene
 		AddTickable(Test::Create());
@@ -104,17 +149,17 @@ int32 Application::Run()
 	{
 		bool mapLaunched = false;
 		// Play the map specified in the command line
-		if(m_commandLine.size() > 1 && m_commandLine[1].front() != '-')
+		if (m_commandLine.size() > 1 && m_commandLine[1].front() != '-')
 		{
 			Game* game = LaunchMap(m_commandLine[1]);
-			if(!game)
+			if (!game)
 			{
 				Logf("LaunchMap(%s) failed", Logger::Error, m_commandLine[1]);
 			}
 			else
 			{
 				auto& cmdLine = g_application->GetAppCommandLine();
-				if(cmdLine.Contains("-autoplay") || cmdLine.Contains("-auto"))
+				if (cmdLine.Contains("-autoplay") || cmdLine.Contains("-auto"))
 				{
 					game->GetScoring().autoplay = true;
 				}
@@ -122,9 +167,9 @@ int32 Application::Run()
 			}
 		}
 
-		if(!mapLaunched)
+		if (!mapLaunched)
 		{
-			if(m_commandLine.Contains("-notitle"))
+			if (m_commandLine.Contains("-notitle"))
 				AddTickable(SongSelect::Create());
 			else // Start regular game, goto title screen
 				AddTickable(TitleScreen::Create());
@@ -133,27 +178,28 @@ int32 Application::Run()
 
 	m_MainLoop();
 
-	return 0;
+	return true;
 }
 
 bool Application::m_LoadConfig()
 {
 	File configFile;
-	if(configFile.OpenRead("Main.cfg"))
+	if (configFile.OpenRead("Main.cfg"))
 	{
 		FileReader reader(configFile);
-		if(g_gameConfig.Load(reader))
+		if (g_gameConfig.Load(reader))
 			return true;
 	}
 	return false;
 }
+
 void Application::m_SaveConfig()
 {
-	if(!g_gameConfig.IsDirty())
+	if (!g_gameConfig.IsDirty())
 		return;
 
 	File configFile;
-	if(configFile.OpenWrite("Main.cfg"))
+	if (configFile.OpenWrite("Main.cfg"))
 	{
 		FileWriter writer(configFile);
 		g_gameConfig.Save(writer);
@@ -167,7 +213,7 @@ bool Application::m_Init()
 	// Must have command line
 	assert(m_commandLine.size() >= 1);
 
-	if(!m_LoadConfig())
+	if (!m_LoadConfig())
 	{
 		Logf("Failed to load config file", Logger::Warning);
 	}
@@ -181,31 +227,31 @@ bool Application::m_Init()
 	uint32 fullscreenMonitor = -1;
 
 	// Fullscreen settings from config
-	if(g_gameConfig.GetBool(GameConfigKeys::Fullscreen))
+	if (g_gameConfig.GetBool(GameConfigKeys::Fullscreen))
 		startFullscreen = true;
 	fullscreenMonitor = g_gameConfig.GetInt(GameConfigKeys::FullscreenMonitorIndex);
 
-	for(auto& cl : m_commandLine)
+	for (auto& cl : m_commandLine)
 	{
 		String k, v;
-		if(cl.Split("=", &k, &v))
+		if (cl.Split("=", &k, &v))
 		{
-			if(k == "-monitor")
+			if (k == "-monitor")
 			{
 				fullscreenMonitor = atol(*v);
 			}
 		}
 		else
 		{
-			if(cl == "-convertmaps")
+			if (cl == "-convertmaps")
 			{
 				m_allowMapConversion = true;
 			}
-			else if(cl == "-mute")
+			else if (cl == "-mute")
 			{
 				debugMute = true;
 			}
-			else if(cl == "-fullscreen")
+			else if (cl == "-fullscreen")
 			{
 				startFullscreen = true;
 			}
@@ -233,7 +279,7 @@ bool Application::m_Init()
 	Image cursorImg = ImageRes::Create("skins/" + m_skin + "/textures/cursor.png");
 	g_gameWindow->SetCursor(cursorImg, Vector2i(5, 5));
 
-	if(startFullscreen)
+	if (startFullscreen)
 		g_gameWindow->SwitchFullscreen(fullscreenMonitor);
 
 	// Set render state variables
@@ -246,7 +292,7 @@ bool Application::m_Init()
 
 		// Init audio
 		new Audio();
-		if(!g_audio->Init())
+		if (!g_audio->Init())
 		{
 			Log("Audio initialization failed", Logger::Error);
 			delete g_audio;
@@ -255,7 +301,7 @@ bool Application::m_Init()
 
 		// Debug Mute?
 		// Test tracks may get annoying when continously debugging ;)
-		if(debugMute)
+		if (debugMute)
 		{
 			g_audio->SetGlobalVolume(0.0f);
 		}
@@ -266,7 +312,7 @@ bool Application::m_Init()
 
 		// Create graphics context
 		g_gl = new OpenGL();
-		if(!g_gl->Init(*g_gameWindow))
+		if (!g_gl->Init(*g_gameWindow))
 		{
 			Log("Failed to create OpenGL context", Logger::Error);
 			return false;
@@ -290,11 +336,11 @@ bool Application::m_Init()
 	{
 		ProfilerScope $1("Loading common GUI elements");
 		// Load GUI style for common elements
-		g_commonGUIStyle = Ref<CommonGUIStyle>(new CommonGUIStyle(g_gl, m_skin));
+		g_commonGUIStyle = std::shared_ptr<CommonGUIStyle>(new CommonGUIStyle(g_gl, m_skin));
 	}
 
 	// Create root canvas
-	g_rootCanvas = Ref<Canvas>(new Canvas());
+	g_rootCanvas = std::shared_ptr<Canvas>(new Canvas());
 
 	return true;
 }
@@ -302,56 +348,56 @@ void Application::m_MainLoop()
 {
 	Timer appTimer;
 	m_lastRenderTime = 0.0f;
-	while(true)
+	while (true)
 	{
 		// Process changes in the list of items
 		bool restoreTop = false;
-		for(auto& ch : g_tickableChanges)
+		for (auto& ch : g_tickableChanges)
 		{
-			if(ch.mode == TickableChange::Added)
+			if (ch.mode == TickableChange::Added)
 			{
 				assert(ch.tickable);
-				if(!ch.tickable->DoInit())
+				if (!ch.tickable->DoInit())
 				{
 					Logf("Failed to add IApplicationTickable", Logger::Error);
 					delete ch.tickable;
 					continue;
 				}
 
-				if(!g_tickables.empty())
+				if (!g_tickables.empty())
 					g_tickables.back()->m_Suspend();
 
 				auto insertionPoint = g_tickables.end();
-				if(ch.insertBefore)
+				if (ch.insertBefore)
 				{
 					// Find insertion point
-					for(insertionPoint = g_tickables.begin(); insertionPoint != g_tickables.end(); insertionPoint++)
+					for (insertionPoint = g_tickables.begin(); insertionPoint != g_tickables.end(); insertionPoint++)
 					{
-						if(*insertionPoint == ch.insertBefore)
+						if (*insertionPoint == ch.insertBefore)
 							break;
 					}
 				}
 				g_tickables.insert(insertionPoint, ch.tickable);
-				
+
 				restoreTop = true;
 			}
-			else if(ch.mode == TickableChange::Removed)
+			else if (ch.mode == TickableChange::Removed)
 			{
 				// Remove focus
 				ch.tickable->m_Suspend();
 
 				assert(!g_tickables.empty());
-				if(g_tickables.back() == ch.tickable)
+				if (g_tickables.back() == ch.tickable)
 					restoreTop = true;
 				g_tickables.Remove(ch.tickable);
 				delete ch.tickable;
 			}
 		}
-		if(restoreTop && !g_tickables.empty())
+		if (restoreTop && !g_tickables.empty())
 			g_tickables.back()->m_Restore();
 
 		// Application should end, no more active screens
-		if(!g_tickableChanges.empty() && g_tickables.empty())
+		if (!g_tickableChanges.empty() && g_tickables.empty())
 		{
 			Logf("No more IApplicationTickables, shutting down", Logger::Warning);
 			return;
@@ -361,22 +407,22 @@ void Application::m_MainLoop()
 		// Determine target tick rates for update and render
 		int32 targetFPS = 120; // Default to 120 FPS
 		float targetRenderTime = 0.0f;
-		for(auto tickable : g_tickables)
+		for (auto tickable : g_tickables)
 		{
 			int32 tempTarget = 0;
-			if(tickable->GetTickRate(tempTarget))
+			if (tickable->GetTickRate(tempTarget))
 			{
 				targetFPS = tempTarget;
 			}
 		}
-		if(targetFPS > 0)
+		if (targetFPS > 0)
 			targetRenderTime = 1.0f / (float)targetFPS;
-			
+
 
 		// Main loop
 		float currentTime = appTimer.SecondsAsFloat();
 		float timeSinceRender = currentTime - m_lastRenderTime;
-		if(timeSinceRender > targetRenderTime)
+		if (timeSinceRender > targetRenderTime)
 		{
 			// Calculate actual deltatime for timing calculations
 			currentTime = appTimer.SecondsAsFloat();
@@ -390,7 +436,7 @@ void Application::m_MainLoop()
 			m_renderStateBase.time = currentTime;
 
 			// Also update window in render loop
-			if(!g_gameWindow->Update())
+			if (!g_gameWindow->Update())
 				return;
 
 			m_Tick();
@@ -404,7 +450,7 @@ void Application::m_MainLoop()
 		// processed callbacks for finished tasks
 		g_jobSheduler->Update();
 
-		if(timeSinceRender < targetRenderTime)
+		if (timeSinceRender < targetRenderTime)
 		{
 			float timeLeft = (targetRenderTime - timeSinceRender);
 			uint32 sleepMicroSecs = (uint32)(timeLeft*1000000.0f * 0.75f);
@@ -419,19 +465,19 @@ void Application::m_Tick()
 	g_input.Update(m_deltaTime);
 
 	// Tick all items
-	for(auto& tickable : g_tickables)
+	for (auto& tickable : g_tickables)
 	{
 		tickable->Tick(m_deltaTime);
 	}
 
 	// Not minimized / Valid resolution
-	if(g_resolution.x > 0 && g_resolution.y > 0)
+	if (g_resolution.x > 0 && g_resolution.y > 0)
 	{
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Render all items
-		for(auto& tickable : g_tickables)
+		for (auto& tickable : g_tickables)
 		{
 			tickable->Render(m_deltaTime);
 		}
@@ -442,48 +488,6 @@ void Application::m_Tick()
 		// Swap buffers
 		g_gl->SwapBuffers();
 	}
-}
-
-void Application::m_Cleanup()
-{
-	ProfilerScope $("Application Cleanup");
-
-	for(auto it : g_tickables)
-	{
-		delete it;
-	}
-	g_tickables.clear();
-
-	if(g_audio)
-	{
-		delete g_audio;
-		g_audio = nullptr;
-	}
-
-	if(g_gl)
-	{
-		delete g_gl;
-		g_gl = nullptr;
-	}
-
-	// Cleanup input
-	g_input.Cleanup();
-
-	// Cleanup window after this
-	if(g_gameWindow)
-	{
-		delete g_gameWindow;
-		g_gameWindow = nullptr;
-	}
-
-	if(g_jobSheduler)
-	{
-		delete g_jobSheduler;
-		g_jobSheduler = nullptr;
-	}
-
-	// Finally, save config
-	m_SaveConfig();
 }
 
 class Game* Application::LaunchMap(const String& mapPath)
@@ -562,7 +566,7 @@ Material Application::LoadMaterial(const String& name)
 	String pathG = String("skins/") + m_skin + String("/shaders/") + name + ".gs";
 	Material ret = MaterialRes::Create(g_gl, pathV, pathF);
 	// Additionally load geometry shader
-	if(Path::FileExists(pathG))
+	if (Path::FileExists(pathG))
 	{
 		Shader gshader = ShaderRes::Create(g_gl, ShaderType::Geometry, pathG);
 		assert(gshader);
@@ -573,11 +577,11 @@ Material Application::LoadMaterial(const String& name)
 }
 Sample Application::LoadSample(const String& name, const bool& external)
 {
-    String path;
-    if(external)
-	    path = name;
-    else
-        path = String("skins/") + m_skin + String("/audio/") + name + ".wav";
+	String path;
+	if (external)
+		path = name;
+	else
+		path = String("skins/") + m_skin + String("/audio/") + name + ".wav";
 
 	Sample ret = g_audio->CreateSample(path);
 	assert(ret);
@@ -596,9 +600,9 @@ Transform Application::GetGUIProjection() const
 void Application::m_OnKeyPressed(int32 key)
 {
 	// Fullscreen toggle
-	if(key == SDLK_RETURN)
+	if (key == SDLK_RETURN)
 	{
-		if((g_gameWindow->GetModifierKeys() & ModifierKeys::Alt) == ModifierKeys::Alt)
+		if ((g_gameWindow->GetModifierKeys() & ModifierKeys::Alt) == ModifierKeys::Alt)
 		{
 			g_gameWindow->SwitchFullscreen();
 			g_gameConfig.Set(GameConfigKeys::Fullscreen, g_gameWindow->IsFullscreen());
@@ -607,7 +611,7 @@ void Application::m_OnKeyPressed(int32 key)
 	}
 
 	// Pass key to application
-	for(auto it = g_tickables.rbegin(); it != g_tickables.rend();)
+	for (auto it = g_tickables.rbegin(); it != g_tickables.rend();)
 	{
 		(*it)->OnKeyPressed(key);
 		break;
@@ -615,7 +619,7 @@ void Application::m_OnKeyPressed(int32 key)
 }
 void Application::m_OnKeyReleased(int32 key)
 {
-	for(auto it = g_tickables.rbegin(); it != g_tickables.rend();)
+	for (auto it = g_tickables.rbegin(); it != g_tickables.rend();)
 	{
 		(*it)->OnKeyReleased(key);
 		break;

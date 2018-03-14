@@ -14,7 +14,7 @@ enum class Visibility
 /*
 	Base class for GUI elements
 */
-class GUIElementBase : public Unique, public RefCounted<GUIElementBase>
+class GUIElementBase : public Unique
 {
 public:
 	GUIElementBase() = default;
@@ -26,9 +26,9 @@ public:
 	// Calculates the desired size of this element, or false if it does not
 	virtual Vector2 GetDesiredSize(GUIRenderData rd);
 	// Add an animation related to this element
-	virtual bool AddAnimation(Ref<IGUIAnimation> anim, bool removeOld = false);
-	Ref<IGUIAnimation> GetAnimation(void* target);
-	Ref<IGUIAnimation> GetAnimation(uint32 uid);
+	virtual bool AddAnimation(std::shared_ptr<IGUIAnimation> anim, bool removeOld = false);
+	std::shared_ptr<IGUIAnimation> GetAnimation(void* target);
+	std::shared_ptr<IGUIAnimation> GetAnimation(uint32 uid);
 
 	// If this element should receive keyboard input events or not
 	virtual bool HasInputFocus() const;
@@ -43,7 +43,7 @@ public:
 
 protected:
 	// Template slot creation helper
-	template<typename T> T* CreateSlot(Ref<GUIElementBase> element);
+	template<typename T> T* CreateSlot(std::shared_ptr<GUIElementBase> element);
 	// Handle removal logic
 	void m_OnRemovedFromParent();
 	// Called when added to slot
@@ -53,7 +53,7 @@ protected:
 	void m_TickAnimations(float deltaTime);
 
 	// Animation mapped to target
-	Map<void*, Ref<IGUIAnimation>> m_animationMap;
+	Map<void*, std::shared_ptr<IGUIAnimation>> m_animationMap;
 
 	// Set if we got input focus from a renderer
 	// this should then be cleared when this element is destroyed
@@ -64,7 +64,7 @@ protected:
 };
 
 // Typedef pointer to GUI element objects
-typedef Ref<GUIElementBase> GUIElement;
+typedef std::shared_ptr<GUIElementBase> GUIElement;
 
 // Fill mode for gui elements
 enum class FillMode
@@ -117,7 +117,7 @@ private:
 };
 
 // Slot creation helper
-template<typename T> T* GUIElementBase::CreateSlot(Ref<GUIElementBase> element)
+template<typename T> T* GUIElementBase::CreateSlot(std::shared_ptr<GUIElementBase> element)
 {
 	static_assert(std::is_base_of<GUISlotBase, T>::value, "Class does not inherit from GUISlotBase");
 

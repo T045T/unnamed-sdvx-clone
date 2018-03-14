@@ -4,10 +4,9 @@
 
 namespace Interpolation
 {
-
 	CubicBezier::CubicBezier(Predefined predefined)
 	{
-		switch(predefined)
+		switch (predefined)
 		{
 		case Linear:
 			m_Set(0.0, 0.0, 1.0, 1.0);
@@ -41,33 +40,38 @@ namespace Interpolation
 			break;
 		}
 	}
+
 	CubicBezier::CubicBezier(float a, float b, float c, float d)
 	{
 		m_Set(a, b, c, d);
 	}
+
 	CubicBezier::CubicBezier(double a, double b, double c, double d)
 	{
 		m_Set(a, b, c, d);
 	}
+
 	float CubicBezier::Sample(float in) const
 	{
 		assert(in >= 0);
 		assert(in <= 1.0f);
-		float inv = 1.0f - in;
-		float inv2 = inv*inv;
-		float inv3 = inv2*inv;
-		float in2 = in*in;
-		float in3 = in2*in;
-		Vector2 r =  Vector2(0,0) * inv3 +
-			Vector2(a,b) * 3 * inv2 * in +
+		const float inv = 1.0f - in;
+		const float inv2 = inv * inv;
+		const float inv3 = inv2 * inv;
+		const float in2 = in * in;
+		const float in3 = in2 * in;
+		Vector2 r = Vector2(0, 0) * inv3 +
+			Vector2(a, b) * 3 * inv2 * in +
 			Vector2(c, d) * 3 * inv * in2 +
-			Vector2(1,1) * in3;
+			Vector2(1, 1) * in3;
 		return r.y;
 	}
+
 	float CubicBezier::operator()(float in) const
 	{
 		return Sample(in);
 	}
+
 	void CubicBezier::m_Set(float a, float b, float c, float d)
 	{
 		this->a = a;
@@ -75,17 +79,17 @@ namespace Interpolation
 		this->c = c;
 		this->d = d;
 	}
+
 	void CubicBezier::m_Set(double a, double b, double c, double d)
 	{
-		this->a = (float)a;
-		this->b = (float)b;
-		this->c = (float)c;
-		this->d = (float)d;
+		this->a = static_cast<float>(a);
+		this->b = static_cast<float>(b);
+		this->c = static_cast<float>(c);
+		this->d = static_cast<float>(d);
 	}
 
 	int32 Lerp(int32 a, int32 b, float f, TimeFunction timeFunction /*= TimeFunction::Linear*/)
 	{
-		return a + (int32)((float)(b - a) * timeFunction(f));
+		return a + static_cast<int32>(static_cast<float>(b - a) * timeFunction(f));
 	}
-
 }

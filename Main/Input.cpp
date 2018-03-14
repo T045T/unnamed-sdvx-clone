@@ -199,7 +199,7 @@ String Input::GetControllerStateString() const
 	return String();
 }
 
-Ref<int32> Input::LockMouse()
+std::shared_ptr<int32> Input::LockMouse()
 {
 	return m_mouseLocks.Add(MouseLockHandle(new int32(m_mouseLockIndex++)));
 }

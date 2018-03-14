@@ -5,7 +5,7 @@
 class Button : public GUIElementBase
 {
 public:
-	Button(Ref<CommonGUIStyle> style);
+	Button(std::shared_ptr<CommonGUIStyle> style);
 
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
@@ -33,6 +33,6 @@ private:
 
 	Text m_text;
 	WString m_textString;
-	Ref<CommonGUIStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_style;
 	uint32 m_fontSize = 16;
 };

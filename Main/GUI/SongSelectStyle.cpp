@@ -3,13 +3,13 @@
 #include "Shared/Jobs.hpp"
 #include "Application.hpp"
 
-Ref<SongSelectStyle> SongSelectStyle::instance;
-Ref<SongSelectStyle> SongSelectStyle::Get(Application* application)
+std::shared_ptr<SongSelectStyle> SongSelectStyle::instance;
+std::shared_ptr<SongSelectStyle> SongSelectStyle::Get(Application* application)
 {
 	if(!instance)
 	{
 		assert(application);
-		instance = Ref<SongSelectStyle>(new SongSelectStyle(application));
+		instance = std::shared_ptr<SongSelectStyle>(new SongSelectStyle(application));
 	}
 	return instance;
 }
@@ -59,7 +59,7 @@ Texture SongSelectStyle::GetJacketThumnail(const String& path)
 		JacketLoadingJob* job = new JacketLoadingJob();
 		job->imagePath = path;
 		job->target = newImage;
-		newImage->loadingJob = Ref<JobBase>(job);
+		newImage->loadingJob = std::shared_ptr<JobBase>(job);
 		newImage->lastUsage = m_timer.SecondsAsFloat();
 		g_jobSheduler->Queue(newImage->loadingJob);
 

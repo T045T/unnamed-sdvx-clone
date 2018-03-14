@@ -1,7 +1,5 @@
 #pragma once
-#include "Shared/String.hpp"
 #include "Shared/Vector.hpp"
-#include "Shared/Ref.hpp"
 #include "Shared/TypeInfo.hpp"
 #include "Shared/Unique.hpp"
 #include "Shared/Log.hpp"
@@ -25,59 +23,65 @@ template<typename T>
 class ResourceManager : public IResourceManager, Unique
 {
 	// List of managed object
-	Vector<Ref<T>> m_objects;
+	Vector<std::shared_ptr<T>> m_objects;
 	Mutex m_lock;
+
 public:
 	ResourceManager()
-	{
-	}
+	{}
+
 	~ResourceManager()
-	{
-	}
+	{}
+
 	// Creates a new reference counted object to this object and returns it
 	// when the object is no longer referenced the resource manager will collect it when the next garbage collection triggers
-	const Ref<T> Register(T* pObject)
+	std::shared_ptr<T> Register(T* pObject)
 	{
-		Ref<T> ret = Utility::MakeRef(pObject);
+		std::shared_ptr<T> ret = std::make_shared<T>(pObject);
 		m_lock.lock();
 		m_objects.push_back(ret);
 		m_lock.unlock();
 		return ret;
 	}
-	virtual void GarbageCollect() override
+	
+	void GarbageCollect() override
 	{
 		size_t numCleanedUp = 0;
 		m_lock.lock();
-		for(auto it = m_objects.begin(); it != m_objects.end();)
+
+		for (auto it = m_objects.begin(); it != m_objects.end();)
 		{
-			if(it->GetRefCount() <= 1)
+			if (it->use_count() <= 1)
 			{
 				numCleanedUp++;
 				it = m_objects.erase(it);
 				continue;
 			}
-			it++;
+			++it;
 		}
+
 		m_lock.unlock();
-		if(numCleanedUp > 0)
+
+		if (numCleanedUp > 0)
 		{
 			//Logf("Cleaned up %d resource(s) of %s", Logger::Info, numCleanedUp, Utility::TypeInfo<T>::name);
 		}
 	}
+
 	virtual void ReleaseAll()
 	{
 		m_lock.lock();
 		size_t numCleanedUp = m_objects.size();
-		for(auto it = m_objects.begin(); it != m_objects.end(); it++)
+		for (auto it = m_objects.begin(); it != m_objects.end(); it++)
 		{
-			if(*it)
-				it->Destroy();
+			if (*it)
+				it->reset();
 		}
+
 		m_objects.clear();
 		m_lock.unlock();
-		if(numCleanedUp > 0)
-		{
+
+		if (numCleanedUp > 0)
 			Logf("Cleaned up %d resource(s) of %s", Logger::Info, numCleanedUp, Utility::TypeInfo<T>::name);
-		}
 	}
 };

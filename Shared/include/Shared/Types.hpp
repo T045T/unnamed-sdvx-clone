@@ -21,9 +21,9 @@
 // for int8_t,int16_t,etc.
 #include <cinttypes>
 // for assert()
-#include <assert.h>
+#include <cassert>
 // for size_t
-#include <stdlib.h>
+#include <cstdlib>
 // for memcpy()
 #include <cstring>
 

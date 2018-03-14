@@ -101,7 +101,7 @@ const float PreviewPlayer::m_fadeDuration = 0.5f;
 class SelectionWheel : public Canvas
 {
 	// keyed on SongSelectIndex::id
-	Map<int32, Ref<SongSelectItem>> m_guiElements;
+	Map<int32, std::shared_ptr<SongSelectItem>> m_guiElements;
 	Map<int32, SongSelectIndex> m_maps;
 	Map<int32, SongSelectIndex> m_mapFilter;
 	bool m_filterSet = false;
@@ -109,16 +109,16 @@ class SelectionWheel : public Canvas
 	// Currently selected map ID
 	int32 m_currentlySelectedId = 0;
 	// Currently selected sub-widget
-	Ref<SongSelectItem> m_currentSelection;
+	std::shared_ptr<SongSelectItem> m_currentSelection;
 
 	// Current difficulty index
 	int32 m_currentlySelectedDiff = 0;
 
 	// Style to use for everything song select related
-	Ref<SongSelectStyle> m_style;
+	std::shared_ptr<SongSelectStyle> m_style;
 
 public:
-	SelectionWheel(Ref<SongSelectStyle> style) : m_style(style)
+	SelectionWheel(std::shared_ptr<SongSelectStyle> style) : m_style(style)
 	{
 	}
 	void OnMapsAdded(Vector<MapIndex*> maps)
@@ -237,7 +237,7 @@ public:
 
 					// Add a new map slot
 					bool newItem = m_guiElements.find(id) == m_guiElements.end();
-					Ref<SongSelectItem> item = m_GetMapGUIElement(index);
+					std::shared_ptr<SongSelectItem> item = m_GetMapGUIElement(index);
 					float offset = 0;
 					if(i != 0)
 					{
@@ -262,9 +262,9 @@ public:
 					else
 					{
 						// Animate towards target position
-						item->AddAnimation(Ref<IGUIAnimation>(
+						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
 							new GUIAnimation<Vector2>(&slot->offset.pos, Vector2(0, offset), 0.1f)), true);
-						item->AddAnimation(Ref<IGUIAnimation>(
+						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
 							new GUIAnimation<float>(&slot->offset.size.x, z * 50.0f, 0.1f)), true);
 					}
 
@@ -414,13 +414,13 @@ private:
 	{
 		return m_filterSet ? m_mapFilter : m_maps;
 	}
-	Ref<SongSelectItem> m_GetMapGUIElement(SongSelectIndex index)
+	std::shared_ptr<SongSelectItem> m_GetMapGUIElement(SongSelectIndex index)
 	{
 		auto it = m_guiElements.find(index.id);
 		if(it != m_guiElements.end())
 			return it->second;
 
-		Ref<SongSelectItem> newItem = Ref<SongSelectItem>(new SongSelectItem(m_style));
+		std::shared_ptr<SongSelectItem> newItem = std::shared_ptr<SongSelectItem>(new SongSelectItem(m_style));
 
 		// Send first map as metadata settings
 		const BeatmapSettings& firstSettings = index.GetDifficulties()[0]->settings;
@@ -459,7 +459,7 @@ private:
 class FilterSelection : public Canvas
 {
 public:
-	FilterSelection(Ref<SelectionWheel> selectionWheel) : m_selectionWheel(selectionWheel)
+	FilterSelection(std::shared_ptr<SelectionWheel> selectionWheel) : m_selectionWheel(selectionWheel)
 	{
 		SongFilter* lvFilter = new SongFilter();
 		SongFilter* flFilter = new SongFilter();
@@ -535,7 +535,7 @@ public:
 				coordinate.y = ((int)i - (int)m_currentFolderSelection) * 40.f;
 				coordinate.x -= ((int)m_currentFolderSelection - i) * ((int)m_currentFolderSelection - i) * 1.5;
 				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
-				AddAnimation(Ref<IGUIAnimation>(
+				AddAnimation(std::shared_ptr<IGUIAnimation>(
 					new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
@@ -550,7 +550,7 @@ public:
 				coordinate.y = ((int)i - (int)m_currentLevelSelection) * 40.f;
 				coordinate.x -= ((int)m_currentLevelSelection - i) * ((int)m_currentLevelSelection - i) * 1.5;
 				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
-				AddAnimation(Ref<IGUIAnimation>(
+				AddAnimation(std::shared_ptr<IGUIAnimation>(
 					new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
@@ -614,7 +614,7 @@ public:
 	}
 
 private:
-	Ref<SelectionWheel> m_selectionWheel;
+	std::shared_ptr<SelectionWheel> m_selectionWheel;
 	Vector<SongFilter*> m_folderFilters;
 	Vector<SongFilter*> m_levelFilters;
 	int32 m_currentFolderSelection = 0;
@@ -632,28 +632,28 @@ class SongSelect_Impl : public SongSelect
 {
 private:
 	Timer m_dbUpdateTimer;
-	Ref<Canvas> m_canvas;
+	std::shared_ptr<Canvas> m_canvas;
 	MapDatabase m_mapDatabase;
 
-	Ref<SongSelectStyle> m_style;
-	Ref<CommonGUIStyle> m_commonGUIStyle;
+	std::shared_ptr<SongSelectStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_commonGUIStyle;
 
 	// Shows additional information about a map
-	Ref<SongStatistics> m_statisticsWindow;
+	std::shared_ptr<SongStatistics> m_statisticsWindow;
 	// Map selection wheel
-	Ref<SelectionWheel> m_selectionWheel;
+	std::shared_ptr<SelectionWheel> m_selectionWheel;
 	// Filter selection
-	Ref<FilterSelection> m_filterSelection;
+	std::shared_ptr<FilterSelection> m_filterSelection;
 	// Search field
-	Ref<TextInputField> m_searchField;
+	std::shared_ptr<TextInputField> m_searchField;
 	// Panel to fade out selection wheel
-	Ref<Panel> m_fadePanel;
+	std::shared_ptr<Panel> m_fadePanel;
 	
-	Ref<Label> m_filterStatus;
+	std::shared_ptr<Label> m_filterStatus;
 
 	// Score list canvas
-	Ref<Canvas> m_scoreCanvas;
-	Ref<LayoutBox> m_scoreList;
+	std::shared_ptr<Canvas> m_scoreCanvas;
+	std::shared_ptr<LayoutBox> m_scoreList;
 
 	// Player of preview music
 	PreviewPlayer m_previewPlayer;
@@ -677,7 +677,7 @@ public:
 	bool Init() override
 	{
 		m_commonGUIStyle = g_commonGUIStyle;
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 
 		// Load textures for song select
 		m_style = SongSelectStyle::Get(g_application);
@@ -686,7 +686,7 @@ public:
 		const float screenSplit = 0.0f;
 
 		// Statistics window
-		m_statisticsWindow = Ref<SongStatistics>(new SongStatistics(m_style));
+		m_statisticsWindow = std::shared_ptr<SongStatistics>(new SongStatistics(m_style));
 		Canvas::Slot* statisticsSlot = m_canvas->Add(m_statisticsWindow.As<GUIElementBase>());
 		statisticsSlot->anchor = Anchor(0, 0, screenSplit, 1.0f);
 		statisticsSlot->SetZOrder(2);
@@ -707,17 +707,17 @@ public:
 		boxSlot->anchor = Anchor(screenSplit, 0, 1.0f, 1.0f);
 		box->layoutDirection = LayoutBox::Vertical;
 		{
-			m_searchField = Ref<TextInputField>(new TextInputField(m_commonGUIStyle));
+			m_searchField = std::shared_ptr<TextInputField>(new TextInputField(m_commonGUIStyle));
 			LayoutBox::Slot* searchFieldSlot = box->Add(m_searchField.As<GUIElementBase>());
 			searchFieldSlot->fillX = true;
 			m_searchField->OnTextUpdated.Add(this, &SongSelect_Impl::OnSearchTermChanged);
 
-			m_filterStatus = Ref<Label>(new Label());
+			m_filterStatus = std::shared_ptr<Label>(new Label());
 			m_filterStatus->SetFontSize(40);
 			m_filterStatus->SetText(L"All / All");
 			LayoutBox::Slot* filterLabelSlot = box->Add(m_filterStatus->MakeShared());
 
-			m_selectionWheel = Ref<SelectionWheel>(new SelectionWheel(m_style));
+			m_selectionWheel = std::shared_ptr<SelectionWheel>(new SelectionWheel(m_style));
 			LayoutBox::Slot* selectionSlot = box->Add(m_selectionWheel.As<GUIElementBase>());
 			selectionSlot->fillY = true;
 			m_selectionWheel->OnMapSelected.Add(this, &SongSelect_Impl::OnMapSelected);
@@ -728,7 +728,7 @@ public:
 		}
 
 		{
-			m_fadePanel = Ref<Panel>(new Panel());
+			m_fadePanel = std::shared_ptr<Panel>(new Panel());
 			m_fadePanel->color = Color(0.f);
 			m_fadePanel->color.w = 0.0f;
 			Canvas::Slot* panelSlot = m_canvas->Add(m_fadePanel->MakeShared());
@@ -736,7 +736,7 @@ public:
 		}
 
 		{
-			m_scoreCanvas = Ref<Canvas>(new Canvas());
+			m_scoreCanvas = std::shared_ptr<Canvas>(new Canvas());
 			Canvas::Slot* slot = m_canvas->Add(m_scoreCanvas->MakeShared());
 			slot->anchor = Anchor(1.0,0.0,2.0,10.0);
 
@@ -745,14 +745,14 @@ public:
 			slot = m_scoreCanvas->Add(scoreBg->MakeShared());
 			slot->anchor = Anchors::Full;
 
-			m_scoreList = Ref<LayoutBox>(new LayoutBox());
+			m_scoreList = std::shared_ptr<LayoutBox>(new LayoutBox());
 			m_scoreList->layoutDirection = LayoutBox::LayoutDirection::Vertical;
 			slot = m_scoreCanvas->Add(m_scoreList->MakeShared());
 			slot->anchor = Anchors::Full;
 		}
 
 		{
-			m_filterSelection = Ref<FilterSelection>(new FilterSelection(m_selectionWheel));
+			m_filterSelection = std::shared_ptr<FilterSelection>(new FilterSelection(m_selectionWheel));
 			Canvas::Slot* slot = m_canvas->Add(m_filterSelection->MakeShared());
 			slot->anchor = Anchor(-1.0, 0.0, 0.0, 1.0);
 		}
@@ -902,13 +902,13 @@ public:
 			case Input::Button::FX_1:
 				if (!m_showScores)
 				{
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				else
 				{
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
@@ -918,21 +918,21 @@ public:
 				{
 					g_guiRenderer->SetInputFocus(nullptr);
 
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)),true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				else
 				{
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
-					m_canvas->AddAnimation(Ref<IGUIAnimation>(
+					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 						new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)),true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
@@ -962,11 +962,11 @@ public:
 			}
 			else if (key == SDLK_ESCAPE)
 			{
-				m_canvas->AddAnimation(Ref<IGUIAnimation>(
+				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
-				m_canvas->AddAnimation(Ref<IGUIAnimation>(
+				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
-				m_canvas->AddAnimation(Ref<IGUIAnimation>(
+				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
 					new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 				m_filterSelection->Active = !m_filterSelection->Active;
 			}

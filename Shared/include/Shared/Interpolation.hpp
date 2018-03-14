@@ -16,7 +16,7 @@ namespace Interpolation
 		EaseInOutExpo
 	};
 
-	/* 
+	/*
 		Cubic bezier spline
 		check http://cubic-bezier.com/ or http://easings.net/ for curves/predefined values
 	*/
@@ -47,5 +47,6 @@ namespace Interpolation
 	{
 		return a + (b - a) * timeFunction(f);
 	}
+
 	int32 Lerp(int32 a, int32 b, float f, TimeFunction timeFunction = Linear);
 }

@@ -18,7 +18,7 @@ namespace Graphics
 	{
 	public:
 		virtual ~ShaderRes() = default;
-		static Ref<ShaderRes> Create(class OpenGL* gl, ShaderType type, const String& assetPath);
+		static std::shared_ptr<ShaderRes> Create(class OpenGL* gl, ShaderType type, const String& assetPath);
 		static void Unbind(class OpenGL* gl, ShaderType type);
 		friend class OpenGL;
 	public:
@@ -37,7 +37,7 @@ namespace Graphics
 		virtual String GetOriginalName() const = 0;
 	};
 
-	typedef Ref<ShaderRes> Shader;
+	typedef std::shared_ptr<ShaderRes> Shader;
 
 	DEFINE_RESOURCE_TYPE(Shader, ShaderRes);
 }

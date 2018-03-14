@@ -72,13 +72,13 @@ namespace Graphics
 
 			String sourceStr;
 			sourceStr.resize(in.GetSize());
-			if(sourceStr.size() == 0)
+			if(sourceStr.empty())
 				return false;
 
 			in.Read(&sourceStr.front(), sourceStr.size());
 
 			const char* pChars = *sourceStr;
-			programOut = glCreateShaderProgramv(typeMap[(size_t)m_type], 1, &pChars);
+			programOut = glCreateShaderProgramv(typeMap[static_cast<size_t>(m_type)], 1, &pChars);
 			if(programOut == 0)
 				return false;
 
@@ -109,7 +109,7 @@ namespace Graphics
 			{
 				if(WaitForSingleObject(m_changeNotification, 0) == WAIT_OBJECT_0)
 				{
-					uint64 newLwt = File::GetLastWriteTime(m_sourcePath);
+					const uint64 newLwt = File::GetLastWriteTime(m_sourcePath);
 					if(newLwt != -1 && newLwt > m_lwt)
 					{
 						uint32 newProgram = 0;

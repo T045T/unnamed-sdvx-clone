@@ -7,7 +7,7 @@ class AudioStreamRes* CreateAudioStream_ogg(class Audio* audio, const String& pa
 class AudioStreamRes* CreateAudioStream_mp3(class Audio* audio, const String& path, bool preload);
 class AudioStreamRes* CreateAudioStream_wav(class Audio* audio, const String& path, bool preload);
 
-Ref<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const String& path, bool preload)
+std::shared_ptr<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const String& path, bool preload)
 {
 	AudioStreamRes* impl = nullptr;
 

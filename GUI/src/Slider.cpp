@@ -2,7 +2,7 @@
 #include "Slider.hpp"
 #include "GUIRenderer.hpp"
 
-Slider::Slider(Ref<CommonGUIStyle> style)
+Slider::Slider(std::shared_ptr<CommonGUIStyle> style)
 {
 	m_style = style;
 }
@@ -42,7 +42,7 @@ void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if(m_hovered || m_held)
 		{
-			AddAnimation(Ref<IGUIAnimation>(
+			AddAnimation(std::shared_ptr<IGUIAnimation>(
 				new GUIAnimation<float>(&m_buttonScale, 1.1f, 0.2f)), true);
 			m_animation = true;
 		}
@@ -51,7 +51,7 @@ void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if(!m_hovered && !m_held)
 		{
-			AddAnimation(Ref<IGUIAnimation>(
+			AddAnimation(std::shared_ptr<IGUIAnimation>(
 				new GUIAnimation<float>(&m_buttonScale, 1.0f, 0.3f)), true);
 			m_animation = false;
 		}

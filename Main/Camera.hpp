@@ -6,7 +6,7 @@
 struct CameraShake
 {
 	CameraShake(float duration);
-	CameraShake(float duration, float amplitude, float freq);;
+	CameraShake(float duration, float amplitude, float freq);
 	Vector3 amplitude;
 	Vector3 frequency;
 	Vector3 offsets;

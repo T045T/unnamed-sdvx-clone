@@ -25,8 +25,8 @@ class SongSelectStyle : public Unique
 public:
 	SongSelectStyle(class Application* application);
 	~SongSelectStyle();
-	static Ref<SongSelectStyle> Get(class Application* application = nullptr);
-	static Ref<SongSelectStyle> instance;
+	static std::shared_ptr<SongSelectStyle> Get(class Application* application = nullptr);
+	static std::shared_ptr<SongSelectStyle> instance;
 
 	Texture frameMain;
 	Texture frameSub;

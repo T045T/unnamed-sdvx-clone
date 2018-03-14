@@ -22,7 +22,7 @@ namespace Graphics
 	{
 	public:
 		virtual ~MeshRes() = default;
-		static Ref<MeshRes> Create(class OpenGL* gl);
+		static std::shared_ptr<MeshRes> Create(class OpenGL* gl);
 	public:
 		// Sets the vertex point data for this mesh
 		// must be set before drawing
@@ -46,7 +46,7 @@ namespace Graphics
 		virtual void SetData(const void* pData, size_t vertexCount, const VertexFormatList& desc) = 0;
 	};
 
-	typedef Ref<MeshRes> Mesh;
+	typedef std::shared_ptr<MeshRes> Mesh;
 
 	DEFINE_RESOURCE_TYPE(Mesh, MeshRes);
 }

@@ -28,8 +28,8 @@
 class Test_Impl : public Test
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<SettingsBar> m_settings;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<SettingsBar> m_settings;
 
 	WString m_currentText;
 	float a = 0.1f; // 0 - 1
@@ -37,7 +37,7 @@ private:
 	float c = 1.0f; // 0 - 5
 	float d = 0.0f; // -2 - 2
 	int e = 0;
-	Ref<Gamepad> m_gamepad;
+	std::shared_ptr<Gamepad> m_gamepad;
 	Vector<String> m_textSettings;
 
 public:
@@ -147,7 +147,7 @@ public:
 		{
 
 			SettingsBar* sb = new SettingsBar(m_guiStyle);
-			m_settings = Ref<SettingsBar>(sb);
+			m_settings = std::shared_ptr<SettingsBar>(sb);
 			sb->AddSetting(&a, 0.0f, 1.0f, "A");
 			sb->AddSetting(&b, 0.0f, 10.0f, "B");
 			sb->AddSetting(&c, 0.0f, 5.0f, "C");
