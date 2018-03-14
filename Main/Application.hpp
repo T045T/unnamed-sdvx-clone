@@ -2,7 +2,7 @@
 #include <Audio/Sample.hpp>
 
 extern class OpenGL* g_gl;
-extern class Graphics::Window* g_gameWindow;
+extern class Window* g_gameWindow;
 extern float g_aspectRatio;
 extern Vector2i g_resolution;
 extern class Application* g_application;
@@ -11,8 +11,8 @@ extern class Input g_input;
 
 // GUI
 extern class GUIRenderer* g_guiRenderer;
-extern Ref<class Canvas> g_rootCanvas;
-extern Ref<class CommonGUIStyle> g_commonGUIStyle;
+extern std::shared_ptr<class Canvas> g_rootCanvas;
+extern std::shared_ptr<class CommonGUIStyle> g_commonGUIStyle;
 
 class Application
 {
@@ -21,7 +21,7 @@ public:
 	~Application();
 
 	// Runs the application
-	int32 Run();
+	bool Run();
 	
 	void SetCommandLine(int32 argc, char** argv);
 	void SetCommandLine(const char* cmdLine);
@@ -41,11 +41,12 @@ public:
 	// Gets a basic template for a render state, with all the application variables initialized
 	RenderState GetRenderStateBase() const;
 
+	// HACK: should not overwrite winapi
 #ifdef LoadImage
 #undef LoadImage
 #endif
 	Image LoadImage(const String& name);
-	Graphics::Image LoadImageExternal(const String & name);
+	Image LoadImageExternal(const String & name);
 	Texture LoadTexture(const String& name);
 	Texture LoadTexture(const String & name, const bool& external);
 	Material LoadMaterial(const String& name);
@@ -64,7 +65,6 @@ private:
 	void m_MainLoop();
 	void m_Tick();
 
-	void m_Cleanup();
 	void m_OnKeyPressed(int32 key);
 	void m_OnKeyReleased(int32 key);
 	void m_OnWindowResized(const Vector2i& newSize);

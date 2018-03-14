@@ -17,6 +17,7 @@ namespace Graphics
 		Text text;
 		float lastUsage;
 	};
+
 	// Prevents continuous recreation of text that doesn't change
 	class TextCache : public Map<WString, CachedText>
 	{
@@ -169,7 +170,7 @@ namespace Graphics
 	{
 	}
 
-	Ref<class TextureRes> TextRes::GetTexture()
+	std::shared_ptr<class TextureRes> TextRes::GetTexture()
 	{
 		return fontSize->GetTextureMap();
 	}
@@ -195,6 +196,7 @@ namespace Graphics
 		{
 
 		}
+
 		~Font_Impl()
 		{
 			for(auto s : m_sizes)
@@ -204,6 +206,7 @@ namespace Graphics
 			m_sizes.clear();
 			FT_Done_Face(m_face);
 		}
+
 		bool Init(const String& assetPath)
 		{
 			File in;
@@ -211,7 +214,7 @@ namespace Graphics
 				return false;
 
 			m_data.resize(in.GetSize());
-			if(m_data.size() == 0)
+			if(m_data.empty())
 				return false;
 
 			in.Read(&m_data.front(), m_data.size());
@@ -246,7 +249,8 @@ namespace Graphics
 			m_sizes.Add(nSize, pMap);
 			return pMap;
 		}
-		Ref<TextRes> CreateText(const WString& str, uint32 nFontSize, TextOptions options)
+
+		std::shared_ptr<TextRes> CreateText(const WString& str, uint32 nFontSize, TextOptions options)
 		{
 			FontSize* size = GetSize(nFontSize);
 
@@ -334,7 +338,7 @@ namespace Graphics
 			ret->mesh->SetData(vertices);
 			ret->mesh->SetPrimitiveType(PrimitiveType::TriangleList);
 
-			Text textObj = Ref<TextRes>(ret);
+			Text textObj = std::shared_ptr<TextRes>(ret);
 			// Insert into cache
 			size->cache.AddText(str, textObj);
 			return textObj;

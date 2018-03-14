@@ -29,9 +29,9 @@
 class SettingsScreen_Impl : public SettingsScreen
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Canvas> m_canvas;
-	Ref<SettingsBar> m_settings;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Canvas> m_canvas;
+	std::shared_ptr<SettingsBar> m_settings;
 	SettingBarSetting* m_sensSetting;
 
 	Vector<String> m_speedMods = { "XMod", "MMod", "CMod" };
@@ -223,7 +223,7 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 		m_gamePads = g_gameWindow->GetGamepadDeviceNames();
 		m_skins = Path::GetSubDirs("./skins/");
 
@@ -421,7 +421,7 @@ public:
 		{
 			SettingsBar* sb = new SettingsBar(m_guiStyle);
 			
-			m_settings = Ref<SettingsBar>(sb);
+			m_settings = std::shared_ptr<SettingsBar>(sb);
 
 			sb->AddSetting(&m_masterVolume, 0.f, 1.0f, "Master Volume");
 			sb->AddSetting(&m_buttonMode, m_buttonModes, m_buttonModes.size(), "Button Input Mode");
@@ -557,9 +557,9 @@ SettingsScreen* SettingsScreen::Create()
 class ButtonBindingScreen_Impl : public ButtonBindingScreen
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Canvas> m_canvas;
-	Ref<Gamepad> m_gamepad;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Canvas> m_canvas;
+	std::shared_ptr<Gamepad> m_gamepad;
 	Label* m_prompt;
 	GameConfigKeys m_key;
 	bool m_isGamepad;
@@ -581,7 +581,7 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 
 		//Prompt Text
 		LayoutBox* box = new LayoutBox();
@@ -715,9 +715,9 @@ ButtonBindingScreen* ButtonBindingScreen::Create(GameConfigKeys key, bool gamepa
 class LaserSensCalibrationScreen_Impl : public LaserSensCalibrationScreen
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Canvas> m_canvas;
-	Ref<Gamepad> m_gamepad;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Canvas> m_canvas;
+	std::shared_ptr<Gamepad> m_gamepad;
 	Label* m_prompt;
 	bool m_state = false;
 	float m_delta = 0.f;
@@ -737,7 +737,7 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 
 		//Prompt Text
 		LayoutBox* box = new LayoutBox();

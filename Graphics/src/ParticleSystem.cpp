@@ -21,7 +21,7 @@ namespace Graphics
 	class ParticleSystem_Impl : public ParticleSystemRes
 	{
 		friend class ParticleEmitter;
-		Vector<Ref<ParticleEmitter>> m_emitters;
+		Vector<std::shared_ptr<ParticleEmitter>> m_emitters;
 
 	public:
 		OpenGL* gl;
@@ -37,7 +37,7 @@ namespace Graphics
 			{
 				(*it)->Render(rs, deltaTime);
 
-				if(it->GetRefCount() == 1)
+				if(it->use_count() == 1)
 				{
 					if((*it)->HasFinished())
 					{
@@ -52,26 +52,26 @@ namespace Graphics
 					}
 				}
 
-				it++;
+				++it;
 			}
 		}
-		virtual Ref<ParticleEmitter> AddEmitter() override
+		virtual std::shared_ptr<ParticleEmitter> AddEmitter() override
 		{
-			Ref<ParticleEmitter> newEmitter = Utility::MakeRef<ParticleEmitter>(new ParticleEmitter(this));
+			std::shared_ptr<ParticleEmitter> newEmitter = std::make_shared<ParticleEmitter>(this);
 			m_emitters.Add(newEmitter);
 			return newEmitter;
 		}
+
 		virtual void Reset()
 		{
 			for(auto em : m_emitters)
-			{
-				em.Destroy();
-			}
+				em.reset();
+
 			m_emitters.clear();
 		}
 	};
 
-	Ref<ParticleSystemRes> ParticleSystemRes::Create(class OpenGL* gl)
+	std::shared_ptr<ParticleSystemRes> ParticleSystemRes::Create(class OpenGL* gl)
 	{
 		ParticleSystem_Impl* impl = new ParticleSystem_Impl();
 		impl->gl = gl;
@@ -289,7 +289,7 @@ namespace Graphics
 		mesh->SetPrimitiveType(PrimitiveType::PointList);
 
 		mesh->Draw();
-		mesh.Destroy();
+		mesh.reset();
 	}
 
 	void ParticleEmitter::Reset()

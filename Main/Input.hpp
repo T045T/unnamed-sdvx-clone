@@ -6,7 +6,7 @@ DefineEnum(InputDevice,
 	Mouse,
 	Controller);
 
-typedef Ref<int32> MouseLockHandle;
+typedef std::shared_ptr<int32> MouseLockHandle;
 
 /*
 	Class that handles game keyboard (and soon controller input)
@@ -93,7 +93,7 @@ private:
 	float m_controllerSensitivity;
 	float m_controllerDeadzone;
 
-	Ref<Gamepad> m_gamepad;
+	std::shared_ptr<Gamepad> m_gamepad;
 
 	Graphics::Window* m_window = nullptr;
 };

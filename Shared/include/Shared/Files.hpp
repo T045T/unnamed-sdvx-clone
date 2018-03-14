@@ -16,7 +16,6 @@ struct FileInfo
 	String fullPath;
 	uint64 lastWriteTime;
 	FileType type;
-
 };
 
 /*

@@ -1,24 +1,22 @@
 #include "stdafx.h"
 #include "Color.hpp"
-#include "Math.hpp"
 
 Color::Color(const VectorMath::VectorBase<uint8, 4>& icolor)
 {
 	*this = Color(
-    icolor.x / 255.0f,
-    icolor.y / 255.0f,
-    icolor.z / 255.0f,
-    icolor.w / 255.0f
-    );
+		icolor.x / 255.0f,
+		icolor.y / 255.0f,
+		icolor.z / 255.0f,
+		icolor.w / 255.0f
+	);
 }
 
-Color::Color(float r, float g, float b) : Color(r,g,b,1.0f)
-{
-}
+Color::Color(float r, float g, float b) : Color(r, g, b, 1.0f)
+{}
 
 Color::Color(float all) : Color(all, all, all, 1.0f)
-{
-}
+{}
+
 Colori Color::ToRGBA8() const
 {
 	return Colori(*this * 255.0f);
@@ -31,13 +29,15 @@ Color Color::WithAlpha(float a) const
 
 Color Color::FromHSV(float hue, float saturation, float value)
 {
-	float chroma = value * saturation;
-	float hue2 = fmodf(hue, 360.0f) / 60.0f;
-	float hueMod = fmodf(hue2, 2) - 1;
-	float m = value - chroma;
-	float x = chroma * (1 - fabsf(hueMod));
+	const float chroma = value * saturation;
+	const float hue2 = fmodf(hue, 360.0f) / 60.0f;
+	const float hueMod = fmodf(hue2, 2) - 1;
+	const float m = value - chroma;
+	const float x = chroma * (1 - fabsf(hueMod));
 	Color c;
-	switch((int)floorf(hue2)) {
+
+	switch (static_cast<int>(floorf(hue2)))
+	{
 	case 0:
 		c = Color(chroma, x, 0.0f);
 		break;
@@ -71,10 +71,8 @@ const Color Color::Yellow = Color(1, 1, 0, 1);
 const Color Color::Magenta = Color(1, 0, 1, 1);
 const Color Color::Cyan = Color(0, 1, 1, 1);
 
-Colori::Colori(uint8 r, uint8 g, uint8 b) : Colori(r,g,b,255)
-{
-
-}
+Colori::Colori(uint8 r, uint8 g, uint8 b) : Colori(r, g, b, 1.0f)
+{}
 
 // Converted integer constants
 const Colori Colori::Cyan = Color::Cyan;

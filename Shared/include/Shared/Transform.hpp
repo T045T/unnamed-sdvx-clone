@@ -19,8 +19,6 @@
 //	(http://jlib.nl/index.php?file=./code/include/jlib/matrix)
 
 #pragma once
-#include "Shared/Utility.hpp"
-#include "Shared/Math.hpp"
 #include "Shared/VectorMath.hpp"
 #include <initializer_list>
 
@@ -30,7 +28,7 @@
 class Transform
 {
 public:
-	Transform();
+	Transform() = default;
 	Transform(const Transform& other);
 	Transform(std::initializer_list<float> values);
 	Transform& operator=(const Transform& right);

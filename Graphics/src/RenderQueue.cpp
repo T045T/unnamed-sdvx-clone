@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "RenderQueue.hpp"
 #include "OpenGL.hpp"
-using Utility::Cast;
+using Utility::DynCast;
 
 namespace Graphics
 {
@@ -113,7 +113,7 @@ namespace Graphics
 				}
 			};
 
-			if(Cast<SimpleDrawCall>(item))
+			if(DynCast<SimpleDrawCall>(item))
 			{
 				SimpleDrawCall* sdc = (SimpleDrawCall*)item;
 				m_renderState.worldTransform = sdc->worldTransform;
@@ -144,7 +144,7 @@ namespace Graphics
 
 				DrawOrRedrawMesh(sdc->mesh);
 			}
-			else if(Cast<PointDrawCall>(item))
+			else if(DynCast<PointDrawCall>(item))
 			{
 				if(scissorEnabled)
 				{
@@ -199,7 +199,7 @@ namespace Graphics
 		sdc->worldTransform = worldTransform;
 		m_orderedCommands.push_back(sdc);
 	}
-	void RenderQueue::Draw(Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params)
+	void RenderQueue::Draw(Transform worldTransform, std::shared_ptr<class TextRes> text, Material mat, const MaterialParameterSet& params)
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
@@ -221,7 +221,7 @@ namespace Graphics
 		sdc->scissorRect = scissor;
 		m_orderedCommands.push_back(sdc);
 	}
-	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params /*= MaterialParameterSet()*/)
+	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, std::shared_ptr<class TextRes> text, Material mat, const MaterialParameterSet& params /*= MaterialParameterSet()*/)
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;

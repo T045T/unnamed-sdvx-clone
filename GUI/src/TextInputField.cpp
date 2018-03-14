@@ -3,7 +3,7 @@
 #include "Label.hpp"
 #include "GUIRenderer.hpp"
 
-TextInputField::TextInputField(Ref<CommonGUIStyle> style)
+TextInputField::TextInputField(std::shared_ptr<CommonGUIStyle> style)
 {
 	m_style = style;
 	layoutDirection = LayoutBox::Horizontal;

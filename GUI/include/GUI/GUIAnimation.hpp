@@ -4,7 +4,7 @@
 using Interpolation::TimeFunction;
 
 // GUI Animation object
-class IGUIAnimation : public RefCounted<IGUIAnimation>
+class IGUIAnimation
 {
 public:
 	virtual ~IGUIAnimation() = default;
@@ -17,11 +17,11 @@ public:
 	TimeFunction timeFunction = Interpolation::Linear;
 
 	template<typename T, typename Lambda>
-	static Ref<IGUIAnimation> CreateCallback(T next, T last, float duration, Lambda&& l, uint32 identifier);
+	static std::shared_ptr<IGUIAnimation> CreateCallback(T next, T last, float duration, Lambda&& l, uint32 identifier);
 	template<typename T>
-	static Ref<IGUIAnimation> Create(T* target, T next, float duration);
+	static std::shared_ptr<IGUIAnimation> Create(T* target, T next, float duration);
 	template<typename T>
-	static Ref<IGUIAnimation> Create(T* target, T next, T last, float duration);
+	static std::shared_ptr<IGUIAnimation> Create(T* target, T next, T last, float duration);
 };
 
 // A templated animation of a single vector/float/color variable
@@ -124,17 +124,17 @@ private:
 };
 
 template<typename T, typename Lambda>
-Ref<IGUIAnimation> IGUIAnimation::CreateCallback(T next, T last, float duration, Lambda&& l, uint32 identifier)
+std::shared_ptr<IGUIAnimation> IGUIAnimation::CreateCallback(T next, T last, float duration, Lambda&& l, uint32 identifier)
 {
-	return Ref<IGUIAnimation>(new GUICallbackAnimation<T, Lambda>(std::forward<Lambda>(l), next, last, duration, identifier));
+	return std::shared_ptr<IGUIAnimation>(new GUICallbackAnimation<T, Lambda>(std::forward<Lambda>(l), next, last, duration, identifier));
 }
 template<typename T>
-Ref<IGUIAnimation> IGUIAnimation::Create(T* target, T next, float duration)
+std::shared_ptr<IGUIAnimation> IGUIAnimation::Create(T* target, T next, float duration)
 {
-	return Ref<IGUIAnimation>(new GUIAnimation<T>(target, next, duration));
+	return std::shared_ptr<IGUIAnimation>(new GUIAnimation<T>(target, next, duration));
 }
 template<typename T>
-Ref<IGUIAnimation> IGUIAnimation::Create(T* target, T next, T last, float duration)
+std::shared_ptr<IGUIAnimation> IGUIAnimation::Create(T* target, T next, T last, float duration)
 {
-	return Ref<IGUIAnimation>(new GUIAnimation<T>(target, next, last, duration));
+	return std::shared_ptr<IGUIAnimation>(new GUIAnimation<T>(target, next, last, duration));
 }

@@ -5,7 +5,7 @@
 class Slider : public GUIElementBase
 {
 public:
-	Slider(Ref<CommonGUIStyle> style);
+	Slider(std::shared_ptr<CommonGUIStyle> style);
 
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
@@ -49,5 +49,5 @@ private:
 	float m_newValue = 0.0f;
 	float m_value = 0.0f;
 
-	Ref<CommonGUIStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_style;
 };

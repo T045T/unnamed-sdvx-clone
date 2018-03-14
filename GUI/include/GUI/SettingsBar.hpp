@@ -42,7 +42,7 @@ protected:
 class SettingsBar : public ScrollBox
 {
 public:
-	SettingsBar(Ref<CommonGUIStyle> style);
+	SettingsBar(std::shared_ptr<CommonGUIStyle> style);
 	~SettingsBar();
 
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
@@ -62,7 +62,7 @@ public:
 private:
 	bool m_shown = true;
 	class LayoutBox* m_container;
-	Ref<CommonGUIStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_style;
 	Map<SettingBarSetting*, GUIElement> m_settings;
 	Map<SettingBarSetting*, Slider*> m_sliders;
 

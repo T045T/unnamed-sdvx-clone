@@ -58,11 +58,11 @@ public:
 private:
 
 
-	Ref<LayoutBox> m_layout;
-	Ref<Panel> m_jacket;
-	Ref<SongTitleArtist> m_titleArtist;
-	//Ref<Panel> m_titlePanel;
-	//Ref<Panel> m_artistPanel;
+	std::shared_ptr<LayoutBox> m_layout;
+	std::shared_ptr<Panel> m_jacket;
+	std::shared_ptr<SongTitleArtist> m_titleArtist;
+	//std::shared_ptr<Panel> m_titlePanel;
+	//std::shared_ptr<Panel> m_artistPanel;
 	//Text m_title;
 	//Text m_artist;
 	BeatmapSettings m_settings;

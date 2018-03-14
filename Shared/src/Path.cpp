@@ -13,19 +13,24 @@ String Path::Absolute(const String& path)
 	String currentDir = GetCurrentPath();
 	return currentDir + sep + path;
 }
+
 String Path::RemoveLast(const String& path, String* lastOut /*= nullptr*/)
 {
 	String left;
+
 	if(path.SplitLast(String() + sep, &left, lastOut))
 		return left;
+
 	return path;
 }
+
 String Path::RemoveBase(String path, String base)
 {
 	size_t targetOffset = 0;
+
 	while(!base.empty())
 	{
-		size_t offset = base.find(sep);
+		const size_t offset = base.find(sep);
 		String segment = base;
 		if(offset != -1)
 		{
@@ -45,7 +50,7 @@ String Path::RemoveBase(String path, String base)
 		{
 			if(path.size() > (segment.size()+ targetOffset))
 			{
-				char followingChar = path[targetOffset+segment.size()];
+				const char followingChar = path[targetOffset+segment.size()];
 				if(followingChar != sep && followingChar != '.')
 					break;
 				targetOffset += 1;
@@ -57,6 +62,7 @@ String Path::RemoveBase(String path, String base)
 	}
 	return path.substr(targetOffset);
 }
+
 String Path::GetExtension(const String& path)
 {
 	size_t dotPos = path.find(".");
@@ -64,6 +70,7 @@ String Path::GetExtension(const String& path)
 		return String();
 	return path.substr(dotPos + 1);
 }
+
 String Path::ReplaceExtension(String path, String newExt)
 {
 	newExt.TrimFront('.');
@@ -83,6 +90,7 @@ String Path::ReplaceExtension(String path, String newExt)
 
 	return path;
 }
+
 String Path::ExtractPathFromCmdLine(String& input)
 {
 	String r;
@@ -112,6 +120,7 @@ String Path::ExtractPathFromCmdLine(String& input)
 	input.Trim();
 	return r;
 }
+
 Vector<String> Path::SplitCommandLine(const String& input)
 {
 	String buffer = input;
@@ -145,6 +154,7 @@ String Path::GetModuleName()
 	Path::RemoveLast(moduleName, &moduleName);
 	return moduleName;
 }
+
 bool Path::CreateDirRecursive(String path)
 {
 	String path1;
@@ -178,6 +188,7 @@ bool Path::CreateDirRecursive(String path)
 
 	return true;
 }
+
 bool Path::ClearDir(const String& path)
 {
 	Vector<FileInfo> files = Files::ScanFiles(path);
@@ -196,6 +207,7 @@ bool Path::ClearDir(const String& path)
 	}
 	return true;
 }
+
 bool Path::CopyDir(String srcFolder, String dstFolder)
 {
 	srcFolder = Absolute(srcFolder);

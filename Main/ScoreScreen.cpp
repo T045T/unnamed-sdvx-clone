@@ -21,12 +21,12 @@
 class ScoreScreen_Impl : public ScoreScreen
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Canvas> m_canvas;
-	Ref<HealthGauge> m_gauge;
-	Ref<Panel> m_jacket;
-	Ref<Canvas> m_timingStatsCanvas;
-	Ref<LayoutBox> m_itemBox;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Canvas> m_canvas;
+	std::shared_ptr<HealthGauge> m_gauge;
+	std::shared_ptr<Panel> m_jacket;
+	std::shared_ptr<Canvas> m_timingStatsCanvas;
+	std::shared_ptr<LayoutBox> m_itemBox;
 	MapDatabase m_mapDatabase;
 	// Things for score screen
 	Graphics::Font m_specialFont;
@@ -46,7 +46,7 @@ private:
 	float m_meanHitDelta;
 	MapTime m_medianHitDelta;
 
-	Ref<SongSelectStyle> m_songSelectStyle;
+	std::shared_ptr<SongSelectStyle> m_songSelectStyle;
 
 	BeatmapSettings m_beatmapSettings;
 	Texture m_jacketImage;
@@ -104,7 +104,7 @@ public:
 	{
 		m_guiStyle = g_commonGUIStyle;
 
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 		// Font
 		CheckedLoad(m_specialFont = FontRes::Create(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
@@ -168,7 +168,7 @@ public:
 
 			// Jacket image
 			Panel* jacketImage = new Panel();
-			m_jacket = Ref<Panel>(jacketImage);
+			m_jacket = std::shared_ptr<Panel>(jacketImage);
 			jacketImage->texture = m_jacketImage;
 			jacketImage->imageFillMode = FillMode::Fit;
 			{
@@ -290,7 +290,7 @@ public:
 			}
 
 			// Hit items
-			m_itemBox = Ref<LayoutBox>(new LayoutBox());
+			m_itemBox = std::shared_ptr<LayoutBox>(new LayoutBox());
 			m_itemBox->layoutDirection = LayoutBox::Vertical;
 			{
 				LayoutBox::Slot* slot = gradePanel->Add(m_itemBox->MakeShared());
@@ -300,7 +300,7 @@ public:
 			}
 
 
-			m_gauge = Ref<HealthGauge>(new HealthGauge());
+			m_gauge = std::shared_ptr<HealthGauge>(new HealthGauge());
 			loader.AddTexture(m_gauge->fillTexture, "gauge_fill.png");
 			loader.AddTexture(m_gauge->frontTexture, "gauge_front.png");
 			loader.AddTexture(m_gauge->backTexture, "gauge_back.png");
@@ -313,7 +313,7 @@ public:
 			}
 
 			{
-				m_timingStatsCanvas = Ref<Canvas>(new Canvas());
+				m_timingStatsCanvas = std::shared_ptr<Canvas>(new Canvas());
 				Canvas::Slot* slot = innerCanvas->Add(m_timingStatsCanvas->MakeShared());
 				slot->anchor = Anchor(0, 0.75, 0.25, 1);
 

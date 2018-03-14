@@ -16,7 +16,7 @@ Vector2 GUIElementBase::GetDesiredSize(GUIRenderData rd)
 {
 	return Vector2();
 }
-bool GUIElementBase::AddAnimation(Ref<IGUIAnimation> anim, bool removeOld)
+bool GUIElementBase::AddAnimation(std::shared_ptr<IGUIAnimation> anim, bool removeOld)
 {
 	void* target = anim->GetTarget();
 	if(m_animationMap.Contains(target))
@@ -30,17 +30,17 @@ bool GUIElementBase::AddAnimation(Ref<IGUIAnimation> anim, bool removeOld)
 	return true;
 }
 
-Ref<IGUIAnimation> GUIElementBase::GetAnimation(uint32 uid)
+std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(uint32 uid)
 {
 	size_t suid = (size_t)uid;
 	return GetAnimation((void*)suid);
 }
-Ref<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
+std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
 {
-	Ref<IGUIAnimation>* found = m_animationMap.Find(target);
+	std::shared_ptr<IGUIAnimation>* found = m_animationMap.Find(target);
 	if(found)
 		return *found;
-	return Ref<IGUIAnimation>();
+	return std::shared_ptr<IGUIAnimation>();
 }
 
 bool GUIElementBase::HasInputFocus() const

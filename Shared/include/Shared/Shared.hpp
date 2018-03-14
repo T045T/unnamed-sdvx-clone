@@ -10,7 +10,7 @@
 #include "Timer.hpp"
 
 // Reference counting
-#include "Ref.hpp"
+#include <memory>
 
 // Filsystem headers
 #include "FileSystem.hpp"

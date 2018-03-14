@@ -11,8 +11,8 @@ namespace Graphics
 	{
 	public:
 		virtual ~ImageRes() = default;
-		static Ref<ImageRes> Create(const String& assetPath);
-		static Ref<ImageRes> Create(Vector2i size = Vector2i());
+		static std::shared_ptr<ImageRes> Create(const String& assetPath);
+		static std::shared_ptr<ImageRes> Create(Vector2i size = Vector2i());
 	public:
 		virtual void SetSize(Vector2i size) = 0;
 		virtual void ReSize(Vector2i size) = 0;
@@ -33,17 +33,17 @@ namespace Graphics
 	{
 	public:
 		virtual ~SpriteMapRes() = default;
-		static Ref<SpriteMapRes> Create();
+		static std::shared_ptr<SpriteMapRes> Create();
 	public:
-		virtual uint32 AddSegment(Ref<ImageRes> image) = 0;
+		virtual uint32 AddSegment(std::shared_ptr<ImageRes> image) = 0;
 		virtual void Clear() = 0;
-		virtual Ref<ImageRes> GetImage() = 0;
-		virtual Ref<class TextureRes> GenerateTexture(class OpenGL* gl) = 0;
+		virtual std::shared_ptr<ImageRes> GetImage() = 0;
+		virtual std::shared_ptr<class TextureRes> GenerateTexture(class OpenGL* gl) = 0;
 		virtual Recti GetCoords(uint32 nIndex) = 0;
 	};
 
-	typedef Ref<ImageRes> Image;
-	typedef Ref<SpriteMapRes> SpriteMap;
+	typedef std::shared_ptr<ImageRes> Image;
+	typedef std::shared_ptr<SpriteMapRes> SpriteMap;
 
 	DEFINE_RESOURCE_TYPE(Image, ImageRes);
 	DEFINE_RESOURCE_TYPE(SpriteMap, SpriteMapRes);

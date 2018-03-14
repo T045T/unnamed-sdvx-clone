@@ -5,7 +5,7 @@
 #include "Button.hpp"
 #include "GUIRenderer.hpp"
 
-SettingsBar::SettingsBar(Ref<CommonGUIStyle> style) : ScrollBox(style)
+SettingsBar::SettingsBar(std::shared_ptr<CommonGUIStyle> style) : ScrollBox(style)
 {
 	m_style = style;
 	m_container = new LayoutBox();

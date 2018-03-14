@@ -38,7 +38,7 @@ public:
 					break;
 			}
 			else
-				it++;
+				++it;
 		}
 	}
 
@@ -60,9 +60,7 @@ public:
 		for(auto& i : *this)
 		{
 			if(pred(i))
-			{
 				return &i;
-			}
 		}
 		return nullptr;
 	}
@@ -73,9 +71,7 @@ public:
 		for(auto& i : *this)
 		{
 			if(pred(i))
-			{
 				return &i;
-			}
 		}
 		return nullptr;
 	}
@@ -88,9 +84,7 @@ public:
 		for(auto& i : *this)
 		{
 			if(pred(i))
-			{
 				r.push_back(i);
-			}
 		}
 		return r;
 	}
@@ -101,9 +95,7 @@ public:
 		for(auto& i : *this)
 		{
 			if(pred(i))
-			{
 				r.push_back(i);
-			}
 		}
 		return r;
 	}

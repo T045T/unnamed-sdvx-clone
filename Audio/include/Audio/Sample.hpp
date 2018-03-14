@@ -7,7 +7,7 @@
 class SampleRes : public AudioBase
 {
 public:
-	static Ref<SampleRes> Create(class Audio* audio, const String& path);
+	static std::shared_ptr<SampleRes> Create(class Audio* audio, const String& path);
 	virtual ~SampleRes() = default;
 
 public:
@@ -19,4 +19,4 @@ public:
 	virtual void Play() = 0;
 };
 
-typedef Ref<SampleRes> Sample;
+typedef std::shared_ptr<SampleRes> Sample;

@@ -25,8 +25,8 @@
 class TitleScreen_Impl : public TitleScreen
 {
 private:
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Canvas> m_canvas;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Canvas> m_canvas;
 
 
 	void Exit()
@@ -48,7 +48,7 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 		
 		//GUI Buttons
 		{

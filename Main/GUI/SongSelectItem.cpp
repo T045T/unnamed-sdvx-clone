@@ -13,7 +13,7 @@ static float padding = 5.0f;
 class SongDifficultyFrame : public GUIElementBase
 {
 private:
-	Ref<SongSelectStyle> m_style;
+	std::shared_ptr<SongSelectStyle> m_style;
 	static const Vector2 m_size;
 	DifficultyIndex* m_diff;
 	Texture m_jacket;
@@ -24,7 +24,7 @@ private:
 	float m_fade = 0.0f;
 
 public:
-	SongDifficultyFrame(Ref<SongSelectStyle> style, DifficultyIndex* diff)
+	SongDifficultyFrame(std::shared_ptr<SongSelectStyle> style, DifficultyIndex* diff)
 	{
 		m_style = style;
 		m_diff = diff;
@@ -85,7 +85,7 @@ public:
 		{
 			m_selected = selected;
 			// Zoom in animation
-			AddAnimation(Ref<IGUIAnimation>(
+			AddAnimation(std::shared_ptr<IGUIAnimation>(
 				new GUIAnimation<float>(&m_fade, selected ? 1.0f : 0.0f, 0.2f)), true);
 		}
 	}
@@ -130,7 +130,7 @@ public:
 };
 const Vector2 SongDifficultyFrame::m_size = Vector2(512, 512);
 
-SongSelectItem::SongSelectItem(Ref<SongSelectStyle> style)
+SongSelectItem::SongSelectItem(std::shared_ptr<SongSelectStyle> style)
 {
 	m_style = style;
 
@@ -290,7 +290,7 @@ void SongSelectItem::SetSelectedDifficulty(int32 selectedIndex)
 	}
 }
 
-SongStatistics::SongStatistics(Ref<SongSelectStyle> style)
+SongStatistics::SongStatistics(std::shared_ptr<SongSelectStyle> style)
 {
 	m_style = style;
 

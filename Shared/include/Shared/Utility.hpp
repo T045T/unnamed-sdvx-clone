@@ -9,16 +9,30 @@ namespace Utility
 		memset(&obj, 0, sizeof(T));
 	}
 
+	// Static cast function
+	template<typename T, typename S>
+	T* StatCast(S* src)
+	{
+		return static_cast<T*>(src);
+	}
+
+	// Static cast function (using reference)
+	template<typename T, typename S>
+	T& StatCast(S& src)
+	{
+		return static_cast<T&>(src);
+	}
+
 	// Dynamic cast function
 	template<typename T, typename S>
-	T* Cast(S* src)
+	T* DynCast(S* src)
 	{
 		return dynamic_cast<T*>(src);
 	}
 
-	// Dynamic cast function (using reference
+	// Dynamic cast function (using reference)
 	template<typename T, typename S>
-	T& Cast(S& src)
+	T& DynCast(S& src)
 	{
 		return dynamic_cast<T&>(src);
 	}

@@ -28,7 +28,7 @@
 #include "GUI/PlayingSongInfo.hpp"
 
 // Try load map helper
-Ref<Beatmap> TryLoadMap(const String& path)
+std::shared_ptr<Beatmap> TryLoadMap(const String& path)
 {
 	// Load map file
 	Beatmap* newMap = new Beatmap();
@@ -36,15 +36,15 @@ Ref<Beatmap> TryLoadMap(const String& path)
 	if(!mapFile.OpenRead(path))
 	{
 		delete newMap;
-		return Ref<Beatmap>();
+		return std::shared_ptr<Beatmap>();
 	}
 	FileReader reader(mapFile);
 	if(!newMap->Load(reader))
 	{
 		delete newMap;
-		return Ref<Beatmap>();
+		return std::shared_ptr<Beatmap>();
 	}
-	return Ref<Beatmap>(newMap);
+	return std::shared_ptr<Beatmap>(newMap);
 }
 
 /* 
@@ -78,12 +78,12 @@ private:
     float m_modSpeed = 400;
 
 	// Game Canvas
-	Ref<Canvas> m_canvas;
-	Ref<HealthGauge> m_scoringGauge;
-	Ref<PlayingSongInfo> m_psi;
-	Ref<SettingsBar> m_settingsBar;
-	Ref<CommonGUIStyle> m_guiStyle;
-	Ref<Label> m_scoreText;
+	std::shared_ptr<Canvas> m_canvas;
+	std::shared_ptr<HealthGauge> m_scoringGauge;
+	std::shared_ptr<PlayingSongInfo> m_psi;
+	std::shared_ptr<SettingsBar> m_settingsBar;
+	std::shared_ptr<CommonGUIStyle> m_guiStyle;
+	std::shared_ptr<Label> m_scoreText;
 
 	Graphics::Font m_fontDivlit;
 
@@ -95,7 +95,7 @@ private:
 	Color m_comboColors[3];
 
 	// The beatmap
-	Ref<Beatmap> m_beatmap;
+	std::shared_ptr<Beatmap> m_beatmap;
 	// Scoring system object
 	Scoring m_scoring;
 	// Beatmap playback manager (object and timing point selector)
@@ -144,8 +144,8 @@ private:
 	Texture basicParticleTexture;
 	Texture squareParticleTexture;
 	ParticleSystem m_particleSystem;
-	Ref<ParticleEmitter> m_laserFollowEmitters[2];
-	Ref<ParticleEmitter> m_holdEmitters[6];
+	std::shared_ptr<ParticleEmitter> m_laserFollowEmitters[2];
+	std::shared_ptr<ParticleEmitter> m_holdEmitters[6];
 
 public:
 	Game_Impl(const String& mapPath)
@@ -612,7 +612,7 @@ public:
 		m_guiStyle = g_commonGUIStyle;
 
 		// Game GUI canvas
-		m_canvas = Utility::MakeRef(new Canvas());
+		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 
 		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480), Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 		Vector2 topLeft = Vector2(g_resolution / 2 - canvasRes / 2);
@@ -662,7 +662,7 @@ public:
 
 		{
 			// Gauge
-			m_scoringGauge = Utility::MakeRef(new HealthGauge());
+			m_scoringGauge = Utility::Makestd::shared_ptr(new HealthGauge());
 			loader.AddTexture(m_scoringGauge->fillTexture, "gauge_fill.png");
 			loader.AddTexture(m_scoringGauge->frontTexture, "gauge_front.png");
 			loader.AddTexture(m_scoringGauge->backTexture, "gauge_back.png");
@@ -681,7 +681,7 @@ public:
 			uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
 
 			SettingsBar* sb = new SettingsBar(m_guiStyle);
-			m_settingsBar = Ref<SettingsBar>(sb);
+			m_settingsBar = std::shared_ptr<SettingsBar>(sb);
 			sb->AddSetting(&m_camera.zoomBottom, -1.0f, 1.0f, "Bottom Zoom");
 			sb->AddSetting(&m_camera.zoomTop, -1.0f, 1.0f, "Top Zoom");
 			sb->AddSetting(&(m_track->roll), 0.0f, 1.0f, "Track roll");
@@ -714,7 +714,7 @@ public:
 			scoreSlot->autoSizeX = true;
 			scoreSlot->autoSizeY = true;
 
-			m_scoreText = Ref<Label>(new Label());
+			m_scoreText = std::shared_ptr<Label>(new Label());
 			m_scoreText->SetFontSize(32 * scale);
 			m_scoreText->SetText(Utility::WSprintf(L"%08d", 0));
 			m_scoreText->SetFont(m_fontDivlit);
@@ -732,7 +732,7 @@ public:
 		// Song info
 		{
 			PlayingSongInfo* psi = new PlayingSongInfo(*this);
-			m_psi = Ref<PlayingSongInfo>(psi);
+			m_psi = std::shared_ptr<PlayingSongInfo>(psi);
 			loader.AddMaterial(m_psi->progressMaterial, "progressBar");
 			Canvas::Slot* psiSlot = m_canvas->Add(psi->MakeShared());
 			psiSlot->autoSizeY = true;
@@ -938,9 +938,9 @@ public:
 		m_particleSystem->Render(rs, deltaTime);
 	}
 	
-	Ref<ParticleEmitter> CreateTrailEmitter(const Color& color)
+	std::shared_ptr<ParticleEmitter> CreateTrailEmitter(const Color& color)
 	{
-		Ref<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
+		std::shared_ptr<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
 		emitter->material = particleMaterial;
 		emitter->texture = basicParticleTexture;
 		emitter->loops = 0;
@@ -961,9 +961,9 @@ public:
 		emitter->scale = 0.3f;
 		return emitter;
 	}
-	Ref<ParticleEmitter> CreateHoldEmitter(const Color& color, float width)
+	std::shared_ptr<ParticleEmitter> CreateHoldEmitter(const Color& color, float width)
 	{
-		Ref<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
+		std::shared_ptr<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
 		emitter->material = particleMaterial;
 		emitter->texture = basicParticleTexture;
 		emitter->loops = 0;
@@ -984,9 +984,9 @@ public:
 		emitter->scale = 1.0f;
 		return emitter;
 	}
-	Ref<ParticleEmitter> CreateExplosionEmitter(const Color& color, const Vector3 dir)
+	std::shared_ptr<ParticleEmitter> CreateExplosionEmitter(const Color& color, const Vector3 dir)
 	{
-		Ref<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
+		std::shared_ptr<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
 		emitter->material = particleMaterial;
 		emitter->texture = basicParticleTexture;
 		emitter->loops = 1;
@@ -1007,9 +1007,9 @@ public:
 		emitter->scale = 0.4f;
 		return emitter;
 	}
-	Ref<ParticleEmitter> CreateHitEmitter(const Color& color, float width)
+	std::shared_ptr<ParticleEmitter> CreateHitEmitter(const Color& color, float width)
 	{
-		Ref<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
+		std::shared_ptr<ParticleEmitter> emitter = m_particleSystem->AddEmitter();
 		emitter->material = particleMaterial;
 		emitter->texture = basicParticleTexture;
 		emitter->loops = 1;
@@ -1130,7 +1130,7 @@ public:
 
 		float dir = Math::Sign(object->points[1] - object->points[0]);
 		float laserPos = m_track->trackWidth * object->points[1] - m_track->trackWidth * 0.5f;
-		Ref<ParticleEmitter> ex = CreateExplosionEmitter(m_track->laserColors[object->index], Vector3(dir, 0, 0));
+		std::shared_ptr<ParticleEmitter> ex = CreateExplosionEmitter(m_track->laserColors[object->index], Vector3(dir, 0, 0));
 		ex->position = Vector3(laserPos, 0.0f, -0.05f);
 		ex->position = m_track->TransformPoint(ex->position);
 	}
@@ -1162,7 +1162,7 @@ public:
 			// Create hit effect particle
 			Color hitColor = (buttonIdx < 4) ? Color::White : Color::FromHSV(20, 0.7f, 1.0f);
 			float hitWidth = (buttonIdx < 4) ? m_track->buttonWidth : m_track->fxbuttonWidth;
-			Ref<ParticleEmitter> emitter = CreateHitEmitter(hitColor, hitWidth);
+			std::shared_ptr<ParticleEmitter> emitter = CreateHitEmitter(hitColor, hitWidth);
 			emitter->position.x = m_track->GetButtonPlacement(buttonIdx);
 			emitter->position.z = -0.05f;
 			emitter->position.y = 0.0f;
@@ -1378,7 +1378,7 @@ public:
 	{
 		return m_jacketTexture;
 	}
-	virtual Ref<Beatmap> GetBeatmap() override
+	virtual std::shared_ptr<Beatmap> GetBeatmap() override
 	{
 		return m_beatmap;
 	}

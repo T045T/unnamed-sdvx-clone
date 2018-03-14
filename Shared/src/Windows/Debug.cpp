@@ -37,10 +37,12 @@ namespace Debug
 		char dbgFileOut[256];
 		ret = SymGetSymbolFile(processHandle, nullptr, *executablePath, sfPdb, symFileOut, sizeof(symFileOut), dbgFileOut, sizeof(dbgFileOut));
 	}
+
 	Debug::~Debug()
 	{
 		SymCleanup(processHandle);
 	}
+
 	Debug& Debug::Main()
 	{
 		static Debug inst;
@@ -104,6 +106,7 @@ namespace Debug
 		BOOL br = SymFromAddr(processHandle, (uint64_t)address, nullptr, symInfo);
 		return symInfo->Name;
 	}
+
 	String GetLineInfoFromAddress(void* address, uint32& lineNumber)
 	{
 		static IMAGEHLP_LINE64 lineInfo;

@@ -37,7 +37,11 @@ struct JobThread
 		if(thread.joinable())
 			thread.join();
 	}
-	bool IsActive() const { return activeJob.IsValid(); }
+
+	bool IsActive() const
+	{
+		return activeJob == nullptr;
+	}
 };
 
 class JobSheduler_Impl
@@ -160,7 +164,7 @@ private:
 						m_lock.unlock();
 
 						// Clear the active job
-						myThread->activeJob.Release();
+						myThread->activeJob.reset();
 					}
 					else
 					{
@@ -234,9 +238,9 @@ void JobBase::Terminate()
 
 	// Try to erase from queue first
 	m_sheduler->m_lock.lock();
-	for(auto it = sheduler->m_jobQueue.begin(); it != sheduler->m_jobQueue.end(); it++)
+	for(auto it = sheduler->m_jobQueue.begin(); it != sheduler->m_jobQueue.end(); ++it)
 	{
-		if(*it == this)
+		if(&(*it->get()) == this)
 		{
 			sheduler->m_jobQueue.erase(it);
 			m_sheduler = nullptr;
@@ -249,10 +253,10 @@ void JobBase::Terminate()
 	// Wait for running job
 	for(JobThread* t : m_sheduler->m_threadPool)
 	{
-		if(t->activeJob == this)
+		if(t->activeJob.get() == this)
 		{
 			// Wait for job to complete
-			while(t->activeJob == this)
+			while(t->activeJob.get() == this)
 			{
 				std::this_thread::yield();
 			}
@@ -264,7 +268,7 @@ void JobBase::Terminate()
 	m_sheduler->m_lock.lock();
 	for(auto it = m_sheduler->m_finishedJobs.rbegin(); it != m_sheduler->m_finishedJobs.rend(); it++)
 	{
-		if(*it == this)
+		if(&(*it->get()) == this)	// HACK: WTF IS THIS
 		{
 			m_sheduler->m_finishedJobs.erase(--(it.base()));
 			m_sheduler->m_lock.unlock();

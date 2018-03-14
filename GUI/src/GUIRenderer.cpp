@@ -62,7 +62,7 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 
 	return true;
 }
-void GUIRenderer::Render(float deltaTime, Rect viewportSize, Ref<class GUIElementBase> rootElement)
+void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<class GUIElementBase> rootElement)
 {
 	m_time += deltaTime;
 	m_viewportSize = viewportSize;
