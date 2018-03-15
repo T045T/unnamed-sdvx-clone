@@ -21,13 +21,13 @@ struct AsyncTextureLoadOperation : public AsyncLoadOperation
 	bool AsyncLoad()
 	{
 		image = g_application->LoadImage(name);
-		return image.IsValid();
+		return image != nullptr;
 	}
 
 	bool AsyncFinalize()
 	{
 		target = TextureRes::Create(g_gl, image);
-		return target.IsValid();
+		return target != nullptr;
 	}
 };
 
@@ -69,7 +69,7 @@ struct AsyncMaterialLoadOperation : public AsyncLoadOperation
 
 	bool AsyncFinalize()
 	{
-		return (target = g_application->LoadMaterial(name)).IsValid();
+		return (target = g_application->LoadMaterial(name)) != nullptr;
 	}
 };
 

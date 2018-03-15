@@ -19,7 +19,7 @@
 //	(http://jlib.nl/index.php?file=./code/include/jlib/matrix)
 
 #pragma once
-#include "Shared/VectorMath.hpp"
+#include <Shared/VectorMath.hpp>
 #include <initializer_list>
 
 /*

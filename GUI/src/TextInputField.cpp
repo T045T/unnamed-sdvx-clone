@@ -8,14 +8,14 @@ TextInputField::TextInputField(std::shared_ptr<CommonGUIStyle> style)
 	m_style = style;
 	layoutDirection = LayoutBox::Horizontal;
 
-	text = new Label();
-	Slot* slot = Add(text->MakeShared());
+	text = std::make_shared<Label>();
+	Slot* slot = Add(text);
 	text->SetText(L"");
 	text->SetFontSize(32);
 
-	composition = new Label();
+	composition = std::make_shared<Label>();
 	composition->color = compositionColor;
-	slot = Add(composition->MakeShared());
+	slot = Add(composition);
 	composition->SetText(L"");
 	composition->SetFontSize(32);
 }

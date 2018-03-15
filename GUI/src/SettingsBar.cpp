@@ -9,9 +9,9 @@ SettingsBar::SettingsBar(std::shared_ptr<CommonGUIStyle> style)
 	: ScrollBox(style)
 {
 	m_style = style;
-	m_container = new LayoutBox();
+	m_container = std::make_shared<LayoutBox>();
 	m_container->layoutDirection = LayoutBox::Vertical;
-	ScrollBox::SetContent(m_container->MakeShared());
+	ScrollBox::SetContent(m_container);
 }
 
 SettingsBar::~SettingsBar()
@@ -58,26 +58,27 @@ SettingBarSetting* SettingsBar::AddSetting(float* target, float min, float max, 
 	setting->floatSetting.max = max;
 	float v = (target[0] - min) / (max - min);
 
-	LayoutBox* box = new LayoutBox();
+	auto box = std::make_shared<LayoutBox>();
 	box->layoutDirection = LayoutBox::Vertical;
-	LayoutBox::Slot* slot = m_container->Add(box->MakeShared());
+	LayoutBox::Slot* slot = m_container->Add(box);
 	slot->fillX = true;
 
 	{
 		// The label
-		Label* label = setting->label = new Label();
-		box->Add(label->MakeShared());
+		auto label = setting->label = std::make_shared<Label>();
+		box->Add(label);
 
 		// The slider
-		Slider* slider = new Slider(m_style);
+		auto slider = std::make_shared<Slider>(m_style);
 		slider->SetValue(v);
 		slider->OnSliding.Add(setting, &SettingBarSetting::m_SliderUpdate);
 		slider->OnValueSet.Add(setting, &SettingBarSetting::m_SliderUpdate);
-		LayoutBox::Slot* sliderSlot = box->Add(slider->MakeShared());
+		LayoutBox::Slot* sliderSlot = box->Add(slider);
 		sliderSlot->fillX = true;
 		m_sliders.Add(setting, slider);
 	}
-	m_settings.Add(setting, box->MakeShared());
+
+	m_settings.Add(setting, box);
 	setting->m_SliderUpdate(v); // Initial update
 	return setting;
 }
@@ -92,45 +93,45 @@ SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, 
 	setting->textSetting.options = new Vector<String>(options);
 	setting->textSetting.optionsCount = optionsCount;
 
-	LayoutBox* box = new LayoutBox();
+	auto box = std::make_shared<LayoutBox>();
 	box->layoutDirection = LayoutBox::Vertical;
-	LayoutBox::Slot* slot = m_container->Add(box->MakeShared());
+	LayoutBox::Slot* slot = m_container->Add(box);
 	slot->fillX = true;
-	LayoutBox* buttonBox = new LayoutBox();
+	auto buttonBox = std::make_shared<LayoutBox>();
 
 	buttonBox->layoutDirection = LayoutBox::Horizontal;
 
 	// Create Visuals
 	{
 		// Name Label
-		Label* nameLabel = new Label();
+		auto nameLabel = std::make_shared<Label>();
 		nameLabel->SetFontSize(25);
 		nameLabel->SetText(Utility::WSprintf(L"%ls: ", setting->name));
-		box->Add(nameLabel->MakeShared());
+		box->Add(nameLabel);
 
 		// Prev Button
-		Button* prevButton = new Button(m_style);
+		auto prevButton = std::make_shared<Button>(m_style);
 		prevButton->SetText(L"<");
 		prevButton->OnPressed.Add(setting, &SettingBarSetting::m_PrevTextSetting);
-		LayoutBox::Slot* prevButtonSlot = buttonBox->Add(prevButton->MakeShared());
+		LayoutBox::Slot* prevButtonSlot = buttonBox->Add(prevButton);
 		prevButtonSlot->fillX = true;
 
 		// Value label
-		Label* label = setting->label = new Label();
+		auto label = setting->label = std::make_shared<Label>();
 		label->SetFontSize(40);
-		LayoutBox::Slot* valueLabelSlot = buttonBox->Add(label->MakeShared());
+		LayoutBox::Slot* valueLabelSlot = buttonBox->Add(label);
 		valueLabelSlot->fillX = false;
 
 		// Next Button
-		Button* nextButton = new Button(m_style);
+		auto nextButton = std::make_shared<Button>(m_style);
 		nextButton->SetText(L">");
 		nextButton->OnPressed.Add(setting, &SettingBarSetting::m_NextTextSetting);
-		LayoutBox::Slot* nextButtonSlot = buttonBox->Add(nextButton->MakeShared());
+		LayoutBox::Slot* nextButtonSlot = buttonBox->Add(nextButton);
 		nextButtonSlot->fillX = true;
 	}
-	LayoutBox::Slot* buttonBoxSlot = box->Add(buttonBox->MakeShared());
+	LayoutBox::Slot* buttonBoxSlot = box->Add(buttonBox);
 	buttonBoxSlot->fillX = true;
-	m_settings.Add(setting, box->MakeShared());
+	m_settings.Add(setting, box);
 
 	setting->m_UpdateTextSetting(0);
 	return setting;

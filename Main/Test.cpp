@@ -61,85 +61,85 @@ public:
 		m_gamepad = g_gameWindow->OpenGamepad(0);
 
 		{
-			ScrollBox* box0 = new ScrollBox(m_guiStyle);
-			Canvas::Slot* slot = g_rootCanvas->Add(box0->MakeShared());
+			auto box0 = std::make_shared<ScrollBox>(m_guiStyle);
+			Canvas::Slot* slot = g_rootCanvas->Add(box0);
 			slot->anchor = Anchor(0.0f, 0.0f);
 			slot->offset = Rect(Vector2(10.0f, 10.0f), Vector2(500, 500.0f));
 			slot->autoSizeX = false;
 			slot->autoSizeY = false;
 
 			{
-				LayoutBox* box = new LayoutBox();
+				auto box = std::make_shared<LayoutBox>();
 				box->layoutDirection = LayoutBox::Vertical;
-				box0->SetContent(box->MakeShared());
+				box0->SetContent(box);
 
 				LayoutBox::Slot* btnSlot;
-				Button* btn0 = new Button(m_guiStyle);
+				auto btn0 = std::make_shared<Button>(m_guiStyle);
 				btn0->SetText(L"TestButton0");
 				btn0->SetFontSize(32);
-				btnSlot = box->Add(btn0->MakeShared());
+				btnSlot = box->Add(btn0);
 				btnSlot->padding = Margin(2);
 
-				Button* btn1 = new Button(m_guiStyle);
+				auto btn1 = std::make_shared<Button>(m_guiStyle);
 				btn1->SetText(L"This is a button with slightly\nlarger text");
 				btn1->SetFontSize(32);
-				btnSlot = box->Add(btn1->MakeShared());
+				btnSlot = box->Add(btn1);
 				btnSlot->padding = Margin(2);
 
-				TextInputField* fld = new TextInputField(m_guiStyle);
+				auto fld = std::make_shared<TextInputField>(m_guiStyle);
 				fld->SetText(L"textinput");
 				fld->SetFontSize(32);
-				btnSlot = box->Add(fld->MakeShared());
+				btnSlot = box->Add(fld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				Slider* sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				auto sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
 				// Duplicate items
-				btn0 = new Button(m_guiStyle);
+				btn0 = std::make_shared<Button>(m_guiStyle);
 				btn0->SetText(L"TestButton0");
 				btn0->SetFontSize(32);
-				btnSlot = box->Add(btn0->MakeShared());
+				btnSlot = box->Add(btn0);
 				btnSlot->padding = Margin(2);
 
-				btn1 = new Button(m_guiStyle);
+				btn1 = std::make_shared<Button>(m_guiStyle);
 				btn1->SetText(L"This is a button with slightly\nlarger text");
 				btn1->SetFontSize(32);
-				btnSlot = box->Add(btn1->MakeShared());
+				btnSlot = box->Add(btn1);
 				btnSlot->padding = Margin(2);
 
-				fld = new TextInputField(m_guiStyle);
+				fld = std::make_shared<TextInputField>(m_guiStyle);
 				fld->SetText(L"textinput");
 				fld->SetFontSize(32);
-				btnSlot = box->Add(fld->MakeShared());
+				btnSlot = box->Add(fld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 
-				sld = new Slider(m_guiStyle);
-				btnSlot = box->Add(sld->MakeShared());
+				sld = std::make_shared<Slider>(m_guiStyle);
+				btnSlot = box->Add(sld);
 				btnSlot->fillX = true;
 				btnSlot->padding = Margin(2);
 			}
@@ -147,7 +147,7 @@ public:
 
 		// Setting bar
 		{
-			SettingsBar* sb = new SettingsBar(m_guiStyle);
+			auto sb = std::make_shared<SettingsBar>(m_guiStyle);
 			m_settings = std::shared_ptr<SettingsBar>(sb);
 			sb->AddSetting(&a, 0.0f, 1.0f, "A");
 			sb->AddSetting(&b, 0.0f, 10.0f, "B");
@@ -158,7 +158,7 @@ public:
 			m_textSettings.Add("3");
 			sb->AddSetting(&e, m_textSettings, m_textSettings.size(), "E");
 
-			Canvas::Slot* slot = g_rootCanvas->Add(sb->MakeShared());
+			Canvas::Slot* slot = g_rootCanvas->Add(sb);
 			slot->anchor = Anchor(0.75f, 0.0f, 1.0f, 1.0f);
 			slot->autoSizeX = false;
 			slot->autoSizeY = false;
@@ -166,8 +166,8 @@ public:
 
 		// Spinner
 		{
-			Spinner* spinner = new Spinner(m_guiStyle);
-			Canvas::Slot* slot = g_rootCanvas->Add(spinner->MakeShared());
+			auto spinner = std::make_shared<Spinner>(m_guiStyle);
+			Canvas::Slot* slot = g_rootCanvas->Add(spinner);
 			slot->anchor = Anchor(0.9f, 0.9f);
 			slot->autoSizeX = true;
 			slot->autoSizeY = true;

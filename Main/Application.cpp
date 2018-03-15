@@ -31,8 +31,8 @@ JobSheduler* g_jobSheduler = nullptr;
 Input g_input;
 
 GUIRenderer* g_guiRenderer = nullptr;
-shared_ptr<Canvas> g_rootCanvas;
-shared_ptr<CommonGUIStyle> g_commonGUIStyle;
+std::shared_ptr<Canvas> g_rootCanvas;
+std::shared_ptr<CommonGUIStyle> g_commonGUIStyle;
 
 // Tickable queue
 static Vector<IApplicationTickable*> g_tickables;
@@ -485,7 +485,7 @@ void Application::m_Tick()
 		}
 
 		// Time to render GUI
-		g_guiRenderer->Render(m_deltaTime, Rect(Vector2(0, 0), g_resolution), g_rootCanvas.As<GUIElementBase>());
+		g_guiRenderer->Render(m_deltaTime, Rect(Vector2(0, 0), g_resolution), std::dynamic_pointer_cast<GUIElementBase>(g_rootCanvas));
 
 		// Swap buffers
 		g_gl->SwapBuffers();

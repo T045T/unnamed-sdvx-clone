@@ -89,14 +89,14 @@ public:
 
 private:
 	std::shared_ptr<SongSelectStyle> m_style;
-	Vector<class SongDifficultyFrame*> m_diffSelectors;
+	Vector<std::shared_ptr<class SongDifficultyFrame>> m_diffSelectors;
 	int32 m_selectedDifficulty = 0;
-	class Panel* m_bg = nullptr;
-	class LayoutBox* m_mainVert = nullptr;
-	class LayoutBox* m_diffSelect = nullptr;
-	class Label* m_title = nullptr;
-	class Label* m_artist = nullptr;
-	class Label* m_score = nullptr;
+	std::shared_ptr<class Panel> m_bg;
+	std::shared_ptr<class LayoutBox> m_mainVert;
+	std::shared_ptr<class LayoutBox> m_diffSelect;
+	std::shared_ptr<class Label> m_title;
+	std::shared_ptr<class Label> m_artist;
+	std::shared_ptr<class Label> m_score;
 };
 
 // Song statistics window on the left
@@ -107,5 +107,5 @@ public:
 
 private:
 	std::shared_ptr<SongSelectStyle> m_style;
-	class Panel* m_bg = nullptr;
+	std::shared_ptr<class Panel> m_bg;
 };

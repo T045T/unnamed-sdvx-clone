@@ -1,4 +1,5 @@
 /* Shared library main include file */
+#pragma once
 
 // Types
 #include "Types.hpp"

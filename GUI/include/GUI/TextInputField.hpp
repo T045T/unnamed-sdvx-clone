@@ -36,8 +36,8 @@ protected:
 	Rect m_cachedInnerRect;
 	Rect m_cachedTextRect;
 
-	class Label* text;
-	class Label* composition;
+	std::shared_ptr<class Label> text;
+	std::shared_ptr<class Label> composition;
 
 	float m_caretBlinkTimer = 0.0f;
 	bool m_hovered = false;

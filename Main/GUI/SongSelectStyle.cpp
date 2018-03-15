@@ -99,14 +99,14 @@ bool JacketLoadingJob::Run()
 {
 	// Create loading task
 	loadedImage = ImageRes::Create(imagePath);
-	if (loadedImage.IsValid())
+	if (loadedImage != nullptr)
 	{
 		if (loadedImage->GetSize().x > 150 || loadedImage->GetSize().y > 150)
 		{
 			loadedImage->ReSize({150, 150});
 		}
 	}
-	return loadedImage.IsValid();
+	return loadedImage != nullptr;
 }
 
 void JacketLoadingJob::Finalize()

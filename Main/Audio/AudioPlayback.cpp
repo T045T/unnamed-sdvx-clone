@@ -124,7 +124,7 @@ bool AudioPlayback::HasEnded() const
 void AudioPlayback::SetEffect(uint32 index, HoldObjectState* object, class BeatmapPlayback& playback)
 {
 	// Don't use effects when using an FX track
-	if (m_fxtrack.IsValid())
+	if (m_fxtrack != nullptr)
 		return;
 
 	assert(index >= 0 && index <= 1);
@@ -139,7 +139,7 @@ void AudioPlayback::SetEffect(uint32 index, HoldObjectState* object, class Beatm
 	DSP*& dsp = m_buttonDSPs[index];
 
 	m_buttonEffects[index] = m_beatmap->GetEffect(object->effectType);
-	dsp = m_buttonEffects[index].CreateDSP(m_GetDSPTrack().GetData(), *this);
+	dsp = m_buttonEffects[index].CreateDSP(m_GetDSPTrack().get(), *this);
 
 	if (dsp)
 	{
@@ -187,10 +187,10 @@ void AudioPlayback::SetLaserFilterInput(float input, bool active)
 		if (!m_laserDSP)
 		{
 			// Don't use Bitcrush effects over FX track
-			if (m_fxtrack.IsValid() && m_laserEffectType == EffectType::Bitcrush)
+			if ((m_fxtrack != nullptr) && (m_laserEffectType == EffectType::Bitcrush))
 				return;
 
-			m_laserDSP = m_laserEffect.CreateDSP(m_GetDSPTrack().GetData(), *this);
+			m_laserDSP = m_laserEffect.CreateDSP(m_GetDSPTrack().get(), *this);
 			if (!m_laserDSP)
 			{
 				Logf("Failed to create laser DSP with type %d", Logger::Warning, m_laserEffect.type);
@@ -224,7 +224,7 @@ float AudioPlayback::GetLaserEffectMix() const
 	return m_laserEffectMix;
 }
 
-AudioStream AudioPlayback::m_GetDSPTrack()
+AudioStream AudioPlayback::m_GetDSPTrack() const
 {
 	if (m_fxtrack)
 		return m_fxtrack;
@@ -251,7 +251,7 @@ void AudioPlayback::SetFXTrackEnabled(bool enabled)
 	m_fxtrackEnabled = enabled;
 }
 
-BeatmapPlayback& AudioPlayback::GetBeatmapPlayback()
+BeatmapPlayback& AudioPlayback::GetBeatmapPlayback() const
 {
 	return *m_playback;
 }

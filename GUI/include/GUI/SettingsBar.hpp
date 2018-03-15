@@ -3,6 +3,7 @@
 #include "LayoutBox.hpp"
 #include "ScrollBox.hpp"
 #include "CommonGUIStyle.hpp"
+#include "Label.hpp"
 
 struct SettingBarSetting
 {
@@ -33,7 +34,7 @@ struct SettingBarSetting
 	};
 
 	WString name;
-	class Label* label;
+	std::shared_ptr<Label> label;
 
 protected:
 	friend class SettingsBar;
@@ -69,8 +70,8 @@ public:
 
 private:
 	bool m_shown = true;
-	class LayoutBox* m_container;
+	std::shared_ptr<LayoutBox> m_container;
 	std::shared_ptr<CommonGUIStyle> m_style;
 	Map<SettingBarSetting*, GUIElement> m_settings;
-	Map<SettingBarSetting*, Slider*> m_sliders;
+	Map<SettingBarSetting*, std::shared_ptr<Slider>> m_sliders;
 };

@@ -1,7 +1,7 @@
 #pragma once
-#include "stdafx.h"
 #include "Shared/Math.hpp"
-#include <type_traits>
+#include "Shared/VectorMath.hpp"
+#include <initializer_list>
 
 namespace VectorMath
 {
@@ -385,8 +385,8 @@ namespace VectorMath
 	static VectorBase<T, 3> Cross(const VectorBase<T, 3>& lhs, const VectorBase<T, 3>& rhs)
 	{
 		return VectorBase<T, 3>(lhs.y * rhs.z - lhs.z * rhs.y,
-								lhs.z * rhs.x - lhs.x * rhs.z,
-								lhs.x * rhs.y - lhs.y * rhs.x);
+			lhs.z * rhs.x - lhs.x * rhs.z,
+			lhs.x * rhs.y - lhs.y * rhs.x);
 	}
 
 	template <typename T>

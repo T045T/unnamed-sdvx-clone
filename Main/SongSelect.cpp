@@ -30,7 +30,7 @@ public:
 		{
 			if (m_currentStream)
 			{
-				m_currentStream.Destroy();
+				m_currentStream.reset();
 			}
 			m_currentStream = m_nextStream;
 		}
@@ -53,12 +53,12 @@ public:
 			{
 				if (m_currentStream)
 				{
-					m_currentStream.Destroy();
+					m_currentStream.reset();
 				}
 				m_currentStream = m_nextStream;
 				if (m_currentStream)
 					m_currentStream->SetVolume(1.0f);
-				m_nextStream.Release();
+				m_nextStream.reset(); // unsure, was Release()
 				m_nextSet = false;
 			}
 			else
@@ -150,10 +150,10 @@ public:
 			{
 				// Clear selection if a removed item was selected
 				if (m_currentSelection == it->second)
-					m_currentSelection.Release();
+					m_currentSelection.reset(); // unsure, was Release()
 
 				// Remove this item from the canvas that displays the items
-				Remove(it->second.As<GUIElementBase>());
+				Remove(std::dynamic_pointer_cast<GUIElementBase>(it->second));
 				m_guiElements.erase(it);
 			}
 		}
@@ -180,11 +180,10 @@ public:
 
 	void OnMapsCleared(Map<int32, MapIndex*> newList)
 	{
-		m_currentSelection.Release();
+		m_currentSelection.reset();	// unsure, was Release()
 		for (auto g : m_guiElements)
-		{
-			Remove(g.second.As<GUIElementBase>());
-		}
+			Remove(std::dynamic_pointer_cast<GUIElementBase>(g.second));
+
 		m_guiElements.clear();
 		m_filterSet = false;
 		m_mapFilter.clear();
@@ -254,7 +253,7 @@ public:
 						offset = initialSpacing * Math::Sign(i) +
 							spacing * (i - Math::Sign(i));
 					}
-					Canvas::Slot* slot = Add(item.As<GUIElementBase>());
+					Canvas::Slot* slot = Add(std::dynamic_pointer_cast<GUIElementBase>(item));
 
 					int32 z = -abs(i);
 					slot->SetZOrder(z);
@@ -272,10 +271,12 @@ public:
 					else
 					{
 						// Animate towards target position
-						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<Vector2>(&slot->offset.pos, Vector2(0, offset), 0.1f)), true);
-						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&slot->offset.size.x, z * 50.0f, 0.1f)), true);
+						item->AddAnimation(
+							std::static_pointer_cast<IGUIAnimation>(
+								std::make_shared<GUIAnimation<Vector2>>(&slot->offset.pos, Vector2(0, offset), 0.1f)), true);
+						item->AddAnimation(
+							std::static_pointer_cast<IGUIAnimation>(
+								std::make_shared<GUIAnimation<float>>(&slot->offset.size.x, z * 50.0f, 0.1f)), true);
 					}
 
 					item->fade = 1.0f - ((float)abs(i) / (float)numItems);
@@ -298,11 +299,11 @@ public:
 		{
 			if (!visibleIndices.Contains(it->first))
 			{
-				Remove(it->second.As<GUIElementBase>());
+				Remove(std::dynamic_pointer_cast<GUIElementBase>(it->second));
 				it = m_guiElements.erase(it);
 				continue;
 			}
-			it++;
+			++it;
 		}
 	}
 
@@ -315,24 +316,24 @@ public:
 			if (srcCollection.empty())
 			{
 				// Remove all elements, empty
-				m_currentSelection.Release();
+				m_currentSelection.reset(); // unsure, was Release()
 				Clear();
 				m_guiElements.clear();
 				return;
 			}
 			it = srcCollection.begin();
 		}
-		for (uint32 i = 0; i < (uint32)abs(offset); i++)
+		for (uint32 i = 0; i < static_cast<uint32>(abs(offset)); i++)
 		{
 			auto itn = it;
 			if (offset < 0)
 			{
 				if (itn == srcCollection.begin())
 					break;
-				itn--;
+				--itn;
 			}
 			else
-				itn++;
+				++itn;
 			if (itn == srcCollection.end())
 				break;
 			it = itn;
@@ -363,7 +364,7 @@ public:
 		Map<int32, SongSelectIndex> maps = m_SourceCollection();
 		SongSelectIndex map = maps[m_currentlySelectedId];
 		int32 newIdx = m_currentlySelectedDiff + offset;
-		newIdx = Math::Clamp(newIdx, 0, (int32)map.GetDifficulties().size() - 1);
+		newIdx = Math::Clamp(newIdx, 0, static_cast<int32>(map.GetDifficulties().size()) - 1);
 		SelectDifficulty(newIdx);
 	}
 
@@ -437,7 +438,7 @@ private:
 		if (it != m_guiElements.end())
 			return it->second;
 
-		std::shared_ptr<SongSelectItem> newItem = std::shared_ptr<SongSelectItem>(new SongSelectItem(m_style));
+		std::shared_ptr<SongSelectItem> newItem = std::make_shared<SongSelectItem>(m_style);
 
 		// Send first map as metadata settings
 		const BeatmapSettings& firstSettings = index.GetDifficulties()[0]->settings;
@@ -510,7 +511,8 @@ public:
 			m_levelFilters.Add(filter);
 		else
 			m_folderFilters.Add(filter);
-		Label* label = new Label();
+
+		auto label = std::make_shared<Label>();
 		label->SetFontSize(30);
 		label->SetText(Utility::ConvertToWString(filter->GetName()));
 		if (!m_selectingFolders && type == FilterType::Folder)
@@ -518,7 +520,8 @@ public:
 		else if (m_selectingFolders && type == FilterType::Level)
 			label->color.w = 0.0f;
 		m_guiElements[filter] = label;
-		Canvas::Slot* labelSlot = Add(label->MakeShared());
+
+		Canvas::Slot* labelSlot = Add(label);
 		labelSlot->allowOverflow = true;
 		labelSlot->autoSizeX = true;
 		labelSlot->autoSizeY = true;
@@ -553,9 +556,10 @@ public:
 
 				coordinate.y = ((int)i - (int)m_currentFolderSelection) * 40.f;
 				coordinate.x -= ((int)m_currentFolderSelection - i) * ((int)m_currentFolderSelection - i) * 1.5;
-				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
-				AddAnimation(std::shared_ptr<IGUIAnimation>(
-								new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
+				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]);
+				AddAnimation(
+					std::static_pointer_cast<IGUIAnimation>(
+						std::make_shared<GUIAnimation<Vector2>>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
 		}
@@ -568,9 +572,10 @@ public:
 
 				coordinate.y = ((int)i - (int)m_currentLevelSelection) * 40.f;
 				coordinate.x -= ((int)m_currentLevelSelection - i) * ((int)m_currentLevelSelection - i) * 1.5;
-				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
-				AddAnimation(std::shared_ptr<IGUIAnimation>(
-								new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
+				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]);
+				AddAnimation(
+					std::static_pointer_cast<IGUIAnimation>(
+						std::make_shared<GUIAnimation<Vector2>>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
 		}
@@ -639,7 +644,7 @@ private:
 	int32 m_currentFolderSelection = 0;
 	int32 m_currentLevelSelection = 0;
 	bool m_selectingFolders = true;
-	Map<SongFilter*, Label*> m_guiElements;
+	Map<SongFilter*, std::shared_ptr<Label>> m_guiElements;
 	SongFilter* m_currentFilters[2] = {nullptr};
 	MapDatabase* m_mapDB;
 };
@@ -696,7 +701,7 @@ public:
 	bool Init() override
 	{
 		m_commonGUIStyle = g_commonGUIStyle;
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 
 		// Load textures for song select
 		m_style = SongSelectStyle::Get(g_application);
@@ -705,71 +710,71 @@ public:
 		const float screenSplit = 0.0f;
 
 		// Statistics window
-		m_statisticsWindow = std::shared_ptr<SongStatistics>(new SongStatistics(m_style));
-		Canvas::Slot* statisticsSlot = m_canvas->Add(m_statisticsWindow.As<GUIElementBase>());
+		m_statisticsWindow = std::make_shared<SongStatistics>(m_style);
+		Canvas::Slot* statisticsSlot = m_canvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_statisticsWindow));
 		statisticsSlot->anchor = Anchor(0, 0, screenSplit, 1.0f);
 		statisticsSlot->SetZOrder(2);
 
 		// Set up input
 		g_input.OnButtonPressed.Add(this, &SongSelect_Impl::m_OnButtonPressed);
 
-		Panel* background = new Panel();
+		auto background = std::make_shared<Panel>();
 		background->imageFillMode = FillMode::Fill;
 		background->texture = g_application->LoadTexture("bg.png");
 		background->color = Color(0.5f);
-		Canvas::Slot* bgSlot = m_canvas->Add(background->MakeShared());
+		Canvas::Slot* bgSlot = m_canvas->Add(background);
 		bgSlot->anchor = Anchors::Full;
 		bgSlot->SetZOrder(-2);
 
-		LayoutBox* box = new LayoutBox();
-		Canvas::Slot* boxSlot = m_canvas->Add(box->MakeShared());
+		auto box = std::make_shared<LayoutBox>();
+		Canvas::Slot* boxSlot = m_canvas->Add(box);
 		boxSlot->anchor = Anchor(screenSplit, 0, 1.0f, 1.0f);
 		box->layoutDirection = LayoutBox::Vertical;
 		{
-			m_searchField = std::shared_ptr<TextInputField>(new TextInputField(m_commonGUIStyle));
-			LayoutBox::Slot* searchFieldSlot = box->Add(m_searchField.As<GUIElementBase>());
+			m_searchField = std::make_shared<TextInputField>(m_commonGUIStyle);
+			LayoutBox::Slot* searchFieldSlot = box->Add(std::dynamic_pointer_cast<GUIElementBase>(m_searchField));
 			searchFieldSlot->fillX = true;
 			m_searchField->OnTextUpdated.Add(this, &SongSelect_Impl::OnSearchTermChanged);
 
-			m_filterStatus = std::shared_ptr<Label>(new Label());
+			m_filterStatus = std::make_shared<Label>();
 			m_filterStatus->SetFontSize(40);
 			m_filterStatus->SetText(L"All / All");
-			LayoutBox::Slot* filterLabelSlot = box->Add(m_filterStatus->MakeShared());
+			LayoutBox::Slot* filterLabelSlot = box->Add(m_filterStatus);
 
-			m_selectionWheel = std::shared_ptr<SelectionWheel>(new SelectionWheel(m_style));
-			LayoutBox::Slot* selectionSlot = box->Add(m_selectionWheel.As<GUIElementBase>());
+			m_selectionWheel = std::make_shared<SelectionWheel>(m_style);
+			LayoutBox::Slot* selectionSlot = box->Add(std::dynamic_pointer_cast<GUIElementBase>(m_selectionWheel));
 			selectionSlot->fillY = true;
 			m_selectionWheel->OnMapSelected.Add(this, &SongSelect_Impl::OnMapSelected);
 			m_selectionWheel->OnDifficultySelected.Add(this, &SongSelect_Impl::OnDifficultySelected);
 		}
 
 		{
-			m_fadePanel = std::shared_ptr<Panel>(new Panel());
+			m_fadePanel = std::make_shared<Panel>();
 			m_fadePanel->color = Color(0.f);
 			m_fadePanel->color.w = 0.0f;
-			Canvas::Slot* panelSlot = m_canvas->Add(m_fadePanel->MakeShared());
+			Canvas::Slot* panelSlot = m_canvas->Add(m_fadePanel);
 			panelSlot->anchor = Anchors::Full;
 		}
 
 		{
-			m_scoreCanvas = std::shared_ptr<Canvas>(new Canvas());
-			Canvas::Slot* slot = m_canvas->Add(m_scoreCanvas->MakeShared());
+			m_scoreCanvas = std::make_shared<Canvas>();
+			Canvas::Slot* slot = m_canvas->Add(m_scoreCanvas);
 			slot->anchor = Anchor(1.0, 0.0, 2.0, 10.0);
 
-			Panel* scoreBg = new Panel();
+			auto scoreBg = std::make_shared<Panel>();
 			scoreBg->color = Color(Vector3(0.5), 1.0);
-			slot = m_scoreCanvas->Add(scoreBg->MakeShared());
+			slot = m_scoreCanvas->Add(scoreBg);
 			slot->anchor = Anchors::Full;
 
-			m_scoreList = std::shared_ptr<LayoutBox>(new LayoutBox());
+			m_scoreList = std::make_shared<LayoutBox>();
 			m_scoreList->layoutDirection = LayoutBox::LayoutDirection::Vertical;
-			slot = m_scoreCanvas->Add(m_scoreList->MakeShared());
+			slot = m_scoreCanvas->Add(m_scoreList);
 			slot->anchor = Anchors::Full;
 		}
 
 		{
-			m_filterSelection = std::shared_ptr<FilterSelection>(new FilterSelection(m_selectionWheel));
-			Canvas::Slot* slot = m_canvas->Add(m_filterSelection->MakeShared());
+			m_filterSelection = std::make_shared<FilterSelection>(m_selectionWheel);
+			Canvas::Slot* slot = m_canvas->Add(m_filterSelection);
 			slot->anchor = Anchor(-1.0, 0.0, 0.0, 1.0);
 		}
 		m_filterSelection->SetMapDB(&m_mapDatabase);
@@ -780,10 +785,10 @@ public:
 		// Setup the map database
 		m_mapDatabase.AddSearchPath(g_gameConfig.GetString(GameConfigKeys::SongFolder));
 
-		m_mapDatabase.OnMapsAdded.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsAdded);
-		m_mapDatabase.OnMapsUpdated.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsUpdated);
-		m_mapDatabase.OnMapsRemoved.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsRemoved);
-		m_mapDatabase.OnMapsCleared.Add(m_selectionWheel.GetData(), &SelectionWheel::OnMapsCleared);
+		m_mapDatabase.OnMapsAdded.Add(m_selectionWheel.get(), &SelectionWheel::OnMapsAdded);
+		m_mapDatabase.OnMapsUpdated.Add(m_selectionWheel.get(), &SelectionWheel::OnMapsUpdated);
+		m_mapDatabase.OnMapsRemoved.Add(m_selectionWheel.get(), &SelectionWheel::OnMapsRemoved);
+		m_mapDatabase.OnMapsCleared.Add(m_selectionWheel.get(), &SelectionWheel::OnMapsCleared);
 		m_mapDatabase.StartSearching();
 
 		m_selectionWheel->SelectRandom();
@@ -852,10 +857,10 @@ public:
 
 			WString grade = Utility::ConvertToWString(Scoring::CalculateGrade(s.score));
 
-			Label* text = new Label();
+			auto text = std::make_shared<Label>();
 			text->SetText(Utility::WSprintf(L"--%d--\n%08d\n%d%%\n%ls", place, s.score, (int)(s.gauge * 100), grade));
 			text->SetFontSize(32);
-			LayoutBox::Slot* slot = m_scoreList->Add(text->MakeShared());
+			LayoutBox::Slot* slot = m_scoreList->Add(text);
 			slot->fillX = true;
 			slot->padding = Margin(10, 5, 0, 0);
 
@@ -926,13 +931,13 @@ public:
 				if (!m_showScores)
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				else
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				break;
@@ -942,21 +947,21 @@ public:
 					g_guiRenderer->SetInputFocus(nullptr);
 
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)), true);
+						new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				else
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-												new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
+						new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				break;
@@ -984,11 +989,11 @@ public:
 			else if (key == SDLK_ESCAPE)
 			{
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-											new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-											new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-											new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
+					new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 				m_filterSelection->Active = !m_filterSelection->Active;
 			}
 		}
@@ -1036,7 +1041,7 @@ public:
 				if (m_searchField->HasInputFocus())
 					g_guiRenderer->SetInputFocus(nullptr);
 				else
-					g_guiRenderer->SetInputFocus(m_searchField.GetData());
+					g_guiRenderer->SetInputFocus(m_searchField.get());
 			}
 		}
 	}
@@ -1079,7 +1084,7 @@ public:
 		else
 		{
 			if (m_lockMouse)
-				m_lockMouse.Release();
+				m_lockMouse.reset(); // unsure, was Release()
 			g_gameWindow->SetCursorVisible(true);
 		}
 
@@ -1120,9 +1125,9 @@ public:
 		m_previewPlayer.Pause();
 		m_mapDatabase.StopSearching();
 		if (m_lockMouse)
-			m_lockMouse.Release();
+			m_lockMouse.reset(); // unsure, was Release()
 
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
@@ -1133,7 +1138,7 @@ public:
 
 		OnSearchTermChanged(m_searchField->GetText());
 
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 	}
 };

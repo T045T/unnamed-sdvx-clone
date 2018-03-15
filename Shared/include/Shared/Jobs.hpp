@@ -94,7 +94,7 @@ typedef std::shared_ptr<JobBase> Job;
 template <typename Lambda, typename... Args>
 Job JobBase::CreateLambda(Lambda&& obj, Args ... args)
 {
-	return Ref<JobBase>(new LambdaJob<Lambda, Args...>(obj, args...));
+	return std::shared_ptr<JobBase>(new LambdaJob<Lambda, Args...>(obj, args...));
 }
 
 /*

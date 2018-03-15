@@ -9,30 +9,30 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 {
 	m_settings = game.GetBeatmap()->GetMapSettings();
 
-	LayoutBox* layoutBox = new LayoutBox();
+	auto layoutBox = std::make_shared<LayoutBox>();
 	m_layout = std::shared_ptr<LayoutBox>(layoutBox);
 	layoutBox->layoutDirection = LayoutBox::LayoutDirection::Horizontal;
 	{
-		Slot* layoutSlot = Add(layoutBox->MakeShared());
+		Slot* layoutSlot = Add(layoutBox);
 		layoutSlot->anchor = Anchors::Full;
 	}
 
 	// Jacket
-	Panel* jacketPanel = new Panel();
+	auto jacketPanel = std::make_shared<Panel>();
 	m_jacket = std::shared_ptr<Panel>(jacketPanel);
 	jacketPanel->color = Color::White;
 	jacketPanel->imageFillMode = FillMode::Fit;
 	{
-		LayoutBox::Slot* jackSlot = layoutBox->Add(jacketPanel->MakeShared());
+		LayoutBox::Slot* jackSlot = layoutBox->Add(jacketPanel);
 		jackSlot->alignment = Vector2(0.f, 0.5f);
 		jackSlot->fillY = true;
 	}
 
-	SongTitleArtist* sta = new SongTitleArtist(m_settings.title, m_settings.artist, this);
+	auto sta = std::make_shared<SongTitleArtist>(m_settings.title, m_settings.artist, this);
 	m_titleArtist = std::shared_ptr<SongTitleArtist>(sta);
 	sta->color = Color::White;
 	{
-		LayoutBox::Slot* titleSlot = layoutBox->Add(sta->MakeShared());
+		LayoutBox::Slot* titleSlot = layoutBox->Add(sta);
 		titleSlot->fillX = true;
 		titleSlot->fillY = true;
 		titleSlot->padding = Margin(10, 0, 0, 0);

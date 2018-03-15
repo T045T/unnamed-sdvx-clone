@@ -73,9 +73,9 @@ private:
 
 	};
 
-	Button* m_buttonButtons[7];
-	Button* m_laserButtons[2];
-	Panel* m_laserColorPanels[2];
+	std::shared_ptr<Button> m_buttonButtons[7];
+	std::shared_ptr<Button> m_laserButtons[2];
+	std::shared_ptr<Panel> m_laserColorPanels[2];
 
 	Texture m_whiteTex;
 
@@ -232,7 +232,7 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 		m_gamePads = g_gameWindow->GetGamepadDeviceNames();
 		m_skins = Path::GetSubDirs("./skins/");
 
@@ -282,150 +282,152 @@ public:
 			m_selectedSkin = skinSearch - m_skins.begin();
 
 		//Options select
-		ScrollBox* scroller = new ScrollBox(m_guiStyle);
+		auto scroller = std::make_shared<ScrollBox>(m_guiStyle);
 
-		Canvas::Slot* slot = m_canvas->Add(scroller->MakeShared());
+		Canvas::Slot* slot = m_canvas->Add(scroller);
 
 		slot->anchor = Anchor(0.1f, 0.f, 0.9f, 1.f);
 		//slot->autoSizeX = true;
 		//slot->alignment = Vector2(0.5, 0.0);
 
-		LayoutBox* box = new LayoutBox();
+		auto box = std::make_shared<LayoutBox>();
 		box->layoutDirection = LayoutBox::Vertical;
-		scroller->SetContent(box->MakeShared());
+		scroller->SetContent(box);
 		LayoutBox::Slot* btnSlot;
 		// Start Button & Knob buttons
 		{
-			LayoutBox* stBox = new LayoutBox();
+			auto stBox = std::make_shared<LayoutBox>();
 
 			stBox->layoutDirection = LayoutBox::Horizontal;
 			{
-				Button* stBtn = new Button(m_guiStyle);
+				auto stBtn = std::make_shared<Button>(m_guiStyle);
 				m_laserButtons[0] = stBtn;
 				stBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetLL);
 				stBtn->SetText(L"LL");
 				stBtn->SetFontSize(32);
-				btnSlot = stBox->Add(stBtn->MakeShared());
+				btnSlot = stBox->Add(stBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->padding = Margin(60.f, 2.f);
 			}
 			{
-				Button* stBtn = new Button(m_guiStyle);
+				auto stBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[0] = stBtn;
 				stBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_ST);
 				stBtn->SetText(L"Start");
 				stBtn->SetFontSize(32);
-				btnSlot = stBox->Add(stBtn->MakeShared());
+				btnSlot = stBox->Add(stBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->alignment = Vector2(.5f, 0.f);
 			}
 			{
-				Button* stBtn = new Button(m_guiStyle);
+				auto stBtn = std::make_shared<Button>(m_guiStyle);
 				m_laserButtons[1] = stBtn;
 				stBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetRL);
 				stBtn->SetText(L"RL");
 				stBtn->SetFontSize(32);
-				btnSlot = stBox->Add(stBtn->MakeShared());
+				btnSlot = stBox->Add(stBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->alignment = Vector2(1.f, 0.f);
 				btnSlot->padding = Margin(60.f, 2.f);
 			}
-			LayoutBox::Slot* stSlot = box->Add(stBox->MakeShared());
+
+			LayoutBox::Slot* stSlot = box->Add(stBox);
 			stSlot->alignment = Vector2(0.5f, 0.f);
 		}
+
 		// BT Buttons
 		{
-			LayoutBox* btBox = new LayoutBox();
+			auto btBox = std::make_shared<LayoutBox>();
 			btBox->layoutDirection = LayoutBox::Horizontal;
 
 			{
-				Button* btaBtn = new Button(m_guiStyle);
+				auto btaBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[1] = btaBtn;
 				btaBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_BTA);
 				btaBtn->SetText(L"BT-A");
 				btaBtn->SetFontSize(32);
-				btnSlot = btBox->Add(btaBtn->MakeShared());
+				btnSlot = btBox->Add(btaBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->fillX = true;
 			}
 			{
-				Button* btbBtn = new Button(m_guiStyle);
+				auto btbBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[2] = btbBtn;
 				btbBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_BTB);
 				btbBtn->SetText(L"BT-B");
 				btbBtn->SetFontSize(32);
-				btnSlot = btBox->Add(btbBtn->MakeShared());
+				btnSlot = btBox->Add(btbBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->fillX = true;
 			}
 			{
-				Button* btcBtn = new Button(m_guiStyle);
+				auto btcBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[3] = btcBtn;
 				btcBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_BTC);
 				btcBtn->SetText(L"BT-C");
 				btcBtn->SetFontSize(32);
-				btnSlot = btBox->Add(btcBtn->MakeShared());
+				btnSlot = btBox->Add(btcBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->fillX = true;
 			}
 			{
-				Button* btdBtn = new Button(m_guiStyle);
+				auto btdBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[4] = btdBtn;
 				btdBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_BTD);
 				btdBtn->SetText(L"BT-D");
 				btdBtn->SetFontSize(32);
-				btnSlot = btBox->Add(btdBtn->MakeShared());
+				btnSlot = btBox->Add(btdBtn);
 				btnSlot->padding = Margin(2);
 				btnSlot->fillX = true;
 			}
-			LayoutBox::Slot* btSlot = box->Add(btBox->MakeShared());
+			LayoutBox::Slot* btSlot = box->Add(btBox);
 			btSlot->alignment = Vector2(0.5f, 0.f);
 		}
 		// FX Buttons
 		{
-			LayoutBox* fxBox = new LayoutBox();
+			auto fxBox = std::make_shared<LayoutBox>();
 
 			fxBox->layoutDirection = LayoutBox::Horizontal;
 			{
-				Button* fxlBtn = new Button(m_guiStyle);
+				auto fxlBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[5] = fxlBtn;
 				fxlBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_FXL);
 				fxlBtn->SetText(L"FX-L");
 				fxlBtn->SetFontSize(32);
-				btnSlot = fxBox->Add(fxlBtn->MakeShared());
+				btnSlot = fxBox->Add(fxlBtn);
 				btnSlot->padding = Margin(20.f, 2.f);
 				btnSlot->fillX = true;
 				btnSlot->alignment = Vector2(0.25f, 0.f);
 			}
 			{
-				Button* fxrBtn = new Button(m_guiStyle);
+				auto fxrBtn = std::make_shared<Button>(m_guiStyle);
 				m_buttonButtons[6] = fxrBtn;
 				fxrBtn->OnPressed.Add(this, &SettingsScreen_Impl::SetKey_FXR);
 				fxrBtn->SetText(L"FX-R");
 				fxrBtn->SetFontSize(32);
-				btnSlot = fxBox->Add(fxrBtn->MakeShared());
+				btnSlot = fxBox->Add(fxrBtn);
 				btnSlot->padding = Margin(20.f, 2.f);
 				btnSlot->alignment = Vector2(0.75f, 0.f);
 				btnSlot->fillX = true;
 			}
-			LayoutBox::Slot* fxSlot = box->Add(fxBox->MakeShared());
+			LayoutBox::Slot* fxSlot = box->Add(fxBox);
 			fxSlot->alignment = Vector2(0.5f, 0.f);
 		}
 
 		// Laser sens calibration button
 		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) != InputDevice::Keyboard)
 		{
-			Button* calButton = new Button(m_guiStyle);
+			auto calButton = std::make_shared<Button>(m_guiStyle);
 			calButton->OnPressed.Add(this, &SettingsScreen_Impl::CalibrateSens);
 			calButton->SetText(L"Calibrate Laser Sensitivity");
 			calButton->SetFontSize(32);
-			btnSlot = box->Add(calButton->MakeShared());
+			btnSlot = box->Add(calButton);
 			btnSlot->alignment = Vector2(0.5f, 0.f);
 		}
 
 		// Setting bar
 		{
-			SettingsBar* sb = new SettingsBar(m_guiStyle);
+			auto sb = std::make_shared<SettingsBar>(m_guiStyle);
 
 			m_settings = std::shared_ptr<SettingsBar>(sb);
 
@@ -436,25 +438,23 @@ public:
 			m_sensSetting = sb->AddSetting(&m_laserSens, 0.f, 20.0f, "Laser Sensitivity");
 			sb->AddSetting(&m_hispeed, 0.25f, 10.0f, "HiSpeed");
 			sb->AddSetting(&m_modSpeed, 50.0f, 1500.0f, "ModSpeed");
-			if (m_gamePads.size() > 0)
-			{
+			if (!m_gamePads.empty())
 				sb->AddSetting(&m_selectedGamepad, m_gamePads, m_gamePads.size(), "Selected Controller");
-			}
-			if (m_skins.size() > 0)
+			if (!m_skins.empty())
 				sb->AddSetting(&m_selectedSkin, m_skins, m_skins.size(), "Selected Skin");
 			sb->AddSetting(m_laserColors, 0.0, 360.0f, "Left Laser Color");
 			sb->AddSetting(m_laserColors + 1, 0.0, 360.0f, "Right Laser Color");
 
-			LayoutBox::Slot* slot = box->Add(sb->MakeShared());
+			LayoutBox::Slot* slot = box->Add(sb);
 			slot->fillX = true;
 		}
 
 		// Laser Colors
 		{
-			Label* laserColorLabel = new Label();
+			auto laserColorLabel = std::make_shared<Label>();
 			laserColorLabel->SetText(L"Laser Colors:");
 			laserColorLabel->SetFontSize(20);
-			box->Add(laserColorLabel->MakeShared());
+			box->Add(laserColorLabel);
 
 			// Make white square texture
 			m_whiteTex = TextureRes::Create(g_gl);
@@ -462,40 +462,41 @@ public:
 
 			Colori pixels[2500];
 
-			for (size_t i = 0; i < 2500; i++)
+			for (auto& pixel : pixels)
 			{
-				pixels[i] = Colori(255, 255, 255, 255);
+				pixel = Colori(255, 255, 255, 255);
 			}
 
 			m_whiteTex->SetData(Vector2i(50, 50), pixels);
 
-			LayoutBox* colorBox = new LayoutBox();
+			auto colorBox = std::make_shared<LayoutBox>();
 			colorBox->layoutDirection = LayoutBox::Horizontal;
 
 			{
-				Panel* lpanel = new Panel();
+				auto lpanel = std::make_shared<Panel>();
 				m_laserColorPanels[0] = lpanel;
 				lpanel->texture = m_whiteTex;
-				LayoutBox::Slot* lslot = colorBox->Add(lpanel->MakeShared());
+				LayoutBox::Slot* lslot = colorBox->Add(lpanel);
 			}
 
 			{
-				Panel* rpanel = new Panel();
+				auto rpanel = std::make_shared<Panel>();
 				m_laserColorPanels[1] = rpanel;
 				rpanel->texture = m_whiteTex;
-				LayoutBox::Slot* rslot = colorBox->Add(rpanel->MakeShared());
+				LayoutBox::Slot* rslot = colorBox->Add(rpanel);
 				rslot->padding = Margin(20, 0);
 			}
-			LayoutBox::Slot* slot = box->Add(colorBox->MakeShared());
+
+			LayoutBox::Slot* slot = box->Add(colorBox);
 			slot->fillX = true;
 			slot->fillY = true;
 		}
 
-		Button* exitBtn = new Button(m_guiStyle);
+		auto exitBtn = std::make_shared<Button>(m_guiStyle);
 		exitBtn->OnPressed.Add(this, &SettingsScreen_Impl::Exit);
 		exitBtn->SetText(L"Back");
 		exitBtn->SetFontSize(32);
-		btnSlot = box->Add(exitBtn->MakeShared());
+		btnSlot = box->Add(exitBtn);
 		btnSlot->padding = Margin(2);
 		btnSlot->alignment = Vector2(0.5f, 0.f);
 
@@ -536,12 +537,12 @@ public:
 
 	virtual void OnSuspend()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
 	{
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 	}
 };
@@ -558,7 +559,7 @@ private:
 	std::shared_ptr<CommonGUIStyle> m_guiStyle;
 	std::shared_ptr<Canvas> m_canvas;
 	std::shared_ptr<Gamepad> m_gamepad;
-	Label* m_prompt;
+	std::shared_ptr<Label> m_prompt;
 	GameConfigKeys m_key;
 	bool m_isGamepad;
 	int m_gamepadIndex;
@@ -578,20 +579,20 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 
 		//Prompt Text
-		LayoutBox* box = new LayoutBox();
-		Canvas::Slot* slot = m_canvas->Add(box->MakeShared());
+		auto box = std::make_shared<LayoutBox>();
+		Canvas::Slot* slot = m_canvas->Add(box);
 		slot->anchor = Anchor(0.5f, 0.5f);
 		slot->autoSizeX = true;
 		slot->autoSizeY = true;
 		slot->alignment = Vector2(0.5f, 0.5f);
 
-		m_prompt = new Label();
+		m_prompt = std::make_shared<Label>();
 		m_prompt->SetText(L"Press Key");
 		m_prompt->SetFontSize(100);
-		box->Add(m_prompt->MakeShared());
+		box->Add(m_prompt);
 		if (m_knobs)
 			m_prompt->SetText(L"Press Left Key");
 
@@ -632,7 +633,7 @@ public:
 		if (m_completed && m_gamepad)
 		{
 			m_gamepad->OnButtonPressed.RemoveAll(this);
-			m_gamepad.Release();
+			m_gamepad.reset();
 
 			g_application->RemoveTickable(this);
 		}
@@ -692,12 +693,12 @@ public:
 
 	virtual void OnSuspend()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
 	{
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 	}
 };
@@ -714,7 +715,7 @@ private:
 	std::shared_ptr<CommonGUIStyle> m_guiStyle;
 	std::shared_ptr<Canvas> m_canvas;
 	std::shared_ptr<Gamepad> m_gamepad;
-	Label* m_prompt;
+	std::shared_ptr<Label> m_prompt;
 	bool m_state = false;
 	float m_delta = 0.f;
 	float m_currentSetting = 0.f;
@@ -731,17 +732,17 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 
 		//Prompt Text
-		LayoutBox* box = new LayoutBox();
-		Canvas::Slot* slot = m_canvas->Add(box->MakeShared());
+		auto box = std::make_shared<LayoutBox>();
+		Canvas::Slot* slot = m_canvas->Add(box);
 		slot->anchor = Anchor(0.5f, 0.5f);
 		slot->autoSizeX = true;
 		slot->autoSizeY = true;
 		slot->alignment = Vector2(0.5f, 0.5f);
 		g_input.GetInputLaserDir(0); //poll because there might be something idk
-		m_prompt = new Label();
+		m_prompt = std::make_shared<Label>();
 		m_prompt->SetText(L"Press Start Twice"); //Need to press twice because controller polling weirdness
 		m_prompt->SetFontSize(100);
 		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) == InputDevice::Controller)
@@ -749,7 +750,7 @@ public:
 		else
 			m_currentSetting = g_gameConfig.GetFloat(GameConfigKeys::Mouse_Sensitivity);
 
-		box->Add(m_prompt->MakeShared());
+		box->Add(m_prompt);
 		g_input.OnButtonPressed.Add(this, &LaserSensCalibrationScreen_Impl::OnButtonPressed);
 		return true;
 	}
@@ -803,12 +804,12 @@ public:
 
 	virtual void OnSuspend()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
 	{
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 	}
 };

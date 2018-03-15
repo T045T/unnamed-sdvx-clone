@@ -139,40 +139,40 @@ SongSelectItem::SongSelectItem(std::shared_ptr<SongSelectStyle> style)
 
 	// Background image
 	{
-		m_bg = new Panel();
+		m_bg = std::make_shared<Panel>();
 		m_bg->imageFillMode = FillMode::None;
 		m_bg->imageAlignment = Vector2(1.0f, 0.5f);
-		Slot* bgSlot = Add(m_bg->MakeShared());
+		Slot* bgSlot = Add(m_bg);
 		bgSlot->anchor = Anchors::Full;
 	}
 
 	// Add Main layout container
 	{
-		m_mainVert = new LayoutBox();
+		m_mainVert = std::make_shared<LayoutBox>();
 		m_mainVert->layoutDirection = LayoutBox::Vertical;
-		Slot* slot = Add(m_mainVert->MakeShared());
+		Slot* slot = Add(m_mainVert);
 	}
 
 	// Add Titles
 	{
-		m_title = new Label();
+		m_title = std::make_shared<Label>();
 		m_title->SetFontSize(40);
 		m_title->SetText(L"<title>");
-		LayoutBox::Slot* slot = m_mainVert->Add(m_title->MakeShared());
+		LayoutBox::Slot* slot = m_mainVert->Add(m_title);
 		slot->padding = Margin(0, -5.0f);
 
-		m_artist = new Label();
+		m_artist = std::make_shared<Label>();
 		m_artist->SetFontSize(32);
 		m_artist->SetText(L"<artist>");
-		slot = m_mainVert->Add(m_artist->MakeShared());
+		slot = m_mainVert->Add(m_artist);
 		slot->padding = Margin(0, -5.0f);
 	}
 
 	// Add diff select
 	{
-		m_diffSelect = new LayoutBox();
+		m_diffSelect = std::make_shared<LayoutBox>();
 		m_diffSelect->layoutDirection = LayoutBox::Horizontal;
-		Slot* slot = Add(m_diffSelect->MakeShared());
+		Slot* slot = Add(m_diffSelect);
 		slot->anchor = Anchor(0.0f, 0.4f, 1.0f, 1.0f - 0.09f);
 		slot->padding = Margin(padding, 0, 0, 0);
 		slot->allowOverflow = true;
@@ -219,8 +219,8 @@ void SongSelectItem::SetIndex(struct SongSelectIndex map)
 	m_diffSelectors.clear();
 	for (auto d : map.GetDifficulties())
 	{
-		SongDifficultyFrame* frame = new SongDifficultyFrame(m_style, d);
-		LayoutBox::Slot* slot = m_diffSelect->Add(frame->MakeShared());
+		auto frame = std::make_shared<SongDifficultyFrame>(m_style, d);
+		LayoutBox::Slot* slot = m_diffSelect->Add(frame);
 		slot->padding = Margin(2);
 		slot->allowOverflow = true;
 		m_diffSelectors.Add(frame);
@@ -228,10 +228,10 @@ void SongSelectItem::SetIndex(struct SongSelectIndex map)
 
 	// Add score display to the end of diff select
 	{
-		m_score = new Label();
+		m_score = std::make_shared<Label>();
 		m_score->SetFontSize(32);
 		m_score->SetText(L"<score>");
-		LayoutBox::Slot* slot = m_diffSelect->Add(m_score->MakeShared());
+		LayoutBox::Slot* slot = m_diffSelect->Add(m_score);
 		slot->padding = Margin(10);
 		slot->alignment = Vector2(0.0f, 0.5f);
 		slot->allowOverflow = true;
@@ -241,7 +241,7 @@ void SongSelectItem::SetIndex(struct SongSelectIndex map)
 void SongSelectItem::SwitchCompact(bool compact)
 {
 	Slot* mainSlot = (Slot*)m_mainVert->slot;
-	Slot* bgSlot = (Slot*)m_bg;
+	auto bgSlot = std::dynamic_pointer_cast<Slot>(m_bg);
 	if (compact)
 	{
 		m_bg->texture = m_style->frameSub;
@@ -300,9 +300,9 @@ SongStatistics::SongStatistics(std::shared_ptr<SongSelectStyle> style)
 {
 	m_style = style;
 
-	m_bg = new Panel();
+	m_bg = std::make_shared<Panel>();
 	m_bg->color = Color::White.WithAlpha(0.5f);
-	Slot* slot = Add(m_bg->MakeShared());
+	Slot* slot = Add(m_bg);
 	slot->anchor = Anchors::Full;
 	slot->SetZOrder(-1);
 }

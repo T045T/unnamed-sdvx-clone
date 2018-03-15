@@ -73,13 +73,13 @@ public:
 	// this is just to support maps that do actually have an FX track
 	void SetFXTrackEnabled(bool enabled);
 
-	BeatmapPlayback& GetBeatmapPlayback();
+	BeatmapPlayback& GetBeatmapPlayback() const;
 	const Beatmap& GetBeatmap() const;
 	const String& GetBeatmapRootPath() const;
 
 private:
 	// Returns the track that should have effects applied to them
-	AudioStream m_GetDSPTrack();
+	AudioStream m_GetDSPTrack() const;
 	void m_CleanupDSP(class DSP*& ptr);
 	void m_SetLaserEffectParameter(float input);
 

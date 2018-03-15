@@ -190,7 +190,7 @@ public:
 		// Save hispeed
 		g_gameConfig.Set(GameConfigKeys::HiSpeed, m_hispeed);
 
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 
 		// In case the cursor was still hidden
 		g_gameWindow->SetCursorVisible(true);
@@ -377,7 +377,7 @@ public:
 	virtual bool Init() override
 	{
 		// Add to root canvas to be rendered (this makes the HUD visible)
-		Canvas::Slot* rootSlot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* rootSlot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		if (g_aspectRatio < 640.f / 480.f)
 		{
 			Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
@@ -419,14 +419,14 @@ public:
 		{
 			if (m_laserFollowEmitters[i])
 			{
-				m_laserFollowEmitters[i].Release();
+				m_laserFollowEmitters[i].reset();
 			}
 		}
 		for (uint32 i = 0; i < 6; i++)
 		{
 			if (m_holdEmitters[i])
 			{
-				m_holdEmitters[i].Release();
+				m_holdEmitters[i].reset();
 			}
 		}
 		m_track->ClearEffects();
@@ -447,7 +447,7 @@ public:
 			else
 			{
 				if (m_lockMouse)
-					m_lockMouse.Release();
+					m_lockMouse.reset();
 				g_gameWindow->SetCursorVisible(true);
 			}
 		}
@@ -566,7 +566,7 @@ public:
 			{
 				if (m_laserFollowEmitters[i])
 				{
-					m_laserFollowEmitters[i].Release();
+					m_laserFollowEmitters[i].reset();
 				}
 			}
 		}
@@ -588,7 +588,7 @@ public:
 			{
 				if (m_holdEmitters[i])
 				{
-					m_holdEmitters[i].Release();
+					m_holdEmitters[i].reset();
 				}
 			}
 		}
@@ -614,7 +614,7 @@ public:
 		m_guiStyle = g_commonGUIStyle;
 
 		// Game GUI canvas
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 
 		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
 													Rect(0, 0, g_resolution.x, g_resolution.y)).size;
@@ -629,12 +629,12 @@ public:
 		{
 			//Top Fill
 			{
-				Panel* topPanel = new Panel();
+				auto topPanel = std::make_shared<Panel>();
 				loader.AddTexture(topPanel->texture, "fill_top.png");
 				topPanel->color = Color::White;
 				topPanel->imageFillMode = FillMode::Fit;
 				topPanel->imageAlignment = Vector2(0.5, 0.0);
-				Canvas::Slot* topSlot = m_canvas->Add(topPanel->MakeShared());
+				Canvas::Slot* topSlot = m_canvas->Add(topPanel);
 
 				float topPanelTop = topLeft.y / canvasRes.y;
 
@@ -645,12 +645,12 @@ public:
 
 			//Bottom Fill
 			{
-				Panel* bottomPanel = new Panel();
+				auto bottomPanel = std::make_shared<Panel>();
 				loader.AddTexture(bottomPanel->texture, "fill_bottom.png");
 				bottomPanel->color = Color::White;
 				bottomPanel->imageFillMode = FillMode::Fit;
 				bottomPanel->imageAlignment = Vector2(0.5, 1.0);
-				Canvas::Slot* bottomSlot = m_canvas->Add(bottomPanel->MakeShared());
+				Canvas::Slot* bottomSlot = m_canvas->Add(bottomPanel);
 
 				float canvasBottom = topLeft.y + canvasRes.y;
 				float pixelsTobottom = g_resolution.y - canvasBottom;
@@ -664,14 +664,14 @@ public:
 
 		{
 			// Gauge
-			m_scoringGauge = Utility::Makestd::shared_ptr(new HealthGauge());
+			m_scoringGauge = std::make_shared<HealthGauge>();
 			loader.AddTexture(m_scoringGauge->fillTexture, "gauge_fill.png");
 			loader.AddTexture(m_scoringGauge->frontTexture, "gauge_front.png");
 			loader.AddTexture(m_scoringGauge->backTexture, "gauge_back.png");
 			loader.AddTexture(m_scoringGauge->maskTexture, "gauge_mask.png");
 			loader.AddMaterial(m_scoringGauge->fillMaterial, "gauge");
 
-			Canvas::Slot* slot = m_canvas->Add(m_scoringGauge.As<GUIElementBase>());
+			Canvas::Slot* slot = m_canvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_scoringGauge));
 			slot->anchor = Anchor(0.0, 0.25, 1.0, 0.8);
 			slot->alignment = Vector2(1.0f, 0.5f);
 			slot->autoSizeX = true;
@@ -682,7 +682,7 @@ public:
 		{
 			uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
 
-			SettingsBar* sb = new SettingsBar(m_guiStyle);
+			auto sb = std::make_shared<SettingsBar>(m_guiStyle);
 			m_settingsBar = std::shared_ptr<SettingsBar>(sb);
 			sb->AddSetting(&m_camera.zoomBottom, -1.0f, 1.0f, "Bottom Zoom");
 			sb->AddSetting(&m_camera.zoomTop, -1.0f, 1.0f, "Top Zoom");
@@ -696,7 +696,7 @@ public:
 			sb->AddSetting(&m_scoring.laserDistanceLeniency, 1.0f / 32.0f, 1.0f, "Laser Distance Leniency");
 			m_settingsBar->SetShow(false);
 
-			Canvas::Slot* settingsSlot = m_canvas->Add(sb->MakeShared());
+			Canvas::Slot* settingsSlot = m_canvas->Add(sb);
 			settingsSlot->anchor = Anchor(0.75f, 0.0f, 1.0f, 1.0f);
 			settingsSlot->autoSizeX = false;
 			settingsSlot->autoSizeY = false;
@@ -705,12 +705,12 @@ public:
 
 		// Score
 		{
-			Panel* scorePanel = new Panel();
+			auto scorePanel = std::make_shared<Panel>();
 			loader.AddTexture(scorePanel->texture, "scoring_base.png");
 			scorePanel->color = Color::White;
 			scorePanel->imageFillMode = FillMode::Fit;
 
-			Canvas::Slot* scoreSlot = m_canvas->Add(scorePanel->MakeShared());
+			Canvas::Slot* scoreSlot = m_canvas->Add(scorePanel);
 			scoreSlot->anchor = Anchor(0.75, 0.0, 1.0, 1.0);
 			scoreSlot->alignment = Vector2(1.0f, 0.0f);
 			scoreSlot->autoSizeX = true;
@@ -724,7 +724,7 @@ public:
 			// Padding for this specific font
 			Margin textPadding = Margin(0, 10, 0, 0);
 
-			Panel::Slot* slot = scorePanel->SetContent(m_scoreText.As<GUIElementBase>());
+			Panel::Slot* slot = scorePanel->SetContent(std::dynamic_pointer_cast<GUIElementBase>(m_scoreText));
 			slot->padding = (Margin(20, 0, 10, 30) + textPadding) * scale;
 
 			slot->alignment = Vector2(0.5f, 0.5f);
@@ -732,10 +732,10 @@ public:
 
 		// Song info
 		{
-			PlayingSongInfo* psi = new PlayingSongInfo(*this);
+			auto psi = std::make_shared<PlayingSongInfo>(*this);
 			m_psi = std::shared_ptr<PlayingSongInfo>(psi);
 			loader.AddMaterial(m_psi->progressMaterial, "progressBar");
-			Canvas::Slot* psiSlot = m_canvas->Add(psi->MakeShared());
+			Canvas::Slot* psiSlot = m_canvas->Add(psi);
 			psiSlot->autoSizeY = true;
 			psiSlot->autoSizeX = true;
 			psiSlot->anchor = Anchors::TopLeft;

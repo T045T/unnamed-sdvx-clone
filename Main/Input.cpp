@@ -66,7 +66,7 @@ void Input::Cleanup()
 	{
 		m_gamepad->OnButtonPressed.RemoveAll(this);
 		m_gamepad->OnButtonReleased.RemoveAll(this);
-		m_gamepad.Release();
+		m_gamepad.reset();
 	}
 	if (m_window)
 	{
@@ -81,12 +81,12 @@ void Input::Update(float deltaTime)
 {
 	for (auto it = m_mouseLocks.begin(); it != m_mouseLocks.end();)
 	{
-		if (it->GetRefCount() == 1)
+		if (it->use_count() == 1)
 		{
 			it = m_mouseLocks.erase(it);
 			continue;
 		}
-		it++;
+		++it;
 	}
 
 	if (!m_mouseLocks.empty())

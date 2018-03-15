@@ -48,12 +48,12 @@ public:
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 
 		//GUI Buttons
 		{
-			LayoutBox* box = new LayoutBox();
-			Canvas::Slot* slot = m_canvas->Add(box->MakeShared());
+			auto box = std::make_shared<LayoutBox>();
+			Canvas::Slot* slot = m_canvas->Add(box);
 			slot->anchor = Anchor(0.5f, 0.5f);
 			slot->autoSizeX = true;
 			slot->autoSizeY = true;
@@ -61,33 +61,33 @@ public:
 
 			box->layoutDirection = LayoutBox::Vertical;
 
-			Label* titleLabel = new Label();
+			auto titleLabel = std::make_shared<Label>();
 			titleLabel->SetText(L"unnamed_sdvx_clone");
 			titleLabel->SetFontSize(100);
-			box->Add(titleLabel->MakeShared());
+			box->Add(titleLabel);
 
 			LayoutBox::Slot* btnSlot;
-			Button* startBtn = new Button(m_guiStyle);
+			auto startBtn = std::make_shared<Button>(m_guiStyle);
 			startBtn->OnPressed.Add(this, &TitleScreen_Impl::Start);
 			startBtn->SetText(L"Start");
 			startBtn->SetFontSize(32);
-			btnSlot = box->Add(startBtn->MakeShared());
+			btnSlot = box->Add(startBtn);
 			btnSlot->padding = Margin(2);
 			btnSlot->fillX = true;
 
-			Button* settingsBtn = new Button(m_guiStyle);
+			auto settingsBtn = std::make_shared<Button>(m_guiStyle);
 			settingsBtn->OnPressed.Add(this, &TitleScreen_Impl::Settings);
 			settingsBtn->SetText(L"Settings");
 			settingsBtn->SetFontSize(32);
-			btnSlot = box->Add(settingsBtn->MakeShared());
+			btnSlot = box->Add(settingsBtn);
 			btnSlot->padding = Margin(2);
 			btnSlot->fillX = true;
 
-			Button* exitBtn = new Button(m_guiStyle);
+			auto exitBtn = std::make_shared<Button>(m_guiStyle);
 			exitBtn->OnPressed.Add(this, &TitleScreen_Impl::Exit);
 			exitBtn->SetText(L"Exit");
 			exitBtn->SetFontSize(32);
-			btnSlot = box->Add(exitBtn->MakeShared());
+			btnSlot = box->Add(exitBtn);
 			btnSlot->padding = Margin(2);
 			btnSlot->fillX = true;
 		}
@@ -96,17 +96,17 @@ public:
 	}
 
 	~TitleScreen_Impl()
-	{ }
+	{}
 
 
 	virtual void OnSuspend()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
 	{
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 		g_gameWindow->SetCursorVisible(true);
 	}

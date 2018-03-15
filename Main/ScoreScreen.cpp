@@ -97,7 +97,7 @@ public:
 
 	~ScoreScreen_Impl()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	AsyncAssetLoader loader;
@@ -106,24 +106,24 @@ public:
 	{
 		m_guiStyle = g_commonGUIStyle;
 
-		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
+		m_canvas = std::make_shared<Canvas>();
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 		// Font
 		CheckedLoad(m_specialFont = FontRes::create(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
 		CheckedLoad(m_applause = g_audio->CreateSample("skins/" + skin + "/audio/applause.wav"));
 
 		// Background
-		Panel* fullBg = new Panel();
+		auto fullBg = std::make_shared<Panel>();
 		loader.AddTexture(fullBg->texture, "score/bg.png");
 		fullBg->color = Color(1.0f);
 		{
-			Canvas::Slot* slot = m_canvas->Add(fullBg->MakeShared());
+			Canvas::Slot* slot = m_canvas->Add(fullBg);
 			slot->anchor = Anchors::Full;
 			slot->SetZOrder(-2);
 		}
 
-		Canvas* innerCanvas = new Canvas();
-		Canvas::Slot* innerSlot = m_canvas->Add(innerCanvas->MakeShared());
+		auto innerCanvas = std::make_shared<Canvas>();
+		Canvas::Slot* innerSlot = m_canvas->Add(innerCanvas);
 		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
 													Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 		float scale = Math::Min(canvasRes.x / 640.f, canvasRes.y / 480.f) / 2.f;
@@ -142,10 +142,10 @@ public:
 			innerSlot->anchor = Anchors::Full;
 
 		// Border
-		Panel* border = new Panel();
+		auto border = std::make_shared<Panel>();
 		border->color = Color::Black.WithAlpha(0.25f);
 		{
-			Canvas::Slot* slot = innerCanvas->Add(border->MakeShared());
+			Canvas::Slot* slot = innerCanvas->Add(border);
 			slot->anchor = Anchors::Full;
 			slot->padding = Margin(0, 30);
 			slot->SetZOrder(-1);
@@ -157,10 +157,10 @@ public:
 		// Song info container
 		{
 			// Contains all song info
-			LayoutBox* songInfoContainer = new LayoutBox();
+			auto songInfoContainer = std::make_shared<LayoutBox>();
 			songInfoContainer->layoutDirection = LayoutBox::Horizontal;
 			{
-				Canvas::Slot* slot = innerCanvas->Add(songInfoContainer->MakeShared());
+				Canvas::Slot* slot = innerCanvas->Add(songInfoContainer);
 				slot->anchor = Anchor(0.0f, 0.0f, 1.0f, screenSplit);
 				slot->padding = Margin(sidePadding * scale);
 				slot->padding.top = (30 + 20) * scale;
@@ -169,31 +169,33 @@ public:
 			}
 
 			// Jacket image
-			Panel* jacketImage = new Panel();
+			auto jacketImage = std::make_shared<Panel>();
 			m_jacket = std::shared_ptr<Panel>(jacketImage);
 			jacketImage->texture = m_jacketImage;
 			jacketImage->imageFillMode = FillMode::Fit;
 			{
-				LayoutBox::Slot* slot = songInfoContainer->Add(jacketImage->MakeShared());
+				LayoutBox::Slot* slot = songInfoContainer->Add(jacketImage);
 				slot->fillY = true;
 				slot->alignment = Vector2(0.0f, 0.0f);
 			}
 
 			// Metadata container
-			LayoutBox* metadataContainer = new LayoutBox();
+			auto metadataContainer = std::make_shared<LayoutBox>();
 			metadataContainer->layoutDirection = LayoutBox::Vertical;
 			{
-				LayoutBox::Slot* slot = songInfoContainer->Add(metadataContainer->MakeShared());
+				LayoutBox::Slot* slot = songInfoContainer->Add(metadataContainer);
 				slot->alignment = Vector2(0.0f, 0.5f);
 				slot->padding.left = 30 * scale;
 			}
-			auto AddMetadataLine = [&](const String& text)
+
+			const auto AddMetadataLine = [&](const String& text)
 			{
-				Label* label = new Label();
+				auto label = std::make_shared<Label>();
 				label->SetText(Utility::ConvertToWString(text));
 				label->SetFontSize(48 * scale);
-				LayoutBox::Slot* slot = metadataContainer->Add(label->MakeShared());
+				LayoutBox::Slot* slot = metadataContainer->Add(label);
 			};
+
 			// Title/Artist/Effector/Etc.
 			AddMetadataLine(m_beatmapSettings.title + Utility::Sprintf(" [%d]", m_beatmapSettings.level));
 			AddMetadataLine(m_beatmapSettings.artist);
@@ -202,27 +204,27 @@ public:
 
 		// Main score container
 		{
-			Panel* scoreContainerBg = new Panel();
+			auto scoreContainerBg = std::make_shared<Panel>();
 			scoreContainerBg->color = Color::Black.WithAlpha(0.5f);
 			{
-				Canvas::Slot* slot = innerCanvas->Add(scoreContainerBg->MakeShared());
+				Canvas::Slot* slot = innerCanvas->Add(scoreContainerBg);
 				slot->anchor = Anchor(0.0f, screenSplit, 1.0f, 1.0f);
 				slot->padding = Margin(0, 0, 0, 50);
 			}
 
-			LayoutBox* scoreContainer = new LayoutBox();
+			auto scoreContainer = std::make_shared<LayoutBox>();
 			scoreContainer->layoutDirection = LayoutBox::Horizontal;
 			{
-				Canvas::Slot* slot = innerCanvas->Add(scoreContainer->MakeShared());
+				Canvas::Slot* slot = innerCanvas->Add(scoreContainer);
 				slot->anchor = Anchor(0.0f, screenSplit, 1.0f, 1.0f);
 				slot->padding = Margin(0, 0, 0, 50);
 			}
 
 			// Score and graph
-			LayoutBox* scoreAndGraph = new LayoutBox();
+			auto scoreAndGraph = std::make_shared<LayoutBox>();
 			scoreAndGraph->layoutDirection = LayoutBox::Vertical;
 			{
-				LayoutBox::Slot* slot = scoreContainer->Add(scoreAndGraph->MakeShared());
+				LayoutBox::Slot* slot = scoreContainer->Add(scoreAndGraph);
 				slot->alignment = Vector2(0.0f, 0.5f);
 				slot->padding = Margin(20 * scale, 10 * scale);
 				slot->fillX = true;
@@ -230,48 +232,48 @@ public:
 				slot->fillAmount = 1.0f;
 			}
 
-			Label* score = new Label();
+			auto score = std::make_shared<Label>();
 			score->SetText(Utility::WSprintf(L"%08d", m_score));
 			score->SetFont(m_specialFont);
 			score->SetFontSize(80 * scale);
 			score->color = Color(0.75f);
 			score->SetTextOptions(FontRes::Monospace);
 			{
-				LayoutBox::Slot* slot = scoreAndGraph->Add(score->MakeShared());
+				LayoutBox::Slot* slot = scoreAndGraph->Add(score);
 				slot->padding = Margin(0, 0, 0, 20 * scale);
 				slot->fillX = false;
 				slot->alignment = Vector2(0.5f, 0.0f);
 			}
 
-			Label* perfomanceTitle = new Label();
+			auto perfomanceTitle = std::make_shared<Label>();
 			perfomanceTitle->SetText(L"Performance");
 			perfomanceTitle->SetFont(m_specialFont);
 			perfomanceTitle->SetFontSize(40 * scale);
 			perfomanceTitle->color = Color(0.6f);
 			{
-				LayoutBox::Slot* slot = scoreAndGraph->Add(perfomanceTitle->MakeShared());
+				LayoutBox::Slot* slot = scoreAndGraph->Add(perfomanceTitle);
 				slot->padding = Margin(5 * scale, 0, 0, 5 * scale);
 				slot->alignment = Vector2(0.0f, 0.0f);
 			}
 
-			PerformanceGraph* graphPanel = new PerformanceGraph();
+			auto graphPanel = std::make_shared<PerformanceGraph>();
 			loader.AddTexture(graphPanel->borderTexture, "ui/button.png");
 
 			graphPanel->graphTex = m_graphTex;
 
 			graphPanel->border = Margini(5);
 			{
-				LayoutBox::Slot* slot = scoreAndGraph->Add(graphPanel->MakeShared());
+				LayoutBox::Slot* slot = scoreAndGraph->Add(graphPanel);
 				slot->fillY = true;
 				slot->fillX = true;
 				slot->padding = Margin(0, 0);
 			}
 
 			// Grade and hits
-			LayoutBox* gradePanel = new LayoutBox();
+			auto gradePanel = std::make_shared<LayoutBox>();
 			gradePanel->layoutDirection = LayoutBox::Vertical;
 			{
-				LayoutBox::Slot* slot = scoreContainer->Add(gradePanel->MakeShared());
+				LayoutBox::Slot* slot = scoreContainer->Add(gradePanel);
 				slot->alignment = Vector2(0.0f, 0.5f);
 				slot->padding = Margin(30 * scale, 10 * scale);
 				slot->fillX = true;
@@ -279,27 +281,27 @@ public:
 			}
 
 			String gradeImagePath = String("score") + Path::sep + Scoring::CalculateGrade(m_score) + ".png";
-			Panel* gradeImage = new Panel();
+			auto gradeImage = std::make_shared<Panel>();
 			loader.AddTexture(gradeImage->texture, gradeImagePath);
 			gradeImage->imageFillMode = FillMode::Fit;
 			{
-				LayoutBox::Slot* slot = gradePanel->Add(gradeImage->MakeShared());
+				LayoutBox::Slot* slot = gradePanel->Add(gradeImage);
 				slot->fillX = true;
 				slot->fillY = true;
 				slot->fillAmount = 0.7f;
 			}
 
 			// Hit items
-			m_itemBox = std::shared_ptr<LayoutBox>(new LayoutBox());
+			m_itemBox = std::make_shared<LayoutBox>();
 			m_itemBox->layoutDirection = LayoutBox::Vertical;
 			{
-				LayoutBox::Slot* slot = gradePanel->Add(m_itemBox->MakeShared());
+				LayoutBox::Slot* slot = gradePanel->Add(m_itemBox);
 				slot->fillX = true;
 				slot->fillY = true;
 				slot->padding = Margin(0, 20);
 			}
 
-			m_gauge = std::shared_ptr<HealthGauge>(new HealthGauge());
+			m_gauge = std::make_shared<HealthGauge>();
 			loader.AddTexture(m_gauge->fillTexture, "gauge_fill.png");
 			loader.AddTexture(m_gauge->frontTexture, "gauge_front.png");
 			loader.AddTexture(m_gauge->backTexture, "gauge_back.png");
@@ -307,48 +309,48 @@ public:
 			loader.AddMaterial(m_gauge->fillMaterial, "gauge");
 			m_gauge->rate = m_finalGaugeValue;
 			{
-				LayoutBox::Slot* slot = scoreContainer->Add(m_gauge.As<GUIElementBase>());
+				LayoutBox::Slot* slot = scoreContainer->Add(std::dynamic_pointer_cast<GUIElementBase>(m_gauge));
 				slot->fillY = true;
 			}
 
 			{
-				m_timingStatsCanvas = std::shared_ptr<Canvas>(new Canvas());
-				Canvas::Slot* slot = innerCanvas->Add(m_timingStatsCanvas->MakeShared());
+				m_timingStatsCanvas = std::make_shared<Canvas>();
+				Canvas::Slot* slot = innerCanvas->Add(m_timingStatsCanvas);
 				slot->anchor = Anchor(0, 0.75, 0.25, 1);
 
-				Panel* statBackground = new Panel();
+				auto statBackground = std::make_shared<Panel>();
 				statBackground->color = Color(0, 0, 0).WithAlpha(0.75f);
-				slot = m_timingStatsCanvas->Add(statBackground->MakeShared());
+				slot = m_timingStatsCanvas->Add(statBackground);
 				slot->anchor = Anchors::Full;
 
-				LayoutBox* statsList = new LayoutBox();
+				auto statsList = std::make_shared<LayoutBox>();
 				statsList->layoutDirection = LayoutBox::LayoutDirection::Vertical;
 
 				{
-					Label* timingStat = new Label();
+					auto timingStat = std::make_shared<Label>();
 					timingStat->SetText(Utility::WSprintf(L"Early: %d / Late: %d", m_timedHits[0], m_timedHits[1]));
 					timingStat->SetFontSize(24 * scale);
-					LayoutBox::Slot* boxSlot = statsList->Add(timingStat->MakeShared());
+					LayoutBox::Slot* boxSlot = statsList->Add(timingStat);
 					boxSlot->fillX = true;
 					boxSlot->padding = Margin(3 * scale, 3 * scale, 0, 0);
 				}
 				{
-					Label* timingStat = new Label();
+					auto timingStat = std::make_shared<Label>();
 					timingStat->SetText(Utility::WSprintf(L"Mean hit delta: %.2fms", m_meanHitDelta));
 					timingStat->SetFontSize(24 * scale);
-					LayoutBox::Slot* boxSlot = statsList->Add(timingStat->MakeShared());
+					LayoutBox::Slot* boxSlot = statsList->Add(timingStat);
 					boxSlot->fillX = true;
 					boxSlot->padding = Margin(3 * scale, 3 * scale, 0, 0);
 				}
 				{
-					Label* timingStat = new Label();
+					auto timingStat = std::make_shared<Label>();
 					timingStat->SetText(Utility::WSprintf(L"Median hit delta: %dms", m_medianHitDelta));
 					timingStat->SetFontSize(24 * scale);
-					LayoutBox::Slot* boxSlot = statsList->Add(timingStat->MakeShared());
+					LayoutBox::Slot* boxSlot = statsList->Add(timingStat);
 					boxSlot->fillX = true;
 					boxSlot->padding = Margin(3 * scale, 3 * scale, 0, 0);
 				}
-				slot = m_timingStatsCanvas->Add(statsList->MakeShared());
+				slot = m_timingStatsCanvas->Add(statsList);
 				slot->anchor = Anchors::Full;
 				m_timingStatsCanvas->visibility = Visibility::Hidden;
 			}
@@ -378,31 +380,32 @@ public:
 		// Add indicators for ammounts of miss/good/perfect hits
 		auto AddScoreRow = [&](Texture texture, int32 count)
 		{
-			Canvas* canvas = new Canvas();
-			LayoutBox::Slot* slot4 = m_itemBox->Add(canvas->MakeShared());
+			auto canvas = std::make_shared<Canvas>();
+			LayoutBox::Slot* slot4 = m_itemBox->Add(canvas);
 			slot4->fillX = true;
 			slot4->fillY = false;
 			slot4->alignment = Vector2(0.0f, 0.5f);
 			slot4->padding = Margin(0, 5);
 			slot4->allowOverflow = true;
-			Panel* icon = new Panel();
+
+			auto icon = std::make_shared<Panel>();
 			icon->color = Color::White;
 			icon->texture = texture;
 			icon->imageFillMode = FillMode::Fit;
 			icon->imageAlignment = Vector2(0.5, 0.5);
-			Canvas::Slot* canvasSlot = canvas->Add(icon->MakeShared());
+			Canvas::Slot* canvasSlot = canvas->Add(icon);
 			canvasSlot->anchor = Anchor(0.0f, 0.33f, 0.5f, 1.0f); /// TODO: Remove Y offset and center properly
 			canvasSlot->autoSizeX = true;
 			canvasSlot->autoSizeY = true;
 			canvasSlot->alignment = Vector2(0.0f, 0.5f);
 
-			Label* countLabel = new Label();
+			auto countLabel = std::make_shared<Label>();
 			countLabel->SetFont(m_specialFont);
 			countLabel->SetFontSize(64 * scale);
 			countLabel->SetTextOptions(FontRes::Monospace);
 			countLabel->color = Color(0.5f);
 			countLabel->SetText(Utility::WSprintf(L"%05d", count));
-			canvasSlot = canvas->Add(countLabel->MakeShared());
+			canvasSlot = canvas->Add(countLabel);
 			canvasSlot->anchor = Anchor(0.5f, 0.0f, 1.0f, 1.0f);
 			canvasSlot->autoSizeX = true;
 			canvasSlot->autoSizeY = true;
@@ -421,7 +424,7 @@ public:
 	bool Init() override
 	{
 		// Add to screen
-		Canvas::Slot* rootSlot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* rootSlot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		rootSlot->anchor = Anchors::Full;
 
 		// Play score screen sound
@@ -469,12 +472,12 @@ public:
 
 	virtual void OnSuspend()
 	{
-		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
+		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
 	virtual void OnRestore()
 	{
-		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
+		Canvas::Slot* slot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 		slot->anchor = Anchors::Full;
 	}
 };

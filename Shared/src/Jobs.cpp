@@ -41,7 +41,7 @@ struct JobThread
 
 	bool IsActive() const
 	{
-		return activeJob == nullptr;
+		return activeJob != nullptr;
 	}
 };
 
