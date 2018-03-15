@@ -44,10 +44,12 @@ struct TickableChange
 		Added,
 		Removed,
 	};
+
 	Mode mode;
 	IApplicationTickable* tickable;
 	IApplicationTickable* insertBefore;
 };
+
 // List of changes applied to the collection of tickables
 // Applied at the end of each main loop
 static Vector<TickableChange> g_tickableChanges;
@@ -344,6 +346,7 @@ bool Application::m_Init()
 
 	return true;
 }
+
 void Application::m_MainLoop()
 {
 	Timer appTimer;
@@ -418,7 +421,6 @@ void Application::m_MainLoop()
 		if (targetFPS > 0)
 			targetRenderTime = 1.0f / (float)targetFPS;
 
-
 		// Main loop
 		float currentTime = appTimer.SecondsAsFloat();
 		float timeSinceRender = currentTime - m_lastRenderTime;
@@ -453,7 +455,7 @@ void Application::m_MainLoop()
 		if (timeSinceRender < targetRenderTime)
 		{
 			float timeLeft = (targetRenderTime - timeSinceRender);
-			uint32 sleepMicroSecs = (uint32)(timeLeft*1000000.0f * 0.75f);
+			uint32 sleepMicroSecs = (uint32)(timeLeft * 1000000.0f * 0.75f);
 			std::this_thread::sleep_for(std::chrono::microseconds(sleepMicroSecs));
 		}
 	}
@@ -497,6 +499,7 @@ class Game* Application::LaunchMap(const String& mapPath)
 	AddTickable(screen);
 	return game;
 }
+
 void Application::Shutdown()
 {
 	g_gameWindow->Close();
@@ -509,6 +512,7 @@ void Application::AddTickable(class IApplicationTickable* tickable, class IAppli
 	change.tickable = tickable;
 	change.insertBefore = insertBefore;
 }
+
 void Application::RemoveTickable(IApplicationTickable* tickable)
 {
 	TickableChange& change = g_tickableChanges.Add();
@@ -525,6 +529,7 @@ const Vector<String>& Application::GetAppCommandLine() const
 {
 	return m_commandLine;
 }
+
 RenderState Application::GetRenderStateBase() const
 {
 	return m_renderStateBase;
@@ -540,6 +545,7 @@ Graphics::Image Application::LoadImageExternal(const String& name)
 {
 	return ImageRes::Create(name);
 }
+
 Texture Application::LoadTexture(const String& name)
 {
 	Texture ret = TextureRes::Create(g_gl, LoadImage(name));
@@ -559,6 +565,7 @@ Texture Application::LoadTexture(const String& name, const bool& external)
 		return ret;
 	}
 }
+
 Material Application::LoadMaterial(const String& name)
 {
 	String pathV = String("skins/") + m_skin + String("/shaders/") + name + ".vs";
@@ -575,6 +582,7 @@ Material Application::LoadMaterial(const String& name)
 	assert(ret);
 	return ret;
 }
+
 Sample Application::LoadSample(const String& name, const bool& external)
 {
 	String path;
@@ -597,6 +605,7 @@ Transform Application::GetGUIProjection() const
 {
 	return ProjectionMatrix::CreateOrthographic(0.0f, (float)g_resolution.x, (float)g_resolution.y, 0.0f, 0.0f, 100.0f);
 }
+
 void Application::m_OnKeyPressed(int32 key)
 {
 	// Fullscreen toggle
@@ -617,6 +626,7 @@ void Application::m_OnKeyPressed(int32 key)
 		break;
 	}
 }
+
 void Application::m_OnKeyReleased(int32 key)
 {
 	for (auto it = g_tickables.rbegin(); it != g_tickables.rend();)
@@ -625,6 +635,7 @@ void Application::m_OnKeyReleased(int32 key)
 		break;
 	}
 }
+
 void Application::m_OnWindowResized(const Vector2i& newSize)
 {
 	g_resolution = newSize;

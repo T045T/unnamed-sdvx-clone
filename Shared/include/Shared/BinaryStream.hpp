@@ -44,9 +44,9 @@ public:
 	bool SerializeObject(WString& obj);
 
 	// Vector/Map serialization helpers
-	template<typename T>
+	template <typename T>
 	bool SerializeObject(Vector<T>& obj);
-	template<typename K, typename V>
+	template <typename K, typename V>
 	bool SerializeObject(Map<K, V>& obj);
 
 	// Writes or reads a pointer type by calling StaticSerialize on the type
@@ -55,11 +55,13 @@ public:
 	//
 	// This function needs to assign the pointer if the stream is in reading mode
 #define has_serialize_function_t (!std::is_trivial<T>::value && !std::is_void<decltype(T::StaticSerialize(*(BinaryStream*)0, *(T**)0))>::value)
+
 	template <typename T>
 	typename std::enable_if<has_serialize_function_t, bool>::type SerializeObject(T*& obj)
 	{
 		return T::StaticSerialize(*this, obj);
 	}
+
 	template <typename T>
 	typename std::enable_if<has_serialize_function_t, bool>::type SerializeObject(T& obj)
 	{
@@ -71,8 +73,9 @@ public:
 	}
 
 	// Reads or writes a struct or native type's data based on the stream's mode of operation
-	template<typename T>
-	typename std::enable_if<!std::is_pointer<T>::value && std::is_trivially_copyable<T>::value, bool>::type SerializeObject(T& obj)
+	template <typename T>
+	typename std::enable_if<!std::is_pointer<T>::value && std::is_trivially_copyable<T>::value, bool>::type
+	SerializeObject(T& obj)
 	{
 		Serialize(&obj, sizeof(obj));
 		return true;
@@ -105,7 +108,8 @@ public:
 
 	// Stream operators
 	// this template operator just routes everything to SerlializeObject
-	template<typename T> BinaryStream& operator<<(T& obj)
+	template <typename T>
+	BinaryStream& operator<<(T& obj)
 	{
 		SerializeObject(obj);
 		return *this;
@@ -125,7 +129,7 @@ protected:
 	bool m_isReading;
 };
 
-template<typename T>
+template <typename T>
 bool BinaryStream::SerializeObject(Vector<T>& obj)
 {
 	if (IsReading())
@@ -154,7 +158,7 @@ bool BinaryStream::SerializeObject(Vector<T>& obj)
 	return true;
 }
 
-template<typename K, typename V>
+template <typename K, typename V>
 bool BinaryStream::SerializeObject(Map<K, V>& obj)
 {
 	if (IsReading())

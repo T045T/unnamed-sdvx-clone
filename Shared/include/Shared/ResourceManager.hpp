@@ -19,7 +19,7 @@ public:
 	Templated resource managed that keeps Ref<> objects
 	the GarbageCollect function checks these and cleans up unused ones
 */
-template<typename T>
+template <typename T>
 class ResourceManager : public IResourceManager, Unique
 {
 	// List of managed object
@@ -37,13 +37,14 @@ public:
 	// when the object is no longer referenced the resource manager will collect it when the next garbage collection triggers
 	std::shared_ptr<T> Register(T* pObject)
 	{
-		std::shared_ptr<T> ret = std::make_shared<T>(pObject);
+		std::shared_ptr<T> ret;
+		ret.reset(pObject);
 		m_lock.lock();
 		m_objects.push_back(ret);
 		m_lock.unlock();
 		return ret;
 	}
-	
+
 	void GarbageCollect() override
 	{
 		size_t numCleanedUp = 0;

@@ -4,7 +4,7 @@
 /*
 	GUI space rectangle with bottom as y+height
 */
-template<typename T>
+template <typename T>
 class RectangleBase
 {
 public:
@@ -12,47 +12,56 @@ public:
 	VectorType pos;
 	VectorType size;
 	// Conversion from other types
-	template<typename Q>
+	template <typename Q>
 	RectangleBase(const RectangleBase<Q>& other)
 	{
 		pos = (VectorType)other.pos;
 		size = (VectorType)other.size;
 	}
+
 	// Give all 4 sides of the rectangle
-	RectangleBase(T all = 0) : RectangleBase(all, all, all, all) {}
+	RectangleBase(T all = 0)
+		: RectangleBase(all, all, all, all)
+	{}
+
 	RectangleBase(T left, T top, T right, T bottom)
 	{
 		pos = VectorType(left, top);
 		size = VectorType(right - left, bottom - top);
 	}
+
 	RectangleBase(const VectorType& pos, const VectorType& size)
 		: pos(pos), size(size)
-	{
-	}
+	{ }
+
 	T Left() const
 	{
 		return pos.x;
 	}
+
 	T Top() const
 	{
 		return pos.y;
 	}
+
 	T Bottom() const
 	{
 		return pos.y + size.y;
 	}
+
 	T Right() const
 	{
 		return pos.x + size.x;
 	}
+
 	// Moves the edges of this rectangle inward or outward
 	RectangleBase Offset(float amount) const
 	{
 		RectangleBase newRect = *this;
 		VectorType newSize = newRect.size + VectorType(amount);
-		if(newSize.x < 0)
+		if (newSize.x < 0)
 			newSize.x = 0;
-		if(newSize.y < 0)
+		if (newSize.y < 0)
 			newSize.y = 0;
 
 		VectorType halfDelta = (newSize - newRect.size);
@@ -60,12 +69,13 @@ public:
 		newRect.size += halfDelta * 2;
 		return newRect;
 	}
+
 	// Moves the upper and lower edges of this rectangle inward or outward
 	RectangleBase OffsetY(float amount) const
 	{
 		RectangleBase newRect = *this;
 		VectorType newSize = newRect.size + VectorType(0, amount);
-		if(newSize.y < 0)
+		if (newSize.y < 0)
 			newSize.y = 0;
 
 		VectorType halfDelta = (newSize - newRect.size);
@@ -73,12 +83,13 @@ public:
 		newRect.size += halfDelta * 2;
 		return newRect;
 	}
+
 	// Moves the upper and lower edges of this rectangle inward or outward
 	RectangleBase OffsetX(float amount) const
 	{
 		RectangleBase newRect = *this;
 		VectorType newSize = newRect.size + VectorType(amount, 0);
-		if(newSize.x < 0)
+		if (newSize.x < 0)
 			newSize.x = 0;
 
 		VectorType halfDelta = (newSize - newRect.size);
@@ -94,9 +105,9 @@ public:
 		float bottom = Math::Min(other.Bottom(), Bottom());
 		float left = Math::Max(other.Left(), Left());
 		float right = Math::Min(other.Right(), Right());
-		if(right < left)
+		if (right < left)
 			right = left;
-		if(bottom < top)
+		if (bottom < top)
 			bottom = top;
 		return RectangleBase(left, top, right, bottom);
 	}
@@ -105,7 +116,7 @@ public:
 /* 
 	Same as a normal rectangle but this one has the top as y+height aka world space
 */
-template<typename T>
+template <typename T>
 class RectangleBase3D : public RectangleBase<T>
 {
 public:
@@ -113,29 +124,33 @@ public:
 	using RectangleBase<T>::RectangleBase;
 	using RectangleBase<T>::RectangleBase::pos;
 	using RectangleBase<T>::RectangleBase::size;
-	
+
 	RectangleBase3D() = default;
 	// Conversion from other types
-	template<typename Q>
+	template <typename Q>
 	RectangleBase3D(const RectangleBase<Q>& other)
 	{
 		pos = (VectorType)other.pos;
 		size = (VectorType)other.size;
 	}
+
 	RectangleBase3D(const RectangleBase<T>& other)
 	{
-		pos = other.pos; 
+		pos = other.pos;
 		size = other.size;
 	};
+
 	RectangleBase3D(T left, T top, T right, T bottom)
 	{
 		pos = VectorType(left, bottom);
 		size = VectorType(right - left, top - bottom);
 	}
+
 	T Top() const
 	{
 		return pos.y + size.y;
 	}
+
 	T Bottom() const
 	{
 		return pos.y;

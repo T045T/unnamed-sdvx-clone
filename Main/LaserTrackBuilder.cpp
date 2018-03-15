@@ -15,16 +15,17 @@ LaserTrackBuilder::LaserTrackBuilder(class OpenGL* gl, class Track* track, uint3
 	laserEntryTextureSize = track->laserTailTextures[0]->GetSize();
 	laserExitTextureSize = track->laserTailTextures[1]->GetSize();
 }
+
 Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
-	if(m_objectCache.Contains(laser))
+	if (m_objectCache.Contains(laser))
 		return m_objectCache[laser];
 
 	Mesh newMesh = MeshRes::Create(m_gl);
 
 	float length = playback.DurationToViewDistanceAtTime(laser->time, laser->duration);
 
-	if((laser->flags & LaserObjectState::flag_Instant) != 0) // Slam segment
+	if ((laser->flags & LaserObjectState::flag_Instant) != 0) // Slam segment
 	{
 		float left, right, offsetT, offsetB, uvT, uvB;
 		left = laser->points[0] * effectiveWidth - effectiveWidth * 0.5f;
@@ -35,7 +36,6 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 		uvB = 1.0f;
 		uvT = 0.0f;
 
-
 		if ((laser->flags & LaserObjectState::flag_Extended) != 0)
 		{
 			left = (laser->points[0] * 2.0f - 0.5f) * effectiveWidth - effectiveWidth * 0.5f;
@@ -45,15 +45,14 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 		// If corners should be placed, connecting the texture to the previous laser
 		bool swapped = false;
 
-
-		if(laser->points[0] > laser->points[1])
+		if (laser->points[0] > laser->points[1])
 		{
 			// <------
 			std::swap(left, right);
 			std::swap(offsetT, offsetB);
 			std::swap(uvB, uvT);
 			swapped = true;
-		}// else ------>
+		} // else ------>
 
 		// Make place for corners
 
@@ -74,13 +73,13 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 
 		Vector<MeshGenerators::SimpleVertex> verts =
 		{
-			{ { centerMiddle.Left() + offsetB, centerMiddle.Bottom(),  0.0f },{ uvB, 0.0f } }, // BL
-			{ { centerMiddle.Right() + offsetB, centerMiddle.Bottom(),  0.0f },{ uvB, 1.0f } }, // BR
-			{ { centerMiddle.Right() + offsetT, centerMiddle.Top(),  0.0f },{ uvT, 1.0f } }, // TR
+			{{centerMiddle.Left() + offsetB, centerMiddle.Bottom(), 0.0f}, {uvB, 0.0f}},  // BL
+			{{centerMiddle.Right() + offsetB, centerMiddle.Bottom(), 0.0f}, {uvB, 1.0f}}, // BR
+			{{centerMiddle.Right() + offsetT, centerMiddle.Top(), 0.0f}, {uvT, 1.0f}},    // TR
 
-			{ { centerMiddle.Left() + offsetB, centerMiddle.Bottom(),  0.0f },{ uvB, 0.0f } }, // BL
-			{ { centerMiddle.Right() + offsetT, centerMiddle.Top(),  0.0f },{ uvT, 1.0f } }, // TR
-			{ { centerMiddle.Left() + offsetT, centerMiddle.Top(),  0.0f },{ uvT, 0.0f } }, // TL
+			{{centerMiddle.Left() + offsetB, centerMiddle.Bottom(), 0.0f}, {uvB, 0.0f}}, // BL
+			{{centerMiddle.Right() + offsetT, centerMiddle.Top(), 0.0f}, {uvT, 1.0f}},   // TR
+			{{centerMiddle.Left() + offsetT, centerMiddle.Top(), 0.0f}, {uvT, 0.0f}},    // TL
 		};
 
 		// Generate left corner
@@ -98,7 +97,7 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 			Rect sideUv = Rect(0.0f, textureBorder, textureBorder, invTextureBorder);
 			Rect capUv = Rect(0.0f, 0.0f, invTextureBorder, textureBorder); // Cap at the top
 			Vector<MeshGenerators::SimpleVertex> leftVerts;
-			if(swapped)
+			if (swapped)
 			{
 				capUv = Rect(0.0f, invTextureBorder, invTextureBorder, 1.0f); // Cap at the bottom
 				leftCap.size.y = realBorderSize;
@@ -106,19 +105,18 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 
 				leftVerts =
 				{
-					{ { leftCenter.Right(), leftCenter.Top(),  0.0f },{ 1.0f, 0.0f } }, // BR
-					{ { leftCenter.Left(), leftCenter.Top(),  0.0f },{ 0.0f, 0.0f } }, // BL
-					{ { leftCenter.Left(), leftCenter.Bottom(),  0.0f },{ 0.0f, 1.0f } }, // TL
+					{{leftCenter.Right(), leftCenter.Top(), 0.0f}, {1.0f, 0.0f}},   // BR
+					{{leftCenter.Left(), leftCenter.Top(), 0.0f}, {0.0f, 0.0f}},    // BL
+					{{leftCenter.Left(), leftCenter.Bottom(), 0.0f}, {0.0f, 1.0f}}, // TL
 				};
-
 			}
 			else
 			{
 				leftVerts =
 				{
-					{ { leftCenter.Left(), leftCenter.Bottom(),  0.0f },{ 0.0f, 0.0f } }, // BL
-					{ { leftCenter.Right(), leftCenter.Bottom(),  0.0f },{ 1.0f, 0.0f } }, // BR
-					{ { leftCenter.Left(), leftCenter.Top(),  0.0f },{ 0.0f, 1.0f } }, // TL
+					{{leftCenter.Left(), leftCenter.Bottom(), 0.0f}, {0.0f, 0.0f}},  // BL
+					{{leftCenter.Right(), leftCenter.Bottom(), 0.0f}, {1.0f, 0.0f}}, // BR
+					{{leftCenter.Left(), leftCenter.Top(), 0.0f}, {0.0f, 1.0f}},     // TL
 				};
 			}
 			for (auto& v : leftVerts)
@@ -139,25 +137,25 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 			Rect sideUv = Rect(invTextureBorder, textureBorder, 1.0f, invTextureBorder);
 			Rect capUv = Rect(textureBorder, invTextureBorder, 1.0f, 1.0f); // Cap at the bottom
 			Vector<MeshGenerators::SimpleVertex> rightVerts;
-			if(swapped)
+			if (swapped)
 			{
 				capUv = Rect(textureBorder, 0.0f, 1.0f, textureBorder); // Cap at the top
 				rightCap.pos.y = rightCenter.Top();
 
 				rightVerts =
 				{
-					{ { rightCenter.Left(), rightCenter.Bottom(),  0.0f },{ 0.0f, 0.0f } }, // BL
-					{ { rightCenter.Right(), rightCenter.Bottom(),  0.0f },{ 1.0f, 1.0f } }, // BR
-					{ { rightCenter.Right(), rightCenter.Top(),  0.0f },{ 1.0f, 1.0f } }, // TR
+					{{rightCenter.Left(), rightCenter.Bottom(), 0.0f}, {0.0f, 0.0f}},  // BL
+					{{rightCenter.Right(), rightCenter.Bottom(), 0.0f}, {1.0f, 1.0f}}, // BR
+					{{rightCenter.Right(), rightCenter.Top(), 0.0f}, {1.0f, 1.0f}},    // TR
 				};
 			}
 			else
 			{
 				rightVerts =
 				{
-					{ { rightCenter.Right(), rightCenter.Bottom(),  0.0f },{ 1.0f, 1.0f } }, // TR
-					{ { rightCenter.Right(), rightCenter.Top(),  0.0f },{ 1.0f, 1.0f } }, // BR
-					{ { rightCenter.Left(), rightCenter.Top(),  0.0f },{ 0.0f, 0.0f } }, // BL
+					{{rightCenter.Right(), rightCenter.Bottom(), 0.0f}, {1.0f, 1.0f}}, // TR
+					{{rightCenter.Right(), rightCenter.Top(), 0.0f}, {1.0f, 1.0f}},    // BR
+					{{rightCenter.Left(), rightCenter.Top(), 0.0f}, {0.0f, 0.0f}},     // BL
 				};
 			}
 
@@ -171,7 +169,7 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 	else
 	{
 		float prevLength = 0.0f;
-		if(laser->prev && (laser->prev->flags & LaserObjectState::flag_Instant) != 0)
+		if (laser->prev && (laser->prev->flags & LaserObjectState::flag_Instant) != 0)
 		{
 			// Previous slam length
 			prevLength = playback.DurationToViewDistanceAtTime(laser->prev->time, slamDuration) * laserLengthScale;
@@ -180,12 +178,13 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 		Vector2 points[2];
 
 		// Connecting center points
-		points[0] = Vector2(laser->points[0] * effectiveWidth - effectiveWidth * 0.5f, prevLength); // Bottom
+		points[0] = Vector2(laser->points[0] * effectiveWidth - effectiveWidth * 0.5f, prevLength);                // Bottom
 		points[1] = Vector2(laser->points[1] * effectiveWidth - effectiveWidth * 0.5f, length * laserLengthScale); // Top
 		if ((laser->flags & LaserObjectState::flag_Extended) != 0)
 		{
 			points[0] = Vector2((laser->points[0] * 2.0f - 0.5f) * effectiveWidth - effectiveWidth * 0.5f, prevLength); // Bottom
-			points[1] = Vector2((laser->points[1] * 2.0f - 0.5f) * effectiveWidth - effectiveWidth * 0.5f, length * laserLengthScale); // Top
+			points[1] = Vector2((laser->points[1] * 2.0f - 0.5f) * effectiveWidth - effectiveWidth * 0.5f,
+								length * laserLengthScale); // Top
 		}
 
 		float uMin = 0.0f;
@@ -197,15 +196,14 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 		float halfWidth = actualLaserWidth * 0.5f;
 		Vector<MeshGenerators::SimpleVertex> verts =
 		{
-			{ { points[0].x - halfWidth, points[0].y,  0.0f },{ uMin, vMax } }, // BL
-			{ { points[0].x + halfWidth, points[0].y,  0.0f },{ uMax, vMax } }, // BR
-			{ { points[1].x + halfWidth, points[1].y,  0.0f },{ uMax, vMin } }, // TR
+			{{points[0].x - halfWidth, points[0].y, 0.0f}, {uMin, vMax}}, // BL
+			{{points[0].x + halfWidth, points[0].y, 0.0f}, {uMax, vMax}}, // BR
+			{{points[1].x + halfWidth, points[1].y, 0.0f}, {uMax, vMin}}, // TR
 
-			{ { points[0].x - halfWidth, points[0].y,  0.0f },{ uMin, vMax } }, // BL
-			{ { points[1].x + halfWidth, points[1].y,  0.0f },{ uMax, vMin } }, // TR
-			{ { points[1].x - halfWidth, points[1].y,  0.0f },{ uMin, vMin } }, // TL
+			{{points[0].x - halfWidth, points[0].y, 0.0f}, {uMin, vMax}}, // BL
+			{{points[1].x + halfWidth, points[1].y, 0.0f}, {uMax, vMin}}, // TR
+			{{points[1].x - halfWidth, points[1].y, 0.0f}, {uMin, vMin}}, // TL
 		};
-
 
 		newMesh->SetData(verts);
 		newMesh->SetPrimitiveType(PrimitiveType::TriangleList);
@@ -219,7 +217,7 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
 	assert(laser->prev == nullptr);
-	if(m_cachedEntries.Contains(laser))
+	if (m_cachedEntries.Contains(laser))
 		return m_cachedEntries[laser];
 
 	Mesh newMesh = MeshRes::Create(m_gl);
@@ -228,8 +226,6 @@ Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, Lase
 	float startingX = laser->points[0] * effectiveWidth - effectiveWidth * 0.5f;
 	if ((laser->flags & LaserObjectState::flag_Extended) != 0)
 		startingX = (laser->points[0] * 2.0f - 0.5f) * effectiveWidth - effectiveWidth * 0.5f;
-
-
 
 	// Length of the tail
 	float length = (float)laserEntryTextureSize.y / (float)laserEntryTextureSize.x * actualLaserWidth;
@@ -246,12 +242,12 @@ Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, Lase
 	// Cache this mesh
 	m_cachedEntries.Add(laser, newMesh);
 	return newMesh;
-
 }
+
 Mesh LaserTrackBuilder::GenerateTrackExit(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
 	assert(laser->next == nullptr);
-	if(m_cachedExits.Contains(laser))
+	if (m_cachedExits.Contains(laser))
 		return m_cachedExits[laser];
 
 	Mesh newMesh = MeshRes::Create(m_gl);
@@ -266,7 +262,7 @@ Mesh LaserTrackBuilder::GenerateTrackExit(class BeatmapPlayback& playback, Laser
 
 	// Length of this segment
 	float prevLength = 0.0f;
-	if((laser->flags & LaserObjectState::flag_Instant) != 0)
+	if ((laser->flags & LaserObjectState::flag_Instant) != 0)
 	{
 		prevLength = playback.DurationToViewDistanceAtTime(laser->time, slamDuration) * laserLengthScale;
 	}
@@ -299,7 +295,8 @@ void LaserTrackBuilder::m_RecalculateConstants()
 {
 	// Calculate amount to scale laser size to fit the texture border in
 	assert(laserTextureSize.x == laserTextureSize.y); // Use Square texture
-	const float laserCenterAmount = ((float)laserTextureSize.x - ((float)laserBorderPixels * 2)) / (float)(laserTextureSize.x);
+	const float laserCenterAmount = ((float)laserTextureSize.x - ((float)laserBorderPixels * 2)) / (float)(laserTextureSize
+		.x);
 	const float laserBorderAmount = (1.0f - laserCenterAmount);
 
 	// The uv coordinates to sample the laser without the border, or only the border
@@ -324,11 +321,11 @@ void LaserTrackBuilder::m_RecalculateConstants()
 void LaserTrackBuilder::m_Cleanup(MapTime newTime, Map<LaserObjectState*, Mesh>& arr)
 {
 	// Cleanup unused meshes
-	for(auto it = arr.begin(); it != arr.end();)
+	for (auto it = arr.begin(); it != arr.end();)
 	{
 		LaserObjectState* obj = it->first;
 		MapTime endTime = obj->time + obj->duration + 1000;
-		if(newTime > endTime)
+		if (newTime > endTime)
 		{
 			it = arr.erase(it);
 			continue;
@@ -336,6 +333,7 @@ void LaserTrackBuilder::m_Cleanup(MapTime newTime, Map<LaserObjectState*, Mesh>&
 		it++;
 	}
 }
+
 void LaserTrackBuilder::Reset()
 {
 	m_objectCache.clear();
@@ -343,6 +341,7 @@ void LaserTrackBuilder::Reset()
 	m_cachedExits.clear();
 	m_RecalculateConstants();
 }
+
 void LaserTrackBuilder::Update(MapTime newTime)
 {
 	m_Cleanup(newTime, m_objectCache);

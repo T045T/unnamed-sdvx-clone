@@ -80,7 +80,7 @@ namespace Graphics
 		return pMap;
 	}
 
-	Font FontRes::Create(OpenGL* gl, const String& assetPath)
+	Font FontRes::create(OpenGL* gl, const String& assetPath)
 	{
 		try
 		{
@@ -104,7 +104,10 @@ namespace Graphics
 
 		struct TextVertex : public VertexFormat<Vector2, Vector2>
 		{
-			TextVertex(Vector2 point, Vector2 uv) : pos(point), tex(uv) {}
+			TextVertex(Vector2 point, Vector2 uv)
+				: pos(point), tex(uv)
+			{}
+
 			Vector2 pos;
 			Vector2 tex;
 		};
@@ -139,18 +142,18 @@ namespace Graphics
 				pen.y = floorf(pen.y);
 
 				vertices.emplace_back(offset + corners[2],
-					corners[2] + info.coords.pos);
+									corners[2] + info.coords.pos);
 				vertices.emplace_back(offset + corners[0],
-					corners[0] + info.coords.pos);
+									corners[0] + info.coords.pos);
 				vertices.emplace_back(offset + corners[1],
-					corners[1] + info.coords.pos);
+									corners[1] + info.coords.pos);
 
 				vertices.emplace_back(offset + corners[3],
-					corners[3] + info.coords.pos);
+									corners[3] + info.coords.pos);
 				vertices.emplace_back(offset + corners[0],
-					corners[0] + info.coords.pos);
+									corners[0] + info.coords.pos);
 				vertices.emplace_back(offset + corners[2],
-					corners[2] + info.coords.pos);
+									corners[2] + info.coords.pos);
 			}
 
 			if (c == L'\n')
@@ -199,7 +202,8 @@ namespace Graphics
 		file.Read(loadedFallbackFont.data(), loadedFallbackFont.size());
 		file.Close();
 
-		success = success && FT_New_Memory_Face(library, loadedFallbackFont.data(), static_cast<uint32>(loadedFallbackFont.size()), 0, &fallbackFont) == 0;
+		success = success && FT_New_Memory_Face(library, loadedFallbackFont.data(),
+												static_cast<uint32>(loadedFallbackFont.size()), 0, &fallbackFont) == 0;
 		success = success && FT_Select_Charmap(fallbackFont, FT_ENCODING_UNICODE) == 0;
 		return success;
 	}

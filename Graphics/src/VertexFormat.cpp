@@ -3,8 +3,7 @@
 
 namespace Graphics
 {
-	template<>
+	template <>
 	void VertexFormats::AddFormats<0, void>(VertexFormatList& dsc)
-	{
-	}
+	{ }
 }

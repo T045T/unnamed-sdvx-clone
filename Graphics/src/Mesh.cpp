@@ -13,6 +13,7 @@ namespace Graphics
 		GL_LINE_STRIP,
 		GL_POINTS,
 	};
+
 	class Mesh_Impl : public MeshRes
 	{
 		uint32 m_buffer = 0;
@@ -23,15 +24,16 @@ namespace Graphics
 		bool m_bDynamic = true;
 	public:
 		Mesh_Impl()
-		{
-		}
+		{ }
+
 		~Mesh_Impl()
 		{
-			if(m_buffer)
+			if (m_buffer)
 				glDeleteBuffers(1, &m_buffer);
-			if(m_vao)
+			if (m_vao)
 				glDeleteVertexArrays(1, &m_vao);
 		}
+
 		bool Init()
 		{
 			glGenBuffers(1, &m_buffer);
@@ -46,27 +48,27 @@ namespace Graphics
 
 			m_vertexCount = vertexCount;
 			size_t totalVertexSize = 0;
-			for(auto e : desc)
+			for (auto e : desc)
 				totalVertexSize += e.componentSize * e.components;
 			size_t index = 0;
 			size_t offset = 0;
-			for(auto e : desc)
+			for (auto e : desc)
 			{
 				uint32 type = -1;
-				if(!e.isFloat)
+				if (!e.isFloat)
 				{
-					if(e.componentSize == 4)
+					if (e.componentSize == 4)
 						type = e.isSigned ? GL_INT : GL_UNSIGNED_INT;
-					else if(e.componentSize == 2)
+					else if (e.componentSize == 2)
 						type = e.isSigned ? GL_SHORT : GL_UNSIGNED_SHORT;
-					else if(e.componentSize == 1)
+					else if (e.componentSize == 1)
 						type = e.isSigned ? GL_BYTE : GL_UNSIGNED_BYTE;
 				}
 				else
 				{
-					if(e.componentSize == 4)
+					if (e.componentSize == 4)
 						type = GL_FLOAT;
-					else if(e.componentSize == 8)
+					else if (e.componentSize == 8)
 						type = GL_DOUBLE;
 				}
 				assert(type != -1);
@@ -80,11 +82,13 @@ namespace Graphics
 			glBindVertexArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
+
 		virtual void Draw()
 		{
 			glBindVertexArray(m_vao);
 			glDrawArrays(m_glType, 0, (int)m_vertexCount);
 		}
+
 		virtual void Redraw()
 		{
 			glDrawArrays(m_glType, 0, (int)m_vertexCount);
@@ -95,6 +99,7 @@ namespace Graphics
 			m_type = pt;
 			m_glType = primitiveTypeMap[(size_t)pt];
 		}
+
 		virtual PrimitiveType GetPrimitiveType() const override
 		{
 			return m_type;
@@ -104,7 +109,7 @@ namespace Graphics
 	Mesh MeshRes::Create(class OpenGL* gl)
 	{
 		Mesh_Impl* pImpl = new Mesh_Impl();
-		if(!pImpl->Init())
+		if (!pImpl->Init())
 		{
 			delete pImpl;
 			return Mesh();

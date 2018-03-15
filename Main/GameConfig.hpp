@@ -15,9 +15,9 @@ DefineEnum(GameConfigKeys,
 
 	// Game settings
 	HiSpeed,
-    UseMMod,
-    UseCMod,
-    ModSpeed,
+	UseMMod,
+	UseCMod,
+	ModSpeed,
 	GlobalOffset,
 	InputOffset,
 	SongFolder,
@@ -70,7 +70,7 @@ DefineEnum(GameConfigKeys,
 	Controller_Laser1Axis,
 	Controller_Deadzone,
 	Controller_Sensitivity
-	);
+);
 
 // Config for game settings
 class GameConfig : public Config<Enum_GameConfigKeys>
@@ -81,7 +81,6 @@ public:
 
 protected:
 	virtual void InitDefaults() override;
-
 };
 
 // Main config instance

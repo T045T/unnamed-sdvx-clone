@@ -7,8 +7,10 @@
 enum class Visibility
 {
 	Visible = 0,
-	Hidden, // No visible
-	Collapsed, // No space used
+	Hidden,
+	// No visible
+	Collapsed,
+	// No space used
 };
 
 /*
@@ -43,7 +45,8 @@ public:
 
 protected:
 	// Template slot creation helper
-	template<typename T> T* CreateSlot(std::shared_ptr<GUIElementBase> element);
+	template <typename T>
+	T* CreateSlot(std::shared_ptr<GUIElementBase> element);
 	// Handle removal logic
 	void m_OnRemovedFromParent();
 	// Called when added to slot
@@ -117,7 +120,8 @@ private:
 };
 
 // Slot creation helper
-template<typename T> T* GUIElementBase::CreateSlot(std::shared_ptr<GUIElementBase> element)
+template <typename T>
+T* GUIElementBase::CreateSlot(std::shared_ptr<GUIElementBase> element)
 {
 	static_assert(std::is_base_of<GUISlotBase, T>::value, "Class does not inherit from GUISlotBase");
 

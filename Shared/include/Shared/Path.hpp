@@ -76,7 +76,7 @@ public:
 	// Same as ExtractPathFromCmdLine but returns the result in an array and keeps the input intact
 	static Vector<String> SplitCommandLine(const String& input);
 	static Vector<String> SplitCommandLine(int argc, char** argv);
-	
+
 	// The character seperating directories/files 
 	// '/' on linux
 	// '\' on windows

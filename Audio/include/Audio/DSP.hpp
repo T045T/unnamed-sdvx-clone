@@ -78,7 +78,7 @@ public:
 private:
 	uint32 m_period = 1;
 	uint32 m_increment = 0;
-	float m_sampleBuffer[2] = { 0.0f };
+	float m_sampleBuffer[2] = {0.0f};
 	uint32 m_currentDuration = 0;
 };
 
@@ -96,9 +96,9 @@ public:
 private:
 	float m_gating = 0.75f;
 	uint32 m_length = 0;
-	uint32 m_fadeIn = 0; // Fade In mark
+	uint32 m_fadeIn = 0;  // Fade In mark
 	uint32 m_fadeOut = 0; // Fade Out mark
-	uint32 m_halfway; // Halfway mark
+	uint32 m_halfway;     // Halfway mark
 	uint32 m_currentSample = 0;
 };
 
@@ -152,14 +152,14 @@ private:
 
 // Referenced http://www.musicdsp.org/files/phaser.cpp
 class PhaserDSP : public DSP
-{ 
+{
 public:
 	uint32 time = 0;
 
 	// Frequency range
 	float dmin = 1000.0f;
 	float dmax = 4000.0f;
-	float fb = 0.2f; //feedback
+	float fb = 0.2f;    //feedback
 	float lmix = 0.33f; //local mix
 
 	void SetLength(uint32 length);
@@ -178,7 +178,7 @@ private:
 	};
 
 	APF filters[2][6];
-	float za[2] = { 0.0f };
+	float za[2] = {0.0f};
 };
 
 class FlangerDSP : public DSP

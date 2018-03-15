@@ -6,29 +6,33 @@ Button::Button(std::shared_ptr<CommonGUIStyle> style)
 {
 	m_style = style;
 }
+
 void Button::SetText(const WString& text)
 {
-	if(m_textString != text)
+	if (m_textString != text)
 	{
 		m_textString = text;
 		m_dirty = true;
 	}
 }
+
 uint32 Button::GetFontSize() const
 {
 	return m_fontSize;
 }
+
 void Button::SetFontSize(uint32 size)
 {
-	if(size != m_fontSize)
+	if (size != m_fontSize)
 	{
 		m_fontSize = size;
 		m_dirty = true;
 	}
 }
+
 void Button::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
-	if(m_dirty)
+	if (m_dirty)
 	{
 		m_text = rd.guiRenderer->font->create_text(m_textString, m_fontSize);
 	}
@@ -36,29 +40,29 @@ void Button::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	m_cachedInnerRect = m_style->buttonBorder.Apply(rd.area);
 	m_hovered = rd.OverlapTest(m_cachedInnerRect);
 
-	if(!m_animation)
+	if (!m_animation)
 	{
-		if(m_hovered || m_held)
+		if (m_hovered || m_held)
 		{
 			AddAnimation(std::shared_ptr<IGUIAnimation>(
-				new GUIAnimation<float>(&m_animationPadding, -2.0f, 0.1f)), true);
+							new GUIAnimation<float>(&m_animationPadding, -2.0f, 0.1f)), true);
 			m_animation = true;
 		}
 	}
 	else
 	{
-		if(!m_hovered && !m_held)
+		if (!m_hovered && !m_held)
 		{
 			AddAnimation(std::shared_ptr<IGUIAnimation>(
-				new GUIAnimation<float>(&m_animationPadding, 0.0f, 0.2f)), true);
+							new GUIAnimation<float>(&m_animationPadding, 0.0f, 0.2f)), true);
 			m_animation = false;
 		}
 	}
 
-	if(m_hovered)
+	if (m_hovered)
 		inputElement = this;
-
 }
+
 void Button::Render(GUIRenderData rd)
 {
 	m_TickAnimations(rd.deltaTime);
@@ -66,18 +70,19 @@ void Button::Render(GUIRenderData rd)
 	// Render BG
 	Margini padding = (int32)m_animationPadding;
 	rd.area = padding.Apply(rd.area);
-	rd.guiRenderer->RenderButton(rd.area, (m_hovered) ? m_style->buttonHighlightTexture : m_style->buttonTexture, m_style->buttonBorder);
+	rd.guiRenderer->RenderButton(rd.area, (m_hovered) ? m_style->buttonHighlightTexture : m_style->buttonTexture,
+								m_style->buttonBorder);
 
-	if(m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left))
+	if (m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left))
 	{
 		m_held = true;
 		rd.guiRenderer->SetInputFocus(nullptr);
 		OnPressed.Call();
 	}
 
-	if(m_held)
+	if (m_held)
 	{
-		if(!rd.guiRenderer->GetMouseButton(MouseButton::Left))
+		if (!rd.guiRenderer->GetMouseButton(MouseButton::Left))
 			m_held = false;
 		else
 			rd.area.pos += Vector2(1.0f);
@@ -93,15 +98,16 @@ void Button::Render(GUIRenderData rd)
 
 	rd.guiRenderer->PopScissorRect();
 }
+
 Vector2 Button::GetDesiredSize(GUIRenderData rd)
 {
-	if(m_dirty)
+	if (m_dirty)
 	{
 		m_text = rd.guiRenderer->font->create_text(m_textString, m_fontSize);
 	}
 
 	Vector2 sizeOut;
-	if(m_text)
+	if (m_text)
 	{
 		sizeOut = m_text->size;
 		sizeOut += m_style->buttonBorder.GetSize() + m_style->buttonPadding.GetSize();

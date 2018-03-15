@@ -22,22 +22,24 @@ Track::Track()
 	else
 		trackLength = 8.0f;
 }
+
 Track::~Track()
 {
-	if(loader)
+	if (loader)
 		delete loader;
 
-	for(uint32 i = 0; i < 2; i++)
+	for (uint32 i = 0; i < 2; i++)
 	{
-		if(m_laserTrackBuilder[i])
+		if (m_laserTrackBuilder[i])
 			delete m_laserTrackBuilder[i];
 	}
-	for(auto it = m_hitEffects.begin(); it != m_hitEffects.end(); it++)
+	for (auto it = m_hitEffects.begin(); it != m_hitEffects.end(); it++)
 	{
 		delete *it;
 	}
 	delete timedHitEffect;
 }
+
 bool Track::AsyncLoad()
 {
 	loader = new AsyncAssetLoader();
@@ -53,18 +55,18 @@ bool Track::AsyncLoad()
 		laserColors[i] = laserColorPalette->GetBits()[i];
 	*/
 
-	float laserHues[2] = { 0.f };
+	float laserHues[2] = {0.f};
 	laserHues[0] = g_gameConfig.GetFloat(GameConfigKeys::Laser0Color);
 	laserHues[1] = g_gameConfig.GetFloat(GameConfigKeys::Laser1Color);
 
 	for (uint32 i = 0; i < 2; i++)
-		laserColors[i] = Color::FromHSV(laserHues[i],1.0,1.0);
+		laserColors[i] = Color::FromHSV(laserHues[i], 1.0, 1.0);
 
 	// Load hit effect colors
 	Image hitColorPalette;
 	CheckedLoad(hitColorPalette = ImageRes::Create("skins/" + skin + "/textures/hitcolors.png"));
 	assert(hitColorPalette->GetSize().x >= 4);
-	for(uint32 i = 0; i < 4; i++)
+	for (uint32 i = 0; i < 4; i++)
 		hitColors[i] = hitColorPalette->GetBits()[i];
 
 	// mip-mapped and anisotropicaly filtered track textures
@@ -76,9 +78,9 @@ bool Track::AsyncLoad()
 	loader->AddTexture(scoreBarTexture, "scorebar.png");
 	loader->AddTexture(scoreHitTexture, "scorehit.png");
 
-	loader->AddTexture(laserPointerTexture, "pointer.png"); 
+	loader->AddTexture(laserPointerTexture, "pointer.png");
 
-	for(uint32 i = 0; i < 3; i++)
+	for (uint32 i = 0; i < 3; i++)
 	{
 		loader->AddTexture(scoreHitTextures[i], Utility::Sprintf("score%d.png", i));
 	}
@@ -86,7 +88,6 @@ bool Track::AsyncLoad()
 	{
 		loader->AddTexture(scoreTimeTextures[i], Utility::Sprintf("timed%d.png", i));
 	}
-
 
 	// Load Button object
 	loader->AddTexture(buttonTexture, "button.png");
@@ -106,7 +107,6 @@ bool Track::AsyncLoad()
 	// Load laser alerts
 	loader->AddTexture(laserAlertTextures[0], "alert_l.png");
 	loader->AddTexture(laserAlertTextures[1], "alert_r.png");
-	
 
 	loader->AddTexture(comboSpriteSheet, "combo.png");
 
@@ -120,6 +120,7 @@ bool Track::AsyncLoad()
 
 	return loader->Load();
 }
+
 bool Track::AsyncFinalize()
 {
 	// Finalizer loading textures/material/etc.
@@ -158,7 +159,7 @@ bool Track::AsyncFinalize()
 	laserTexture->SetFilter(true, true, 16.0f);
 	laserTexture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 
-	for(uint32 i = 0; i < 2; i++)
+	for (uint32 i = 0; i < 2; i++)
 	{
 		laserTailTextures[i]->SetMipmaps(true);
 		laserTailTextures[i]->SetFilter(true, true, 16.0f);
@@ -180,11 +181,12 @@ bool Track::AsyncFinalize()
 	Vector2i comboFontSize = comboSpriteSheet->GetSize();
 	Vector2i comboFontSizePerCharacter = comboFontSize / Vector2i(10, 1);
 	Vector2 comboFontTexCoordSize = Vector2(1.0f / 10.0f, 1.0f);
-	for(uint32 i = 0; i < 10; i++)
+	for (uint32 i = 0; i < 10; i++)
 	{
 		Vector2 texStart = comboFontTexCoordSize * Vector2((float)i, 0);
 		Vector<MeshGenerators::SimpleVertex> verts;
-		MeshGenerators::GenerateSimpleXYQuad(Rect3D(Vector2(-0.5f), Vector2(1.0f)), Rect(texStart, comboFontTexCoordSize), verts);
+		MeshGenerators::GenerateSimpleXYQuad(Rect3D(Vector2(-0.5f), Vector2(1.0f)), Rect(texStart, comboFontTexCoordSize),
+											verts);
 		Mesh m = comboSpriteMeshes[i] = MeshRes::Create(g_gl);
 		m->SetData(verts);
 		m->SetPrimitiveType(PrimitiveType::TriangleList);
@@ -192,7 +194,7 @@ bool Track::AsyncFinalize()
 
 	// Create a laser track builder for each laser object
 	// these will output and cache meshes for rendering lasers
-	for(uint32 i = 0; i < 2; i++)
+	for (uint32 i = 0; i < 2; i++)
 	{
 		m_laserTrackBuilder[i] = new LaserTrackBuilder(g_gl, this, i);
 		m_laserTrackBuilder[i]->laserBorderPixels = 12;
@@ -201,9 +203,11 @@ bool Track::AsyncFinalize()
 	}
 
 	// Generate simple planes for the playfield track and elements
-	trackMesh = MeshGenerators::Quad(g_gl, Vector2(-trackWidth * 0.5f, -trackLength), Vector2(trackWidth, trackLength * 2));
+	trackMesh = MeshGenerators::Quad(g_gl, Vector2(-trackWidth * 0.5f, -trackLength),
+									Vector2(trackWidth, trackLength * 2));
 	trackDarkMesh = MeshGenerators::Quad(g_gl, Vector2(-trackWidth, -trackLength), Vector2(trackWidth * 2, trackLength));
-	trackTickMesh = MeshGenerators::Quad(g_gl, Vector2(-buttonTrackWidth * 0.5f, 0.0f), Vector2(buttonTrackWidth, trackTickLength));
+	trackTickMesh = MeshGenerators::Quad(g_gl, Vector2(-buttonTrackWidth * 0.5f, 0.0f),
+										Vector2(buttonTrackWidth, trackTickLength));
 	centeredTrackMesh = MeshGenerators::Quad(g_gl, Vector2(-0.5f, -0.5f), Vector2(1.0f, 1.0f));
 
 	timedHitEffect = new TimedHitEffect(false);
@@ -212,10 +216,11 @@ bool Track::AsyncFinalize()
 
 	return success;
 }
+
 void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 {
 	const TimingPoint& currentTimingPoint = playback.GetCurrentTimingPoint();
-	if(&currentTimingPoint != m_lastTimingPoint)
+	if (&currentTimingPoint != m_lastTimingPoint)
 	{
 		m_lastTimingPoint = &currentTimingPoint;
 	}
@@ -224,10 +229,10 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 	uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
 
 	// Button Hit FX
-	for(auto it = m_hitEffects.begin(); it != m_hitEffects.end();)
+	for (auto it = m_hitEffects.begin(); it != m_hitEffects.end();)
 	{
 		(*it)->Tick(deltaTime);
-		if((*it)->time <= 0.0f)
+		if ((*it)->time <= 0.0f)
 		{
 			delete *it;
 			it = m_hitEffects.erase(it);
@@ -251,7 +256,7 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 
 	// Overflow on first tick
 	double firstOverflow = fmod((double)tickTime - tp->time, stepTime);
-	if(fabs(firstOverflow) > 1)
+	if (fabs(firstOverflow) > 1)
 		tickTime -= firstOverflow;
 
 	m_barTicks.clear();
@@ -259,12 +264,12 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 	// Add first tick
 	m_barTicks.Add(playback.TimeToViewDistance((MapTime)tickTime));
 
-	while(tickTime < rangeEnd)
+	while (tickTime < rangeEnd)
 	{
 		double next = tickTime + stepTime;
 
 		const TimingPoint* tpNext = playback.GetTimingPointAt((MapTime)tickTime);
-		if(tpNext != tp)
+		if (tpNext != tp)
 		{
 			tp = tpNext;
 			tickTime = tp->time;
@@ -288,19 +293,19 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 	uint32 numBeats = playback.CountBeats(m_lastMapTime, currentTime - m_lastMapTime, startBeat, 4);
 	objectGlowState = currentTime % 100 < 50 ? 0 : 1;
 	m_lastMapTime = currentTime;
-	if(numBeats > 0)
+	if (numBeats > 0)
 	{
 		objectGlow = 1.0f;
 	}
 	else
 	{
 		objectGlow -= 7.0f * deltaTime;
-		if(objectGlow < 0.0f)
+		if (objectGlow < 0.0f)
 			objectGlow = 0.0f;
 	}
 
 	// Perform laser track cache cleanup, etc.
-	for(uint32 i = 0; i < 2; i++)
+	for (uint32 i = 0; i < 2; i++)
 	{
 		m_laserTrackBuilder[i]->Update(m_lastMapTime);
 
@@ -308,8 +313,6 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 		laserAlertOpacity[i] = Math::Clamp<float>(laserAlertOpacity[i], 0.0f, 1.0f);
 		m_alertTimer[i] += deltaTime;
 	}
-
-
 }
 
 void Track::DrawBase(class RenderQueue& rq)
@@ -317,7 +320,7 @@ void Track::DrawBase(class RenderQueue& rq)
 	// Base
 	MaterialParameterSet params;
 	Transform transform = trackOrigin;
-	transform *= Transform::Translation({ 0.0f, -m_trackHide * trackLength * 1.1f, 0.0f });
+	transform *= Transform::Translation({0.0f, -m_trackHide * trackLength * 1.1f, 0.0f});
 	params.SetParameter("mainTex", trackTexture);
 	params.SetParameter("lCol", laserColors[0]);
 	params.SetParameter("rCol", laserColors[1]);
@@ -325,7 +328,7 @@ void Track::DrawBase(class RenderQueue& rq)
 
 	// Draw the main beat ticks on the track
 	params.SetParameter("mainTex", trackTickTexture);
-	for(float f : m_barTicks)
+	for (float f : m_barTicks)
 	{
 		float fLocal = f / m_viewRange;
 		Vector3 tickPosition = Vector3(0.0f, trackLength * fLocal - trackTickLength * 0.5f, 0.01f);
@@ -334,6 +337,7 @@ void Track::DrawBase(class RenderQueue& rq)
 		rq.Draw(tickTransform, trackTickMesh, buttonMaterial, params);
 	}
 }
+
 void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, ObjectState* obj, bool active)
 {
 	// Calculate height based on time on current track
@@ -341,7 +345,7 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 	float position = playback.TimeToViewDistance(obj->time) / viewRange;
 	float glow = 0.0f;
 
-	if(obj->type == ObjectType::Single || obj->type == ObjectType::Hold)
+	if (obj->type == ObjectType::Single || obj->type == ObjectType::Hold)
 	{
 		bool isHold = obj->type == ObjectType::Hold;
 		MultiObjectState* mobj = (MultiObjectState*)obj;
@@ -353,7 +357,7 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 		float length;
 		float currentObjectGlow = active ? objectGlow : 0.0f;
 		int currentObjectGlowState = active ? 2 + objectGlowState : 0;
-		if(mobj->button.index < 4) // Normal button
+		if (mobj->button.index < 4) // Normal button
 		{
 			width = buttonWidth;
 			xposition = buttonTrackWidth * -0.5f + width * mobj->button.index;
@@ -365,16 +369,16 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 		else // FX Button
 		{
 			width = fxbuttonWidth;
-			xposition = buttonTrackWidth * -0.5f + fxbuttonWidth *(mobj->button.index - 4);
+			xposition = buttonTrackWidth * -0.5f + fxbuttonWidth * (mobj->button.index - 4);
 			length = fxbuttonLength;
 			params.SetParameter("hasSample", mobj->button.hasSample);
 			params.SetParameter("mainTex", isHold ? fxbuttonHoldTexture : fxbuttonTexture);
 			mesh = fxbuttonMesh;
 		}
 
-		if(isHold)
+		if (isHold)
 		{
-			if(!active && mobj->hold.GetRoot()->time > playback.GetLastTime())
+			if (!active && mobj->hold.GetRoot()->time > playback.GetLastTime())
 				params.SetParameter("hitState", 1);
 			else
 				params.SetParameter("hitState", currentObjectGlowState);
@@ -388,16 +392,15 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 		Transform buttonTransform = trackOrigin;
 		buttonTransform *= Transform::Translation(buttonPos);
 		float scale = 1.0f;
-		if(isHold) // Hold Note?
+		if (isHold) // Hold Note?
 		{
-			scale = (playback.DurationToViewDistanceAtTime(mobj->time, mobj->hold.duration) / viewRange) / length  * trackLength;
+			scale = (playback.DurationToViewDistanceAtTime(mobj->time, mobj->hold.duration) / viewRange) / length * trackLength;
 		}
-		buttonTransform *= Transform::Scale({ 1.0f, scale, 1.0f });
+		buttonTransform *= Transform::Scale({1.0f, scale, 1.0f});
 		rq.Draw(buttonTransform, mesh, mat, params);
 	}
-	else if(obj->type == ObjectType::Laser) // Draw laser
+	else if (obj->type == ObjectType::Laser) // Draw laser
 	{
-		
 		position = playback.TimeToViewDistance(obj->time);
 		float posmult = trackLength / (m_viewRange * laserSpeedOffset);
 		LaserObjectState* laser = (LaserObjectState*)obj;
@@ -422,20 +425,22 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 
 			// Get the length of this laser segment
 			Transform laserTransform = trackOrigin;
-			laserTransform *= Transform::Translation(Vector3{ 0.0f, posmult * position,
-				0.007f + 0.003f * laser->index }); // Small amount of elevation
+			laserTransform *= Transform::Translation(Vector3{
+				0.0f, posmult * position,
+				0.007f + 0.003f * laser->index
+			}); // Small amount of elevation
 
 			// Set laser color
 			laserParams.SetParameter("color", laserColors[laser->index]);
 
-			if(mesh)
+			if (mesh)
 			{
 				rq.Draw(laserTransform, mesh, laserMaterial, laserParams);
 			}
 		};
 
 		// Draw entry?
-		if(!laser->prev)
+		if (!laser->prev)
 		{
 			Mesh laserTail = m_laserTrackBuilder[laser->index]->GenerateTrackEntry(playback, laser);
 			DrawSegment(laserTail, laserTailTextures[0]);
@@ -446,13 +451,14 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 		DrawSegment(laserMesh, laserTexture);
 
 		// Draw exit?
-		if(!laser->next && (laser->flags & LaserObjectState::flag_Instant) != 0) // Only draw exit on slams
+		if (!laser->next && (laser->flags & LaserObjectState::flag_Instant) != 0) // Only draw exit on slams
 		{
 			Mesh laserTail = m_laserTrackBuilder[laser->index]->GenerateTrackExit(playback, laser);
 			DrawSegment(laserTail, laserTailTextures[1]);
 		}
 	}
 }
+
 void Track::DrawOverlays(class RenderQueue& rq)
 {
 	/// TODO: Move crit line and maybe cursors to UI layer 
@@ -462,36 +468,41 @@ void Track::DrawOverlays(class RenderQueue& rq)
 	DrawSprite(rq, Vector3(0.0f, 0.0f, 0.0f), barSize, scoreBarTexture, Color::White, 0.0f);
 
 	// Draw button hit effect sprites
-	for(auto& hfx : m_hitEffects)
+	for (auto& hfx : m_hitEffects)
 	{
 		hfx->Draw(rq);
 	}
-	if(timedHitEffect->time > 0.0f)
+	if (timedHitEffect->time > 0.0f)
 		timedHitEffect->Draw(rq);
 
 	// Draw laser pointers
-	for(uint32 i = 0; i < 2; i++)
+	for (uint32 i = 0; i < 2; i++)
 	{
 		float pos = laserPositions[i];
 		if (lasersAreExtend[i])
 			pos = pos * 2.0f - 0.5f;
 		Vector2 objectSize = Vector2(buttonWidth * 0.7f, 0.0f);
 		objectSize.y = laserPointerTexture->CalculateHeight(objectSize.x);
-		DrawSprite(rq, Vector3(pos - trackWidth * 0.5f, 0.0f, 0.0f), objectSize, laserPointerTexture, laserColors[i].WithAlpha(laserPointerOpacity[i]));
+		DrawSprite(rq, Vector3(pos - trackWidth * 0.5f, 0.0f, 0.0f), objectSize, laserPointerTexture,
+					laserColors[i].WithAlpha(laserPointerOpacity[i]));
 		/// TODO: Draw alerts on HUD instead of in game world.
-		DrawSprite(rq, Vector3(-trackWidth + trackWidth * i * 2.0f, 0.1f, 0.0f), objectSize * 3, laserAlertTextures[i], laserColors[i].WithAlpha(laserAlertOpacity[i]), 0.0f);
+		DrawSprite(rq, Vector3(-trackWidth + trackWidth * i * 2.0f, 0.1f, 0.0f), objectSize * 3, laserAlertTextures[i],
+					laserColors[i].WithAlpha(laserAlertOpacity[i]), 0.0f);
 	}
 }
-void Track::DrawTrackOverlay(RenderQueue& rq, Texture texture, float heightOffset /*= 0.05f*/, float widthScale /*= 1.0f*/)
+
+void Track::DrawTrackOverlay(RenderQueue& rq, Texture texture, float heightOffset /*= 0.05f*/,
+							float widthScale /*= 1.0f*/)
 {
 	MaterialParameterSet params;
 	params.SetParameter("mainTex", texture);
 	Transform transform = trackOrigin;
-	transform *= Transform::Scale({ widthScale, 1.0f, 1.0f });
-	transform *= Transform::Translation({ 0.0f, heightOffset, 0.0f });
+	transform *= Transform::Scale({widthScale, 1.0f, 1.0f});
+	transform *= Transform::Translation({0.0f, heightOffset, 0.0f});
 	rq.Draw(transform, trackMesh, trackOverlay, params);
 }
-void Track::DrawDarkTrack(RenderQueue & rq)
+
+void Track::DrawDarkTrack(RenderQueue& rq)
 {
 	// Base
 	MaterialParameterSet params;
@@ -500,25 +511,28 @@ void Track::DrawDarkTrack(RenderQueue & rq)
 	params.SetParameter("mainTex", trackDarkTexture);
 	rq.Draw(transform, trackDarkMesh, buttonMaterial, params);
 }
-void Track::DrawSprite(RenderQueue& rq, Vector3 pos, Vector2 size, Texture tex, Color color /*= Color::White*/, float tilt /*= 0.0f*/)
+
+void Track::DrawSprite(RenderQueue& rq, Vector3 pos, Vector2 size, Texture tex, Color color /*= Color::White*/,
+						float tilt /*= 0.0f*/)
 {
 	Transform spriteTransform = trackOrigin;
 	spriteTransform *= Transform::Translation(pos);
-	spriteTransform *= Transform::Scale({ size.x, size.y, 1.0f });
-	if(tilt != 0.0f)
-		spriteTransform *= Transform::Rotation({ tilt, 0.0f, 0.0f });
+	spriteTransform *= Transform::Scale({size.x, size.y, 1.0f});
+	if (tilt != 0.0f)
+		spriteTransform *= Transform::Rotation({tilt, 0.0f, 0.0f});
 
 	MaterialParameterSet params;
 	params.SetParameter("mainTex", tex);
 	params.SetParameter("color", color);
 	rq.Draw(spriteTransform, centeredTrackMesh, spriteMaterial, params);
 }
+
 void Track::DrawCombo(RenderQueue& rq, uint32 score, Color color, float scale)
 {
-	if(score == 0)
+	if (score == 0)
 		return;
 	Vector<Mesh> meshes;
-	while(score > 0)
+	while (score > 0)
 	{
 		uint32 c = score % 10;
 		meshes.Add(comboSpriteMeshes[c]);
@@ -527,23 +541,23 @@ void Track::DrawCombo(RenderQueue& rq, uint32 score, Color color, float scale)
 	}
 	const float charWidth = trackWidth * 0.15f * scale;
 	const float seperation = charWidth * 0.7f;
-	float size = (float)(meshes.size()-1) * seperation;
+	float size = (float)(meshes.size() - 1) * seperation;
 	float halfSize = size * 0.5f;
 
 	MaterialParameterSet params;
 	params.SetParameter("mainTex", comboSpriteSheet);
 	params.SetParameter("color", color);
-	for(uint32 i = 0; i < meshes.size(); i++)
+	for (uint32 i = 0; i < meshes.size(); i++)
 	{
-		float xpos = -halfSize + seperation * (meshes.size()-1-i);
+		float xpos = -halfSize + seperation * (meshes.size() - 1 - i);
 		Transform t = trackOrigin;
-		t *= Transform::Translation({ xpos, 0.3f, -0.004f});
+		t *= Transform::Translation({xpos, 0.3f, -0.004f});
 		t *= Transform::Scale({charWidth, charWidth, 1.0f});
 		rq.Draw(t, meshes[i], spriteMaterial, params);
 	}
 }
 
-Vector3 Track::TransformPoint(const Vector3 & p)
+Vector3 Track::TransformPoint(const Vector3& p)
 {
 	return trackOrigin.TransformPoint(p);
 }
@@ -554,12 +568,13 @@ TimedEffect* Track::AddEffect(TimedEffect* effect)
 	effect->track = this;
 	return effect;
 }
+
 void Track::ClearEffects()
 {
 	m_trackHide = 0.0f;
 	m_trackHideSpeed = 0.0f;
 
-	for(auto it = m_hitEffects.begin(); it != m_hitEffects.end(); it++)
+	for (auto it = m_hitEffects.begin(); it != m_hitEffects.end(); it++)
 	{
 		delete *it;
 	}
@@ -568,7 +583,7 @@ void Track::ClearEffects()
 
 void Track::SetViewRange(float newRange)
 {
-	if(newRange != m_viewRange)
+	if (newRange != m_viewRange)
 	{
 		m_viewRange = newRange;
 
@@ -601,9 +616,8 @@ float Track::GetViewRange() const
 
 float Track::GetButtonPlacement(uint32 buttonIdx)
 {
-	if(buttonIdx < 4)
+	if (buttonIdx < 4)
 		return buttonIdx * buttonWidth - (buttonWidth * 1.5f);
 	else
 		return (buttonIdx - 4) * fxbuttonWidth - (fxbuttonWidth * 0.5f);
 }
-

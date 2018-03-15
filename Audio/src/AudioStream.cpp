@@ -30,15 +30,15 @@ std::shared_ptr<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const
 	else if (ext == "wav")
 		pref = 3;
 
-	for(uint32 i = 0; i < 3; i++)
+	for (uint32 i = 0; i < 3; i++)
 	{
 		impl = TryCreateType(pref);
-		if(impl)
+		if (impl)
 			break;
 		pref = (pref + 1) % 2;
 	}
 
-	if(!impl)
+	if (!impl)
 		return AudioStream();
 
 	audio->GetImpl()->Register(impl);

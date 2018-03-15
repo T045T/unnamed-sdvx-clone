@@ -28,9 +28,10 @@ namespace Graphics
 	{
 		m_impl = new OpenGL_Impl();
 	}
+
 	OpenGL::~OpenGL()
 	{
-		if(m_impl->context)
+		if (m_impl->context)
 		{
 			// Cleanup resource managers
 			ResourceManagers::DestroyResourceManager<ResourceType::Mesh>();
@@ -41,7 +42,7 @@ namespace Graphics
 			ResourceManagers::DestroyResourceManager<ResourceType::Framebuffer>();
 			ResourceManagers::DestroyResourceManager<ResourceType::ParticleSystem>();
 
-			if(glBindProgramPipeline)
+			if (glBindProgramPipeline)
 			{
 				glDeleteProgramPipelines(1, &m_mainProgramPipeline);
 			}
@@ -51,6 +52,7 @@ namespace Graphics
 		}
 		delete m_impl;
 	}
+
 	void OpenGL::InitResourceManagers()
 	{
 		ResourceManagers::CreateResourceManager<ResourceType::Mesh>();
@@ -61,9 +63,10 @@ namespace Graphics
 		ResourceManagers::CreateResourceManager<ResourceType::Framebuffer>();
 		ResourceManagers::CreateResourceManager<ResourceType::ParticleSystem>();
 	}
+
 	bool OpenGL::Init(Window& window)
 	{
-		if(m_impl->context)
+		if (m_impl->context)
 			return true; // Already initialized
 
 		// Store the thread ID that the OpenGL context runs on
@@ -78,10 +81,10 @@ namespace Graphics
 
 		// Create a context
 		m_impl->context = SDL_GL_CreateContext(sdlWnd);
-		if(!m_impl->context)
+		if (!m_impl->context)
 		{
-            Logf("Failed to create OpenGL context: %s", Logger::Error, SDL_GetError());
-            return false;
+			Logf("Failed to create OpenGL context: %s", Logger::Error, SDL_GetError());
+			return false;
 		}
 
 		SDL_GL_MakeCurrent(sdlWnd, m_impl->context);
@@ -102,7 +105,7 @@ namespace Graphics
 
 #ifdef _DEBUG
 		// Setup GL debug messages to go to the console
-		if(glDebugMessageCallback && glDebugMessageControl)
+		if (glDebugMessageCallback && glDebugMessageControl)
 		{
 			Log("OpenGL Logging on.", Logger::Info);
 			glDebugMessageCallback(GLDebugProc, 0);
@@ -132,7 +135,7 @@ namespace Graphics
 
 	void OpenGL::UnbindFramebuffer()
 	{
-		if(m_boundFramebuffer)
+		if (m_boundFramebuffer)
 		{
 			m_boundFramebuffer->Unbind();
 		}
@@ -144,10 +147,12 @@ namespace Graphics
 		glGetIntegerv(GL_VIEWPORT, &vp.pos.x);
 		return vp;
 	}
+
 	void OpenGL::SetViewport(Recti vp)
 	{
 		glViewport(vp.pos.x, vp.pos.y, vp.size.x, vp.size.y);
 	}
+
 	void OpenGL::SetViewport(Vector2i size)
 	{
 		glViewport(0, 0, size.x, size.y);
@@ -165,11 +170,12 @@ namespace Graphics
 		SDL_GL_SwapWindow(sdlWnd);
 	}
 
-	#ifdef _WIN32
-	void APIENTRY GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-	#else
+#ifdef _WIN32
+	void APIENTRY GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+							const GLchar* message, const void* userParam)
+#else
 	void GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-	#endif
+#endif
 	{
 #define DEBUG_SEVERITY_HIGH                              0x9146
 #define DEBUG_SEVERITY_MEDIUM                            0x9147
@@ -177,7 +183,7 @@ namespace Graphics
 #define DEBUG_SEVERITY_NOTIFICATION                      0x826B
 
 		Logger::Severity mySeverity;
-		switch(severity)
+		switch (severity)
 		{
 		case DEBUG_SEVERITY_MEDIUM:
 		case DEBUG_SEVERITY_HIGH:

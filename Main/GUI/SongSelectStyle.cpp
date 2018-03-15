@@ -4,9 +4,10 @@
 #include "Application.hpp"
 
 std::shared_ptr<SongSelectStyle> SongSelectStyle::instance;
+
 std::shared_ptr<SongSelectStyle> SongSelectStyle::Get(Application* application)
 {
-	if(!instance)
+	if (!instance)
 	{
 		assert(application);
 		instance = std::shared_ptr<SongSelectStyle>(new SongSelectStyle(application));
@@ -29,7 +30,7 @@ SongSelectStyle::SongSelectStyle(Application* application)
 		"song_select/grv.png",
 		"song_select/inf.png",
 	};
-	for(uint32 i = 0; i < 5; i++)
+	for (uint32 i = 0; i < 5; i++)
 	{
 		diffFrames[i] = application->LoadTexture(diffTextures[i]);
 		diffFrames[i]->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
@@ -37,11 +38,13 @@ SongSelectStyle::SongSelectStyle(Application* application)
 	diffFrameMaterial = application->LoadMaterial("diffFrame");
 	diffFrameMaterial->opaque = false;
 }
+
 SongSelectStyle::~SongSelectStyle()
 {
-	for(auto t : m_jacketImages)
+	for (auto t : m_jacketImages)
 	{
-		if (t.second){
+		if (t.second)
+		{
 			t.second->loadingJob->Terminate();
 			delete t.second;
 		}
@@ -53,7 +56,7 @@ Texture SongSelectStyle::GetJacketThumnail(const String& path)
 	Texture ret = loadingJacketImage;
 
 	auto it = m_jacketImages.find(path);
-	if(it == m_jacketImages.end() || !it->second)
+	if (it == m_jacketImages.end() || !it->second)
 	{
 		CachedJacketImage* newImage = new CachedJacketImage();
 		JacketLoadingJob* job = new JacketLoadingJob();
@@ -69,7 +72,7 @@ Texture SongSelectStyle::GetJacketThumnail(const String& path)
 	{
 		it->second->lastUsage = m_timer.SecondsAsFloat();
 		// If loaded set texture
-		if(it->second->texture)
+		if (it->second->texture)
 		{
 			ret = it->second->texture;
 		}
@@ -91,20 +94,24 @@ Texture SongSelectStyle::GetJacketThumnail(const String& path)
 
 	return ret;
 }
+
 bool JacketLoadingJob::Run()
 {
 	// Create loading task
 	loadedImage = ImageRes::Create(imagePath);
-	if (loadedImage.IsValid()){
-		if (loadedImage->GetSize().x > 150 || loadedImage->GetSize().y > 150){
-			loadedImage->ReSize({150,150});
+	if (loadedImage.IsValid())
+	{
+		if (loadedImage->GetSize().x > 150 || loadedImage->GetSize().y > 150)
+		{
+			loadedImage->ReSize({150, 150});
 		}
 	}
 	return loadedImage.IsValid();
 }
+
 void JacketLoadingJob::Finalize()
 {
-	if(IsSuccessfull())
+	if (IsSuccessfull())
 	{
 		target->texture = TextureRes::Create(g_gl, loadedImage);
 		target->texture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);

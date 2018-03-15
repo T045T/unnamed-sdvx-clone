@@ -11,16 +11,19 @@ namespace Utility
 	{
 		return *in;
 	}
+
 	const wchar_t* WSprintfArgFilter(const WString& in)
 	{
 		return *in;
 	}
+
 	String ConvertToUTF8(const WString& wstr)
 	{
 		String res;
 		wstrToUtf8(res, wstr);
 		return res;
 	}
+
 	WString ConvertToWString(const String& utf8String)
 	{
 		WString res;

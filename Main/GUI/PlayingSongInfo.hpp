@@ -38,7 +38,6 @@ public:
 	virtual void Render(GUIRenderData rd) override;
 	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
 	float progress = 0.5f;
-
 };
 
 class PlayingSongInfo : public Canvas
@@ -69,6 +68,4 @@ private:
 	float m_progress = 0.5f;
 	String m_jacketPath;
 	Texture m_jacketImage;
-
 };
-

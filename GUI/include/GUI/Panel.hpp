@@ -19,7 +19,7 @@ public:
 		virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
 
 		// Content alignment
-		Vector2 alignment = Vector2(0.5f,0.5f);
+		Vector2 alignment = Vector2(0.5f, 0.5f);
 	};
 
 	// Sets panel content

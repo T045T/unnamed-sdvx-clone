@@ -27,13 +27,13 @@ Test("Audio.Playback")
 
 	Timer t;
 	float time = FLT_MAX;
-	while(true)
+	while (true)
 	{
 		float deltaTime = t.SecondsAsFloat();
 		t.Restart();
 		time += deltaTime;
 		t.Restart();
-		if(time > 3.0f)
+		if (time > 3.0f)
 		{
 			Logf("Playing sample", Logger::Info);
 			testSample->Play();
@@ -62,9 +62,9 @@ Test("Audio.Music.Phaser")
 			song->AddDSP(phaser);
 			phaser->SetLength(1000);
 		}
+
 		virtual void Update(float dt) override
-		{
-		}
+		{ }
 	};
 
 	MusicPlayer mp;
@@ -86,9 +86,9 @@ Test("Audio.Music.Wobble")
 			song->AddDSP(wobble);
 			wobble->SetLength(200);
 		}
+
 		virtual void Update(float dt) override
-		{
-		}
+		{ }
 	};
 
 	MusicPlayer mp;
@@ -114,6 +114,7 @@ Test("Audio.Music.LPF")
 			song->AddDSP(filter);
 			filter->SetLowPass(1.0f, 500.0f);
 		}
+
 		virtual void Update(float dt) override
 		{
 			// Sweeping filter settings
@@ -122,15 +123,15 @@ Test("Audio.Music.LPF")
 			const float filterSweepQStart = 1.0f;
 			const float filterSweepQEnd = 1.0f;
 
-			for(int32 i = 0; i < 64; i++)
+			for (int32 i = 0; i < 64; i++)
 				printf("\b\0\b");
 
 			// Increment filter
 			filterSetting += dt * 0.25f * sweepDir;
 			filterSetting = Math::Clamp(filterSetting, 0.0f, 1.0f);
-			if(filterSetting >= 1.0f)
+			if (filterSetting >= 1.0f)
 				sweepDir = -1.0f;
-			else if(filterSetting <= 0.0f)
+			else if (filterSetting <= 0.0f)
 				sweepDir = 1.0f;
 
 			float sweepInput = pow(filterSetting, 2.0f);
@@ -167,6 +168,7 @@ Test("Audio.Music.LPFMix")
 			song->AddDSP(filter);
 			filter->SetLowPass(1.0f, 500.0f);
 		}
+
 		virtual void Update(float dt) override
 		{
 			// Sweeping filter settings
@@ -175,15 +177,15 @@ Test("Audio.Music.LPFMix")
 			const float filterSweepQStart = 1.0f;
 			const float filterSweepQEnd = 1.0f;
 
-			for(int32 i = 0; i < 64; i++)
+			for (int32 i = 0; i < 64; i++)
 				printf("\b\0\b");
 
 			// Increment filter
 			filterSetting += dt * 0.2f * sweepDir;
 			filterSetting = Math::Clamp(filterSetting, 0.0f, 1.0f);
-			if(filterSetting >= 1.0f)
+			if (filterSetting >= 1.0f)
 				sweepDir = -1.0f;
-			else if(filterSetting <= 0.0f)
+			else if (filterSetting <= 0.0f)
 				sweepDir = 1.0f;
 
 			int32 playbackTime = song->GetPosition();
@@ -220,6 +222,7 @@ Test("Audio.Music.Peaking")
 			song->AddDSP(filter);
 			filter->SetLowPass(1.0f, 500.0f);
 		}
+
 		virtual void Update(float dt) override
 		{
 			// Sweeping filter settings
@@ -230,15 +233,15 @@ Test("Audio.Music.Peaking")
 			const float filterSweepAmpStart = 30.0f;
 			const float filterSweepAmpEnd = 20.0f;
 
-			for(int32 i = 0; i < 64; i++)
+			for (int32 i = 0; i < 64; i++)
 				printf("\b\0\b");
 
 			// Increment filter
 			filterSetting += dt * 0.5f * sweepDir;
 			filterSetting = Math::Clamp(filterSetting, 0.0f, 1.0f);
-			if(filterSetting >= 1.0f)
+			if (filterSetting >= 1.0f)
 				sweepDir = -1.0f;
-			else if(filterSetting <= 0.0f)
+			else if (filterSetting <= 0.0f)
 				sweepDir = 1.0f;
 
 			float sweepInput = pow(filterSetting, 2.0f);
@@ -274,9 +277,9 @@ Test("Audio.Music.Echo")
 			echo->SetLength(3000);
 			echo->feedback = 0.4f;
 		}
+
 		virtual void Update(float dt) override
-		{
-		}
+		{ }
 	};
 
 	MusicPlayer mp;
@@ -301,9 +304,9 @@ Test("Audio.Music.Flanger")
 			fl->SetLength(24100);
 			fl->mix = 1.0f;
 		}
+
 		virtual void Update(float dt) override
-		{
-		}
+		{ }
 	};
 
 	MusicPlayer mp;

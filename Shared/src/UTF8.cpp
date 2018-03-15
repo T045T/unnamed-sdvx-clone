@@ -26,43 +26,43 @@ void utf8toWStr(WString& dest, const String& src)
 	dest.clear();
 	wchar_t w = 0;
 	int bytes = 0;
-	wchar_t err = { 0xFFFD };
+	wchar_t err = {0xFFFD};
 
-	for(size_t i = 0; i < src.size(); i++)
+	for (size_t i = 0; i < src.size(); i++)
 	{
 		unsigned char c = (unsigned char)src[i];
-		if(c <= 0x7f)	//first byte
+		if (c <= 0x7f) //first byte
 		{
-			if(bytes)
+			if (bytes)
 			{
 				dest.push_back(err);
 				bytes = 0;
 			}
 			dest.push_back((wchar_t)c);
 		}
-		else if(c <= 0xbf)	//second/third/etc byte
+		else if (c <= 0xbf) //second/third/etc byte
 		{
-			if(bytes)
+			if (bytes)
 			{
 				w = ((w << 6) | (c & 0x3f));
 				bytes--;
-				if(bytes == 0)
+				if (bytes == 0)
 					dest.push_back(w);
 			}
 			else
 				dest.push_back(err);
 		}
-		else if(c <= 0xdf)	//2byte sequence start
+		else if (c <= 0xdf) //2byte sequence start
 		{
 			bytes = 1;
 			w = c & 0x1f;
 		}
-		else if(c <= 0xef)	//3byte sequence start
+		else if (c <= 0xef) //3byte sequence start
 		{
 			bytes = 2;
 			w = c & 0x0f;
 		}
-		else if(c <= 0xf7)	//3byte sequence start
+		else if (c <= 0xf7) //3byte sequence start
 		{
 			bytes = 3;
 			w = c & 0x07;
@@ -73,30 +73,30 @@ void utf8toWStr(WString& dest, const String& src)
 			bytes = 0;
 		}
 	}
-	if(bytes)
+	if (bytes)
 		dest.push_back(err);
 }
 
 void wstrToUtf8(String& dest, const WString& src)
 {
 	dest.clear();
-	for(size_t i = 0; i < src.size(); i++)
+	for (size_t i = 0; i < src.size(); i++)
 	{
 		wchar_t w = src[i];
-		if(w <= 0x7f)
+		if (w <= 0x7f)
 			dest.push_back((char)w);
-		else if(w <= 0x7ff)
+		else if (w <= 0x7ff)
 		{
 			dest.push_back(0xc0 | ((w >> 6) & 0x1f));
 			dest.push_back(0x80 | (w & 0x3f));
 		}
-		else if(w <= 0xffff)
+		else if (w <= 0xffff)
 		{
 			dest.push_back(0xe0 | ((w >> 12) & 0x0f));
 			dest.push_back(0x80 | ((w >> 6) & 0x3f));
 			dest.push_back(0x80 | (w & 0x3f));
 		}
-		else if(w <= 0x10ffff)
+		else if (w <= 0x10ffff)
 		{
 			dest.push_back(0xf0 | ((w >> 18) & 0x07));
 			dest.push_back(0x80 | ((w >> 12) & 0x3f));

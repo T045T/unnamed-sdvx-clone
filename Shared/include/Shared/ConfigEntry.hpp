@@ -10,7 +10,11 @@ public:
 	// Sets the current entry from a string value
 	virtual void FromString(const String& str) = 0;
 
-	template<typename T> T* As() { return dynamic_cast<T*>(this); }
+	template <typename T>
+	T* As()
+	{
+		return dynamic_cast<T*>(this);
+	}
 };
 
 class IntConfigEntry : public IConfigEntry
@@ -29,7 +33,7 @@ public:
 public:
 	virtual String ToString() const override;
 	virtual void FromString(const String& str) override;
-}; 
+};
 
 class FloatConfigEntry : public IConfigEntry
 {
@@ -49,7 +53,7 @@ public:
 	virtual void FromString(const String& str) override;
 };
 
-template<typename EnumClass>
+template <typename EnumClass>
 class EnumConfigEntry : public IConfigEntry
 {
 public:
@@ -59,6 +63,7 @@ public:
 	{
 		return EnumClass::ToString(data);
 	}
+
 	virtual void FromString(const String& str) override
 	{
 		data = EnumClass::FromString(str);

@@ -4,13 +4,11 @@
 #include "Track.hpp"
 
 Camera::Camera()
-{
+{}
 
-}
 Camera::~Camera()
-{
+{}
 
-}
 void Camera::Tick(float deltaTime, class BeatmapPlayback& playback)
 {
 	const TimingPoint& currentTimingPoint = playback.GetCurrentTimingPoint();
@@ -29,7 +27,7 @@ void Camera::Tick(float deltaTime, class BeatmapPlayback& playback)
 	{
 		if (m_spinType == SpinStruct::SpinType::Full)
 		{
-			if(spinProgress <= 1.0f)
+			if (spinProgress <= 1.0f)
 				m_spinRoll = -m_spinDirection * (1.0 - spinProgress);
 			else
 			{
@@ -50,7 +48,7 @@ void Camera::Tick(float deltaTime, class BeatmapPlayback& playback)
 
 	m_roll = m_spinRoll + m_laserRoll;
 
-	if(!rollKeep)
+	if (!rollKeep)
 	{
 		m_targetRollSet = false;
 		m_targetRoll = 0.0f;
@@ -58,9 +56,9 @@ void Camera::Tick(float deltaTime, class BeatmapPlayback& playback)
 
 	// Update camera shake effects
 	m_shakeOffset = Vector3(0.0f);
-	for(auto it = m_shakeEffects.begin(); it != m_shakeEffects.end();)
+	for (auto it = m_shakeEffects.begin(); it != m_shakeEffects.end();)
 	{
-		if(it->time <= 0.0f)
+		if (it->time <= 0.0f)
 		{
 			it = m_shakeEffects.erase(it);
 			continue;
@@ -76,6 +74,7 @@ void Camera::Tick(float deltaTime, class BeatmapPlayback& playback)
 		it++;
 	}
 }
+
 void Camera::AddCameraShake(CameraShake cameraShake)
 {
 	// Randomize offsets
@@ -85,6 +84,7 @@ void Camera::AddCameraShake(CameraShake cameraShake)
 		Random::FloatRange(0.0f, 1.0f / cameraShake.frequency.z));
 	m_shakeEffects.Add(cameraShake);
 }
+
 void Camera::AddRollImpulse(float dir, float strength)
 {
 	m_rollVelocity += dir * strength;
@@ -117,21 +117,23 @@ RenderState Camera::CreateRenderState(bool clipped)
 	float viewRangeExtension = clipped ? 0.0f : 5.0f;
 
 	RenderState rs = g_application->GetRenderStateBase();
-	
+
 	uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
 	float fov = fovs[portrait];
-	float pitchOffset = ( 0.5 - pitchOffsets[portrait]) * fov / 1.0f;
+	float pitchOffset = (0.5 - pitchOffsets[portrait]) * fov / 1.0f;
 
 	// Tilt, Height and Near calculated from zoom values
 	float base_pitch;
 	if (zoomTop <= 0)
 		base_pitch = Lerp(minPitch[portrait], basePitch[portrait], zoomTop + 1);
-	else base_pitch = Lerp(basePitch[portrait], maxPitch[portrait], zoomTop);
+	else
+		base_pitch = Lerp(basePitch[portrait], maxPitch[portrait], zoomTop);
 
 	float base_radius;
 	if (zoomBottom <= 0)
 		base_radius = Lerp(minRadius[portrait], baseRadius[portrait], zoomBottom + 1);
-	else base_radius = Lerp(baseRadius[portrait], maxRadius[portrait], zoomBottom);
+	else
+		base_radius = Lerp(baseRadius[portrait], maxRadius[portrait], zoomBottom);
 
 	base_radius *= 4;
 
@@ -142,7 +144,7 @@ RenderState Camera::CreateRenderState(bool clipped)
 
 	// Set track origin
 	track->trackOrigin = Transform();
-	track->trackOrigin *= Transform::Rotation({ 0.0f, -m_roll * 360.0f,0.0f });
+	track->trackOrigin *= Transform::Rotation({0.0f, -m_roll * 360.0f, 0.0f});
 	track->trackOrigin *= Transform::Translation(Vector3(0.0f, -targetHeight, -targetNear));
 
 	// Calculate clipping distances
@@ -154,9 +156,11 @@ RenderState Camera::CreateRenderState(bool clipped)
 	float distToTrackEnd = sqrtf(toTrackEnd.x * toTrackEnd.x + toTrackEnd.y * toTrackEnd.y + toTrackEnd.z * toTrackEnd.z);
 	float angleToTrackEnd = atan2f(toTrackEnd.y, toTrackEnd.z);
 
-	cameraTransform *= Transform::Rotation({base_pitch - pitchOffset,
-											0.0f,
-											0.0f });
+	cameraTransform *= Transform::Rotation({
+		base_pitch - pitchOffset,
+		0.0f,
+		0.0f
+	});
 	cameraTransform *= Transform::Translation(m_shakeOffset);
 
 	m_pitch = base_pitch - pitchOffset;
@@ -175,7 +179,7 @@ RenderState Camera::CreateRenderState(bool clipped)
 void Camera::SetTargetRoll(float target)
 {
 	float actualTarget = target * m_rollIntensity;
-	if(!rollKeep)
+	if (!rollKeep)
 	{
 		m_targetRoll = actualTarget;
 		m_targetRollSet = true;
@@ -228,14 +232,14 @@ Vector3 Camera::GetShakeOffset()
 float Camera::m_ClampRoll(float in) const
 {
 	float ain = fabs(in);
-	if(ain < 1.0f)
+	if (ain < 1.0f)
 		return in;
 	bool odd = ((uint32)fabs(in) % 2) == 1;
 	float sign = Math::Sign(in);
-	if(odd)
+	if (odd)
 	{
 		// Swap sign and modulo
-		return -sign * (1.0f-fmodf(ain, 1.0f));
+		return -sign * (1.0f - fmodf(ain, 1.0f));
 	}
 	else
 	{
@@ -244,12 +248,14 @@ float Camera::m_ClampRoll(float in) const
 	}
 }
 
-CameraShake::CameraShake(float duration) : duration(duration)
-{
-	time = duration;
-}
-CameraShake::CameraShake(float duration, float amplitude, float freq) : duration(duration), amplitude(amplitude), frequency(freq)
+CameraShake::CameraShake(float duration)
+	: duration(duration)
 {
 	time = duration;
 }
 
+CameraShake::CameraShake(float duration, float amplitude, float freq)
+	: duration(duration), amplitude(amplitude), frequency(freq)
+{
+	time = duration;
+}

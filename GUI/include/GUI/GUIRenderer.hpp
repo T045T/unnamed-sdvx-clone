@@ -51,8 +51,10 @@ public:
 	// Renders text, returns the size of the rendered text
 	Vector2i GetTextSize(const String& str, uint32 fontSize = 16);
 	Vector2i GetTextSize(const WString& str, uint32 fontSize = 16);
-	Vector2i RenderText(const String& str, const Vector2& position, const Color& color = Color(1.0f), uint32 fontSize = 16);
-	Vector2i RenderText(const WString& str, const Vector2& position, const Color& color = Color(1.0f), uint32 fontSize = 16);
+	Vector2i RenderText(const String& str, const Vector2& position, const Color& color = Color(1.0f),
+						uint32 fontSize = 16);
+	Vector2i RenderText(const WString& str, const Vector2& position, const Color& color = Color(1.0f),
+						uint32 fontSize = 16);
 	void RenderText(Text& text, const Vector2& position, const Color& color = Color(1.0f));
 	// Draws a rectangle, either with a texture or just a color
 	void RenderRect(const Rect& rect, const Color& color = Color(1.0f), Texture texture = Texture());
@@ -83,7 +85,7 @@ public:
 
 	// Textured/Color-Only materials
 	Material textureMaterial;
-	Material colorMaterial; 
+	Material colorMaterial;
 	// Button material
 	Material buttonMaterial;
 	// Graph material
@@ -111,8 +113,8 @@ private:
 	RenderQueue* m_renderQueue = nullptr;
 	GUIElementBase* m_hoveredElement = nullptr;
 
-	bool m_mouseButtonState[3] = { 0 };
-	bool m_mouseButtonStateLast[3] = { 0 };
+	bool m_mouseButtonState[3] = {0};
+	bool m_mouseButtonStateLast[3] = {0};
 
 	// Internal timer for sending to shaders that use it and maybe other uses
 	float m_time;
@@ -128,4 +130,3 @@ private:
 	// Stack of scissor rectangles
 	Vector<Rect> m_scissorRectangles;
 };
-

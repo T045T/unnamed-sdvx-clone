@@ -42,16 +42,18 @@ private:
 
 public:
 	static void StaticFunc(int32 arg)
-	{
-	}
+	{ }
+
 	static int32 StaticFunc1(int32 arg)
 	{
 		return arg * 2;
 	}
+
 	static int32 StaticFunc2(int32 arg)
 	{
 		return arg * 2;
 	}
+
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
@@ -145,7 +147,6 @@ public:
 
 		// Setting bar
 		{
-
 			SettingsBar* sb = new SettingsBar(m_guiStyle);
 			m_settings = std::shared_ptr<SettingsBar>(sb);
 			sb->AddSetting(&a, 0.0f, 1.0f, "A");
@@ -174,25 +175,26 @@ public:
 		}
 		return true;
 	}
+
 	~Test_Impl()
-	{
-	}
+	{ }
+
 	virtual void OnKeyPressed(int32 key) override
 	{
-		if(key == SDLK_TAB)
+		if (key == SDLK_TAB)
 		{
 			m_settings->SetShow(!m_settings->IsShown());
 		}
 	}
+
 	virtual void OnKeyReleased(int32 key) override
-	{
-	}
+	{ }
+
 	virtual void Render(float deltaTime) override
-	{
-	}
+	{ }
+
 	virtual void Tick(float deltaTime) override
-	{
-	}
+	{ }
 };
 
 Test* Test::Create()

@@ -22,5 +22,4 @@ public:
 
 // Both an application tickable and async loadable
 class IAsyncLoadableApplicationTickable : public IAsyncLoadable, public IApplicationTickable
-{
-};
+{};

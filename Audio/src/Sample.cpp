@@ -15,6 +15,7 @@ struct WavHeader
 	{
 		return strncmp(id, rhs, 4) == 0;
 	}
+
 	bool operator !=(const char* rhs) const
 	{
 		return !(*this == rhs);
@@ -37,6 +38,7 @@ BinaryStream& operator <<(BinaryStream& stream, WavHeader& hdr)
 	stream << hdr.nLength;
 	return stream;
 }
+
 BinaryStream& operator <<(BinaryStream& stream, WavFormat& fmt)
 {
 	stream.SerializeObject(fmt);
@@ -48,7 +50,7 @@ class Sample_Impl : public SampleRes
 public:
 	Audio* m_audio;
 	Buffer m_pcm;
-	WavFormat m_format = { 0 };
+	WavFormat m_format = {0};
 
 	mutex m_lock;
 
@@ -65,6 +67,7 @@ public:
 	{
 		Deregister();
 	}
+
 	virtual void Play() override
 	{
 		m_lock.lock();
@@ -72,28 +75,29 @@ public:
 		m_playbackPointer = 0;
 		m_lock.unlock();
 	}
+
 	bool Init(const String& path)
 	{
 		File file;
-		if(!file.OpenRead(path))
+		if (!file.OpenRead(path))
 			return false;
 		FileReader stream = FileReader(file);
 
 		WavHeader riff;
 		stream << riff;
-		if(riff != "RIFF")
+		if (riff != "RIFF")
 			return false;
 
 		char riffType[4];
 		stream.SerializeObject(riffType);
-		if(strncmp(riffType, "WAVE", 4) != 0)
+		if (strncmp(riffType, "WAVE", 4) != 0)
 			return false;
 
-		while(stream.Tell() < stream.GetSize())
+		while (stream.Tell() < stream.GetSize())
 		{
 			WavHeader chunkHdr;
 			stream << chunkHdr;
-			if(chunkHdr == "fmt ")
+			if (chunkHdr == "fmt ")
 			{
 				stream << m_format;
 				//Logf("Sample format: %s", Logger::Info, (m_format.nFormat == 1) ? "PCM" : "Unknown");
@@ -101,14 +105,14 @@ public:
 				//Logf("Sample rate: %d", Logger::Info, m_format.nSampleRate);
 				//Logf("Bps: %d", Logger::Info, m_format.nBitsPerSample);
 			}
-			else if(chunkHdr == "data") // data Chunk
+			else if (chunkHdr == "data") // data Chunk
 			{
 				// validate header
-				if(m_format.nFormat != 1)
+				if (m_format.nFormat != 1)
 					return false;
-				if(m_format.nChannels > 2 || m_format.nChannels == 0)
+				if (m_format.nChannels > 2 || m_format.nChannels == 0)
 					return false;
-				if(m_format.nBitsPerSample != 16)
+				if (m_format.nBitsPerSample != 16)
 					return false;
 
 				// Read data
@@ -128,18 +132,19 @@ public:
 
 		return true;
 	}
+
 	virtual void Process(float* out, uint32 numSamples) override
 	{
-		if(!m_playing)
+		if (!m_playing)
 			return;
 
 		m_lock.lock();
-		if(m_format.nChannels == 2)
+		if (m_format.nChannels == 2)
 		{
 			// Mix stereo sample
-			for(uint32 i = 0; i < numSamples; i++)
+			for (uint32 i = 0; i < numSamples; i++)
 			{
-				if(m_playbackPointer >= m_length)
+				if (m_playbackPointer >= m_length)
 				{
 					// Playback ended
 					m_playing = false;
@@ -152,19 +157,19 @@ public:
 
 				// Increment source sample with resampling
 				m_sampleStep += m_sampleStepIncrement;
-				while(m_sampleStep >= fp_sampleStep)
+				while (m_sampleStep >= fp_sampleStep)
 				{
 					m_playbackPointer += 2;
 					m_sampleStep -= fp_sampleStep;
 				}
 			}
 		}
-		else 
+		else
 		{
 			// Mix mono sample
-			for(uint32 i = 0; i < numSamples; i++)
+			for (uint32 i = 0; i < numSamples; i++)
 			{
-				if(m_playbackPointer >= m_length)
+				if (m_playbackPointer >= m_length)
 				{
 					// Playback ended
 					m_playing = false;
@@ -177,7 +182,7 @@ public:
 
 				// Increment source sample with resampling
 				m_sampleStep += m_sampleStepIncrement;
-				while(m_sampleStep >= fp_sampleStep)
+				while (m_sampleStep >= fp_sampleStep)
 				{
 					m_playbackPointer += 1;
 					m_sampleStep -= fp_sampleStep;
@@ -186,19 +191,21 @@ public:
 		}
 		m_lock.unlock();
 	}
+
 	const Buffer& GetData() const
 	{
 		return m_pcm;
 	}
+
 	uint32 GetBitsPerSample() const
 	{
 		return m_format.nBitsPerSample;
 	}
+
 	uint32 GetNumChannels() const
 	{
 		return m_format.nChannels;
 	}
-
 };
 
 Sample SampleRes::Create(Audio* audio, const String& path)
@@ -206,7 +213,7 @@ Sample SampleRes::Create(Audio* audio, const String& path)
 	Sample_Impl* res = new Sample_Impl();
 	res->m_audio = audio;
 
-	if(!res->Init(path))
+	if (!res->Init(path))
 	{
 		delete res;
 		return Sample();

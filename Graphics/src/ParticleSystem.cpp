@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "OpenGL.hpp"
+#include "Particle.hpp"
 #include "ParticleSystem.hpp"
 #include "Mesh.hpp"
 #include "VertexFormat.hpp"
@@ -9,7 +10,9 @@ namespace Graphics
 {
 	struct ParticleVertex : VertexFormat<Vector3, Vector4, Vector4>
 	{
-		ParticleVertex(Vector3 pos, Color color, Vector4 params) : pos(pos), color(color), params(params) {};
+		ParticleVertex(Vector3 pos, Color color, Vector4 params)
+			: pos(pos), color(color), params(params)
+		{};
 		Vector3 pos;
 		Color color;
 		// X = scale
@@ -18,130 +21,66 @@ namespace Graphics
 		Vector4 params;
 	};
 
-	class ParticleSystem_Impl : public ParticleSystemRes
-	{
-		friend class ParticleEmitter;
-		Vector<std::shared_ptr<ParticleEmitter>> m_emitters;
-
-	public:
-		OpenGL* gl;
-
-	public:
-		virtual void Render(const class RenderState& rs, float deltaTime) override
-		{
-			// Enable blending for all particles
-			glEnable(GL_BLEND);
-
-			// Tick all emitters and remove old ones
-			for(auto it = m_emitters.begin(); it != m_emitters.end();)
-			{
-				(*it)->Render(rs, deltaTime);
-
-				if(it->use_count() == 1)
-				{
-					if((*it)->HasFinished())
-					{
-						// Remove unreferenced and finished emitters
-						it = m_emitters.erase(it);
-						continue;
-					}
-					else if((*it)->loops == 0)
-					{
-						// Deactivate unreferenced infinte duration emitters
-						(*it)->Deactivate();
-					}
-				}
-
-				++it;
-			}
-		}
-		virtual std::shared_ptr<ParticleEmitter> AddEmitter() override
-		{
-			std::shared_ptr<ParticleEmitter> newEmitter = std::make_shared<ParticleEmitter>(this);
-			m_emitters.Add(newEmitter);
-			return newEmitter;
-		}
-
-		virtual void Reset()
-		{
-			for(auto em : m_emitters)
-				em.reset();
-
-			m_emitters.clear();
-		}
-	};
-
 	std::shared_ptr<ParticleSystemRes> ParticleSystemRes::Create(class OpenGL* gl)
 	{
-		ParticleSystem_Impl* impl = new ParticleSystem_Impl();
+		auto impl = new ParticleSystemRes();
 		impl->gl = gl;
 		return GetResourceManager<ResourceType::ParticleSystem>().Register(impl);
 	}
 
-
-	// Particle instance class
-	class Particle
+	std::shared_ptr<ParticleEmitter> ParticleSystemRes::add_emitter()
 	{
-	public:
-		float life = 0.0f;
-		float maxLife = 0.0f;
-		float rotation = 0.0f;
-		float startSize = 0.0f;
-		Color startColor;
-		Vector3 pos;
-		Vector3 velocity;
-		float scale;
-		float fade;
-		float drag;
+		auto newEmitter = std::shared_ptr<ParticleEmitter>(new ParticleEmitter(this));
+		m_emitters.Add(newEmitter);
+		return newEmitter;
+	}
 
-		bool IsAlive() const
+	void ParticleSystemRes::render(const RenderState& rs, float deltaTime)
+	{
+		// Enable blending for all particles
+		glEnable(GL_BLEND);
+
+		// Tick all emitters and remove old ones
+		for (auto it = m_emitters.begin(); it != m_emitters.end();)
 		{
-			return life > 0.0f;
+			(*it)->Render(rs, deltaTime);
+
+			if (it->use_count() == 1)
+			{
+				if ((*it)->HasFinished())
+				{
+					// Remove unreferenced and finished emitters
+					it = m_emitters.erase(it);
+					continue;
+				}
+				else if ((*it)->loops == 0)
+				{
+					// Deactivate unreferenced infinte duration emitters
+					(*it)->Deactivate();
+				}
+			}
+
+			++it;
 		}
-		inline void Init(ParticleEmitter* emitter)
-		{
-			const float& et = emitter->m_emitterRate;
-			life = maxLife = emitter->m_param_Lifetime->Init(et);
-			pos = emitter->m_param_StartPosition->Init(et) * emitter->scale;
+	}
 
-			// Velocity of startvelocity and spawn offset scale
-			velocity = emitter->m_param_StartVelocity->Init(et) * emitter->scale;
-			float spawnVelScale = emitter->m_param_SpawnVelocityScale->Init(et);
-			if(spawnVelScale > 0)
-				velocity += pos.Normalized() * spawnVelScale  * emitter->scale;
+	void ParticleSystemRes::reset()
+	{
+		for (auto em : m_emitters)
+			em.reset();
 
-			// Add emitter offset to location
-			pos += emitter->position;
+		m_emitters.clear();
+	}
 
-			startColor = emitter->m_param_StartColor->Init(et);
-			rotation = emitter->m_param_StartRotation->Init(et);
-			startSize = emitter->m_param_StartSize->Init(et) * emitter->scale;
-			drag = emitter->m_param_StartDrag->Init(et);
-		}
-		inline void Simulate(ParticleEmitter* emitter, float deltaTime)
-		{
-			float c = 1 - life / maxLife;
-
-			// Add gravity
-			velocity += emitter->m_param_Gravity->Sample(emitter->m_emitterTime) * deltaTime * emitter->scale;
-			pos += velocity * deltaTime;
-
-			// Add drag
-			velocity += -velocity * deltaTime * drag;
-
-			fade = emitter->m_param_FadeOverTime->Sample(c);
-			scale = emitter->m_param_ScaleOverTime->Sample(c);
-			life -= deltaTime;
-		}
-	};
-
-	ParticleEmitter::ParticleEmitter(ParticleSystem_Impl* sys) : m_system(sys)
+	ParticleEmitter::ParticleEmitter(ParticleSystemRes* sys)
+		: m_system(sys)
 	{
 		// Set parameter defaults
 #define PARTICLE_DEFAULT(__name, __value)\
 	Set##__name(__value);
 #include "ParticleParameters.hpp"
 	}
+
 	ParticleEmitter::~ParticleEmitter()
 	{
 		// Cleanup particle parameters
@@ -150,20 +89,17 @@ namespace Graphics
 		delete m_param_##__name; m_param_##__name = nullptr; }
 #include "ParticleParameters.hpp"
 
-		if(m_particles)
-		{
-			delete[] m_particles;
-		}
+		delete[] m_particles;
 	}
 
 	void ParticleEmitter::m_ReallocatePool(uint32 newCapacity)
 	{
 		Particle* oldParticles = m_particles;
-		uint32 oldSize = m_poolSize;
+		const uint32 oldSize = m_poolSize;
 
 		// Create new pool
 		m_poolSize = newCapacity;
-		if(newCapacity > 0)
+		if (newCapacity > 0)
 		{
 			m_particles = new Particle[m_poolSize];
 			memset(m_particles, 0, m_poolSize * sizeof(Particle));
@@ -173,26 +109,26 @@ namespace Graphics
 			m_particles = nullptr;
 		}
 
-		if(oldParticles && m_particles)
+		if (oldParticles && m_particles)
 		{
 			memcpy(m_particles, oldParticles, Math::Min(oldSize, m_poolSize) * sizeof(Particle));
 		}
 
-		if(oldParticles)
-			delete[] oldParticles;
+		delete[] oldParticles;
 	}
+
 	void ParticleEmitter::Render(const class RenderState& rs, float deltaTime)
 	{
-		if(m_finished)
+		if (m_finished)
 			return;
 
-		uint32 maxDuration = (uint32)ceilf(m_param_Lifetime->GetMax());
-		uint32 maxSpawns = (uint32)ceilf(m_param_SpawnRate->GetMax());
+		const uint32 maxDuration = static_cast<uint32>(ceilf(m_param_Lifetime->GetMax()));
+		const uint32 maxSpawns = static_cast<uint32>(ceilf(m_param_SpawnRate->GetMax()));
 		uint32 maxParticles = maxSpawns * maxDuration;
 		// Round up to 64
-		maxParticles = (uint32)ceil((float)maxParticles / 64.0f) * 64;
+		maxParticles = static_cast<uint32>(ceil(static_cast<float>(maxParticles) / 64.0f)) * 64;
 
-		if(maxParticles > m_poolSize)
+		if (maxParticles > m_poolSize)
 			m_ReallocatePool(maxParticles);
 
 		// Resulting vertex bufffer
@@ -200,7 +136,7 @@ namespace Graphics
 
 		// Increment emitter time
 		m_emitterTime += deltaTime;
-		while(m_emitterTime > duration)
+		while (m_emitterTime > duration)
 		{
 			m_emitterTime -= duration;
 			m_emitterLoopIndex++;
@@ -213,10 +149,10 @@ namespace Graphics
 		uint32 numSpawns = 0;
 		float spawnTimeOffset = 0.0f;
 		float spawnTimeOffsetStep = 0;
-		if(loops > 0 && m_emitterLoopIndex >= loops) // Should spawn particles ?
+		if (loops > 0 && m_emitterLoopIndex >= loops) // Should spawn particles ?
 			m_deactivated = true;
 
-		if(!m_deactivated)
+		if (!m_deactivated)
 		{
 			// Calculate number of new particles to spawn
 			float spawnsf;
@@ -226,15 +162,15 @@ namespace Graphics
 		}
 
 		bool updatedSomething = false;
-		for(uint32 i = 0; i < m_poolSize; i++)
+		for (uint32 i = 0; i < m_poolSize; i++)
 		{
 			Particle& p = m_particles[i];
 
 			bool render = false;
-			if(!m_particles[i].IsAlive())
+			if (!m_particles[i].IsAlive())
 			{
 				// Try to spawn a new particle in this slot
-				if(numSpawns > 0)
+				if (numSpawns > 0)
 				{
 					p.Init(this);
 					p.Simulate(this, spawnTimeOffset);
@@ -250,26 +186,21 @@ namespace Graphics
 				updatedSomething = true;
 			}
 
-			if(render)
-			{
-				verts.Add({ p.pos, p.startColor.WithAlpha(p.fade), Vector4(p.startSize * p.scale, p.rotation, 0, 0) });
-			}
+			if (render)
+				verts.Add({p.pos, p.startColor.WithAlpha(p.fade), Vector4(p.startSize * p.scale, p.rotation, 0, 0)});
 		}
 
-		if(m_deactivated)
-		{
+		if (m_deactivated)
 			m_finished = !updatedSomething;
-		}
 
 		MaterialParameterSet params;
-		if(texture)
-		{
+		if (texture)
 			params.SetParameter("mainTex", texture);
-		}
+
 		material->Bind(rs, params);
 
 		// Select blending mode based on material
-		switch(material->blendMode)
+		switch (material->blendMode)
 		{
 		case MaterialBlendMode::Normal:
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

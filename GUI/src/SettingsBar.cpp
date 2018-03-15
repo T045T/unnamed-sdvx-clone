@@ -5,13 +5,15 @@
 #include "Button.hpp"
 #include "GUIRenderer.hpp"
 
-SettingsBar::SettingsBar(std::shared_ptr<CommonGUIStyle> style) : ScrollBox(style)
+SettingsBar::SettingsBar(std::shared_ptr<CommonGUIStyle> style)
+	: ScrollBox(style)
 {
 	m_style = style;
 	m_container = new LayoutBox();
 	m_container->layoutDirection = LayoutBox::Vertical;
 	ScrollBox::SetContent(m_container->MakeShared());
 }
+
 SettingsBar::~SettingsBar()
 {
 	ClearSettings();
@@ -79,6 +81,7 @@ SettingBarSetting* SettingsBar::AddSetting(float* target, float min, float max, 
 	setting->m_SliderUpdate(v); // Initial update
 	return setting;
 }
+
 SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, int optionsCount, const String& name)
 {
 	SettingBarSetting* setting = new SettingBarSetting();
@@ -133,13 +136,13 @@ SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, 
 	return setting;
 }
 
-void SettingsBar::SetValue(SettingBarSetting * setting, float value)
+void SettingsBar::SetValue(SettingBarSetting* setting, float value)
 {
 	float v = (value - setting->floatSetting.min) / (setting->floatSetting.max - setting->floatSetting.min);
 	m_sliders[setting]->SetValue(v);
 }
 
-void SettingsBar::SetValue(SettingBarSetting * setting, int value)
+void SettingsBar::SetValue(SettingBarSetting* setting, int value)
 {
 	int offset = value - (*setting->textSetting.target);
 	setting->m_UpdateTextSetting(offset);
@@ -147,7 +150,7 @@ void SettingsBar::SetValue(SettingBarSetting * setting, int value)
 
 void SettingsBar::ClearSettings()
 {
-	for (auto & s : m_settings)
+	for (auto& s : m_settings)
 	{
 		delete s.first;
 		m_container->Remove(s.second);
@@ -175,10 +178,12 @@ void SettingBarSetting::m_UpdateTextSetting(int change)
 	WString display = Utility::ConvertToWString((*textSetting.options)[textSetting.target[0]]);
 	label->SetText(Utility::WSprintf(L"%ls", display));
 }
+
 void SettingBarSetting::m_PrevTextSetting()
 {
 	m_UpdateTextSetting(-1);
 }
+
 void SettingBarSetting::m_NextTextSetting()
 {
 	m_UpdateTextSetting(1);

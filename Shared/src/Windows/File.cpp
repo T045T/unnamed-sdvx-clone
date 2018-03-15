@@ -9,11 +9,15 @@
 class File_Impl
 {
 public:
-	File_Impl(HANDLE h) : handle(h) {};
+	File_Impl(HANDLE h)
+		: handle(h)
+	{};
+
 	~File_Impl()
 	{
 		CloseHandle(handle);
 	}
+
 	HANDLE handle;
 };
 
@@ -30,12 +34,12 @@ bool File::OpenRead(const String& path)
 	Close();
 	WString wstringPath = Utility::ConvertToWString(path);
 	HANDLE h = CreateFileW(*wstringPath,
-		GENERIC_READ, // Desired Access
-		FILE_SHARE_READ,
-		nullptr,
-		OPEN_EXISTING,
-		0, 0);
-	if(h == INVALID_HANDLE_VALUE)
+							GENERIC_READ, // Desired Access
+							FILE_SHARE_READ,
+							nullptr,
+							OPEN_EXISTING,
+							0, 0);
+	if (h == INVALID_HANDLE_VALUE)
 	{
 		Logf("Failed to open file for reading %s: %s", Logger::Warning, *path, Utility::WindowsFormatMessage(GetLastError()));
 		return false;
@@ -47,15 +51,15 @@ bool File::OpenRead(const String& path)
 
 bool File::OpenWrite(const String& path, bool append /*= false*/)
 {
-	Close(); 
+	Close();
 	WString wstringPath = Utility::ConvertToWString(path);
 	HANDLE h = CreateFileW(*wstringPath,
-		GENERIC_WRITE, // Desired Access
-		FILE_SHARE_READ,
-		nullptr,
-		append ? OPEN_EXISTING : CREATE_ALWAYS,
-		0, 0);
-	if(h == INVALID_HANDLE_VALUE)
+							GENERIC_WRITE, // Desired Access
+							FILE_SHARE_READ,
+							nullptr,
+							append ? OPEN_EXISTING : CREATE_ALWAYS,
+							0, 0);
+	if (h == INVALID_HANDLE_VALUE)
 	{
 		Logf("Failed to open file for writing %s: %s", Logger::Warning, *path, Utility::WindowsFormatMessage(GetLastError()));
 		return false;
@@ -63,7 +67,7 @@ bool File::OpenWrite(const String& path, bool append /*= false*/)
 	m_impl = new File_Impl(h);
 
 	// Seek to end if append is enabled
-	if(append)
+	if (append)
 		SeekReverse(0);
 
 	return true;
@@ -71,7 +75,7 @@ bool File::OpenWrite(const String& path, bool append /*= false*/)
 
 void File::Close()
 {
-	if(m_impl)
+	if (m_impl)
 	{
 		delete m_impl;
 		m_impl = nullptr;
@@ -82,7 +86,7 @@ void File::Seek(size_t pos)
 {
 	assert(m_impl);
 	LARGE_INTEGER newPos;
-	LARGE_INTEGER tpos = { 0 };
+	LARGE_INTEGER tpos = {0};
 	tpos.QuadPart = pos;
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 0);
 	assert(ok && newPos.QuadPart == pos);
@@ -92,7 +96,7 @@ void File::Skip(int64 amount)
 {
 	assert(m_impl);
 	LARGE_INTEGER newPos;
-	LARGE_INTEGER tpos = { 0 };
+	LARGE_INTEGER tpos = {0};
 	tpos.QuadPart = amount;
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 1);
 	assert(ok);
@@ -102,7 +106,7 @@ void File::SeekReverse(size_t pos)
 {
 	assert(m_impl);
 	LARGE_INTEGER newPos;
-	LARGE_INTEGER tpos = { 0 };
+	LARGE_INTEGER tpos = {0};
 	tpos.QuadPart = GetSize() - pos;
 	BOOL ok = SetFilePointerEx(m_impl->handle, tpos, &newPos, 2);
 	assert(ok);
@@ -112,7 +116,7 @@ size_t File::Tell() const
 {
 	assert(m_impl);
 	LARGE_INTEGER pos;
-	LARGE_INTEGER move = { 0 };
+	LARGE_INTEGER move = {0};
 	SetFilePointerEx(m_impl->handle, move, &pos, 1);
 	return (size_t)pos.QuadPart;
 }
@@ -145,7 +149,7 @@ uint64 File::GetLastWriteTime() const
 {
 	assert(m_impl);
 	FILETIME ftCreate, ftAccess, ftWrite;
-	if(!GetFileTime(m_impl->handle, &ftCreate, &ftAccess, &ftWrite))
+	if (!GetFileTime(m_impl->handle, &ftCreate, &ftAccess, &ftWrite))
 		return -1;
 	return (uint64&)ftWrite;
 }
@@ -154,8 +158,8 @@ uint64 File::GetLastWriteTime(const String& path)
 {
 	WString wstringPath = Utility::ConvertToWString(path);
 	HANDLE h = CreateFileW(*wstringPath,
-		GENERIC_READ, FILE_SHARE_WRITE, 0, OPEN_ALWAYS, 0, 0);
-	if(h == INVALID_HANDLE_VALUE)
+							GENERIC_READ, FILE_SHARE_WRITE, 0, OPEN_ALWAYS, 0, 0);
+	if (h == INVALID_HANDLE_VALUE)
 		return -1;
 
 	FILETIME ftCreate, ftAccess, ftWrite;
@@ -168,10 +172,10 @@ bool LoadResourceInternal(const char* name, const char* type, Buffer& out)
 {
 	HMODULE module = GetModuleHandle(nullptr);
 	HRSRC res = FindResourceA(module, name, type);
-	if(res == INVALID_HANDLE_VALUE)
+	if (res == INVALID_HANDLE_VALUE)
 		return false;
 	HGLOBAL data = ::LoadResource(module, res);
-	if(!data)
+	if (!data)
 		return false;
 
 	size_t size = SizeofResource(module, res);

@@ -22,7 +22,12 @@ public:
 		void SetScrollPercent(float percent);
 		void SetScroll(int32 pixels);
 		int32 ConvertFromPercent(float percent);
-		int32 GetScroll() const { return m_scroll; }
+
+		int32 GetScroll() const
+		{
+			return m_scroll;
+		}
+
 		float GetScrollPercent() const;
 
 	private:

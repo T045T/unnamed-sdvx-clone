@@ -5,7 +5,8 @@
 namespace Graphics
 {
 #ifdef _WIN32
-	void __stdcall GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+	void __stdcall GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+								const GLchar* message, const void* userParam);
 #else
 	void GLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 #endif
@@ -15,7 +16,7 @@ namespace Graphics
 	*/
 	class OpenGL
 	{
-		class ShaderRes* m_activeShaders[3] = { 0 };
+		class ShaderRes* m_activeShaders[3] = {0};
 		uint32 m_mainProgramPipeline;
 		class OpenGL_Impl* m_impl;
 		Window* m_window;

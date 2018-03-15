@@ -8,7 +8,7 @@ typedef void* DelegateHandle;
 /*
 	Template delegate class, can have multiple registered classes that handle a call to this function
 */
-template<typename... A>
+template <typename... A>
 class Delegate
 {
 	Map<void*, IFunctionBinding<void, A...>*> staticMap;
@@ -21,23 +21,26 @@ public:
 	}
 
 	// Adds an object function handler
-	template<typename Class>
-	void Add(Class* object, void (Class::*func)(A...))
+	template <typename Class>
+	void Add(Class* object, void (Class::*func)(A ...))
 	{
 		void* id = Utility::UnionCast<void*>(func);
 		auto& fmap = objectMap.FindOrAdd(object);
 		assert(!fmap.Contains(id));
 		fmap.Add(id, new ObjectBinding<Class, void, A...>(object, func));
 	}
+
 	// Adds a static function handler
-	void Add(void (*func)(A...))
+	void Add(void (*func)(A ...))
 	{
 		void* id = Utility::UnionCast<void*>(func);
 		assert(!staticMap.Contains(id));
 		staticMap.Add(id, new StaticBinding<void, A...>(func));
 	}
+
 	// Adds a lambda function as a handler for this delegate
-	template<typename T> DelegateHandle AddLambda(T&& lambda)
+	template <typename T>
+	DelegateHandle AddLambda(T&& lambda)
 	{
 		LambdaBinding<T, void, A...>* binding = new LambdaBinding<T, void, A...>(std::forward<T>(lambda));
 		void* id = binding;
@@ -47,25 +50,27 @@ public:
 	}
 
 	// Removes an object handler
-	template<typename Class>
-	void Remove(Class* object, void(Class::*func)(A...))
+	template <typename Class>
+	void Remove(Class* object, void (Class::*func)(A ...))
 	{
 		void* id = Utility::UnionCast<void*>(func);
 		assert(objectMap.Contains(object));
 		auto& fmap = objectMap[object];
 		assert(fmap.Contains(id));
 		fmap.erase(id);
-		if(fmap.empty())
+		if (fmap.empty())
 			objectMap.erase(object);
 	}
+
 	// Removes a static handler
-	void Remove(void(*func)(A...))
+	void Remove(void (*func)(A ...))
 	{
 		void* id = Utility::UnionCast<void*>(func);
 		assert(staticMap.Contains(id));
 		delete staticMap[id];
 		staticMap.erase(id);
 	}
+
 	// Removes a lambda by it's handle
 	void Remove(DelegateHandle handle)
 	{
@@ -78,9 +83,9 @@ public:
 	void RemoveAll(void* object)
 	{
 		auto it = objectMap.find(object);
-		if(it != objectMap.end())
+		if (it != objectMap.end())
 		{
-			for(auto& f : it->second)
+			for (auto& f : it->second)
 			{
 				delete f.second;
 			}
@@ -92,18 +97,18 @@ public:
 	void Clear()
 	{
 		// Cleanup the pointers
-		for(auto& h : staticMap)
+		for (auto& h : staticMap)
 		{
 			delete h.second;
 		}
-		for(auto& h : objectMap)
+		for (auto& h : objectMap)
 		{
-			for(auto& f : h.second)
+			for (auto& f : h.second)
 			{
 				delete f.second;
 			}
 		}
-		for(auto& h : lambdaMap)
+		for (auto& h : lambdaMap)
 		{
 			delete h.second;
 		}
@@ -113,20 +118,20 @@ public:
 	}
 
 	// Calls the delegate
-	void Call(A... args)
+	void Call(A ... args)
 	{
-		for(auto& h : staticMap)
+		for (auto& h : staticMap)
 		{
 			h.second->Call(args...);
 		}
-		for(auto& h : objectMap)
+		for (auto& h : objectMap)
 		{
-			for(auto& f : h.second)
+			for (auto& f : h.second)
 			{
 				f.second->Call(args...);
 			}
 		}
-		for(auto& h : lambdaMap)
+		for (auto& h : lambdaMap)
 		{
 			h.second->Call(args...);
 		}

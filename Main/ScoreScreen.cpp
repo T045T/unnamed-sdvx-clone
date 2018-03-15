@@ -70,8 +70,9 @@ public:
 		m_meanHitDelta = scoring.GetMeanHitDelta();
 		m_medianHitDelta = scoring.GetMedianHitDelta();
 		// Don't save the score if autoplay was on or if the song was launched using command line
-		if(!m_autoplay && !m_autoButtons && game->GetDifficultyIndex().mapId != -1)
-			m_mapDatabase.AddScore(game->GetDifficultyIndex(), m_score, m_categorizedHits[2], m_categorizedHits[1], m_categorizedHits[0], m_finalGaugeValue);
+		if (!m_autoplay && !m_autoButtons && game->GetDifficultyIndex().mapId != -1)
+			m_mapDatabase.AddScore(game->GetDifficultyIndex(), m_score, m_categorizedHits[2], m_categorizedHits[1],
+									m_categorizedHits[0], m_finalGaugeValue);
 
 		// Used for jacket images
 		m_songSelectStyle = SongSelectStyle::Get(g_application);
@@ -92,14 +93,15 @@ public:
 		}
 		m_graphTex->SetData(Vector2i(256, 1), graphPixels);
 		m_graphTex->SetWrap(Graphics::TextureWrap::Clamp, Graphics::TextureWrap::Clamp);
-
 	}
+
 	~ScoreScreen_Impl()
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
 
 	AsyncAssetLoader loader;
+
 	virtual bool AsyncLoad() override
 	{
 		m_guiStyle = g_commonGUIStyle;
@@ -107,7 +109,7 @@ public:
 		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 		// Font
-		CheckedLoad(m_specialFont = FontRes::Create(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
+		CheckedLoad(m_specialFont = FontRes::create(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
 		CheckedLoad(m_applause = g_audio->CreateSample("skins/" + skin + "/audio/applause.wav"));
 
 		// Background
@@ -119,10 +121,11 @@ public:
 			slot->anchor = Anchors::Full;
 			slot->SetZOrder(-2);
 		}
-		
+
 		Canvas* innerCanvas = new Canvas();
 		Canvas::Slot* innerSlot = m_canvas->Add(innerCanvas->MakeShared());
-		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480), Rect(0, 0, g_resolution.x, g_resolution.y)).size;
+		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
+													Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 		float scale = Math::Min(canvasRes.x / 640.f, canvasRes.y / 480.f) / 2.f;
 
 		Vector2 topLeft = Vector2(g_resolution / 2 - canvasRes / 2);
@@ -138,7 +141,6 @@ public:
 		else
 			innerSlot->anchor = Anchors::Full;
 
-		
 		// Border
 		Panel* border = new Panel();
 		border->color = Color::Black.WithAlpha(0.25f);
@@ -212,11 +214,9 @@ public:
 			scoreContainer->layoutDirection = LayoutBox::Horizontal;
 			{
 				Canvas::Slot* slot = innerCanvas->Add(scoreContainer->MakeShared());
-				slot->anchor = Anchor(0.0f, screenSplit, 1.0f, 1.0f); 
+				slot->anchor = Anchor(0.0f, screenSplit, 1.0f, 1.0f);
 				slot->padding = Margin(0, 0, 0, 50);
 			}
-
-
 
 			// Score and graph
 			LayoutBox* scoreAndGraph = new LayoutBox();
@@ -299,7 +299,6 @@ public:
 				slot->padding = Margin(0, 20);
 			}
 
-
 			m_gauge = std::shared_ptr<HealthGauge>(new HealthGauge());
 			loader.AddTexture(m_gauge->fillTexture, "gauge_fill.png");
 			loader.AddTexture(m_gauge->frontTexture, "gauge_front.png");
@@ -353,7 +352,6 @@ public:
 				slot->anchor = Anchors::Full;
 				m_timingStatsCanvas->visibility = Visibility::Hidden;
 			}
-
 		}
 
 		// Load hit textures (Good, Perfect, Miss)
@@ -364,12 +362,14 @@ public:
 
 		return loader.Load();
 	}
+
 	virtual bool AsyncFinalize() override
 	{
-		if(!loader.Finalize())
+		if (!loader.Finalize())
 			return false;
 
-		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480), Rect(0, 0, g_resolution.x, g_resolution.y)).size;
+		Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
+													Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 		float scale = Math::Min(canvasRes.x / 640.f, canvasRes.y / 480.f) / 2.f;
 
 		// Make gauge material transparent
@@ -403,7 +403,7 @@ public:
 			countLabel->color = Color(0.5f);
 			countLabel->SetText(Utility::WSprintf(L"%05d", count));
 			canvasSlot = canvas->Add(countLabel->MakeShared());
-			canvasSlot->anchor = Anchor(0.5f, 0.0f, 1.0f, 1.0f); 
+			canvasSlot->anchor = Anchor(0.5f, 0.0f, 1.0f, 1.0f);
 			canvasSlot->autoSizeX = true;
 			canvasSlot->autoSizeY = true;
 			canvasSlot->alignment = Vector2(1.0f, 0.5f);
@@ -417,6 +417,7 @@ public:
 
 		return true;
 	}
+
 	bool Init() override
 	{
 		// Add to screen
@@ -432,28 +433,30 @@ public:
 
 	virtual void OnKeyPressed(int32 key) override
 	{
-		if(key == SDLK_ESCAPE || key == SDLK_RETURN)
+		if (key == SDLK_ESCAPE || key == SDLK_RETURN)
 		{
 			g_application->RemoveTickable(this);
 		}
 	}
+
 	virtual void OnKeyReleased(int32 key) override
-	{
-	}
+	{ }
+
 	virtual void Render(float deltaTime) override
 	{
 		// Poll for loaded jacket image
-		if(m_jacketImage == m_songSelectStyle->loadingJacketImage)
+		if (m_jacketImage == m_songSelectStyle->loadingJacketImage)
 		{
 			m_jacketImage = m_songSelectStyle->GetJacketThumnail(m_jacketPath);
 			m_jacket->texture = m_jacketImage;
 		}
 	}
+
 	virtual void Tick(float deltaTime) override
 	{
 		// Check for button pressed here instead of adding to onbuttonpressed for stability reasons
 		//TODO: Change to onbuttonpressed
-		if(m_startPressed && !g_input.GetButton(Input::Button::BT_S))
+		if (m_startPressed && !g_input.GetButton(Input::Button::BT_S))
 			g_application->RemoveTickable(this);
 
 		m_startPressed = g_input.GetButton(Input::Button::BT_S);
@@ -468,12 +471,12 @@ public:
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
 		slot->anchor = Anchors::Full;
 	}
-
 };
 
 ScoreScreen* ScoreScreen::Create(class Game* game)

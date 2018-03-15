@@ -28,10 +28,12 @@ namespace Graphics
 		virtual void Bind() = 0;
 		virtual bool IsBound() const = 0;
 		virtual uint32 GetLocation(const String& name) const = 0;
+
 		uint32 operator[](const char* name) const
 		{
 			return GetLocation(name);
 		}
+
 		virtual uint32 Handle() = 0;
 
 		virtual String GetOriginalName() const = 0;

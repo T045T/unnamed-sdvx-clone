@@ -32,8 +32,8 @@ class Color : public Vector4
 public:
 	using Vector4::Vector4;
 
-	Color() = default;	// Constructor with alpha=1
-	Color(float all);	// Constructor with alpha=1
+	Color() = default; // Constructor with alpha=1
+	Color(float all);  // Constructor with alpha=1
 	Color(float r, float g, float b);
 	Color(const VectorBase<uint8, 4>& icolor);
 

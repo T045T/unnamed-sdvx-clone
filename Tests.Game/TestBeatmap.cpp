@@ -26,12 +26,12 @@ Test("Beatmap.v160")
 
 	// Should have bitcrush effect
 	bool haveBitc = false;
-	for(auto obj : map.GetLinearObjects())
+	for (auto obj : map.GetLinearObjects())
 	{
 		MultiObjectState* mobj = *obj;
-		if(mobj->type == ObjectType::Hold)
+		if (mobj->type == ObjectType::Hold)
 		{
-			if(mobj->hold.effectType == EffectType::Bitcrush)
+			if (mobj->hold.effectType == EffectType::Bitcrush)
 			{
 				haveBitc = true;
 			}
@@ -63,7 +63,9 @@ Test("Beatmap.Playback")
 		Beatmap& beatmap;
 		BeatmapPlayback playback;
 		String beatmapRootPath;
-		Player(Beatmap& bm, const String& beatmapRootPath) : beatmap(bm), beatmapRootPath(beatmapRootPath)
+
+		Player(Beatmap& bm, const String& beatmapRootPath)
+			: beatmap(bm), beatmapRootPath(beatmapRootPath)
 		{
 			const BeatmapSettings& settings = beatmap.GetMapSettings();
 			String songPath = Path::Normalize(beatmapRootPath + Path::sep + settings.audioNoFX);
@@ -76,13 +78,14 @@ Test("Beatmap.Playback")
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
 		}
+
 		void Update(float dt) override
 		{
 			uint32 lastTime = playback.GetLastTime();
 			uint32 mapTime = song->GetPosition();
 			int32 beatIndex = 0;
 			int32 beatCount = playback.CountBeats(lastTime, mapTime - lastTime, beatIndex, 1);
-			if(beatCount > 0)
+			if (beatCount > 0)
 				Logf("> %d", Logger::Info, beatIndex);
 			playback.Update(mapTime);
 		}
@@ -103,7 +106,9 @@ Test("Beatmap.BPMChanges")
 		Beatmap& beatmap;
 		BeatmapPlayback playback;
 		String beatmapRootPath;
-		Player(Beatmap& bm, const String& beatmapRootPath) : beatmap(bm), beatmapRootPath(beatmapRootPath)
+
+		Player(Beatmap& bm, const String& beatmapRootPath)
+			: beatmap(bm), beatmapRootPath(beatmapRootPath)
 		{
 			const BeatmapSettings& settings = beatmap.GetMapSettings();
 			String songPath = Path::Normalize(beatmapRootPath + Path::sep + settings.audioNoFX);
@@ -116,13 +121,14 @@ Test("Beatmap.BPMChanges")
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
 		}
+
 		void Update(float dt) override
 		{
 			uint32 lastTime = playback.GetLastTime();
 			uint32 mapTime = song->GetPosition();
 			int32 beatIndex = 0;
 			int32 beatCount = playback.CountBeats(lastTime, mapTime - lastTime, beatIndex, 1);
-			if(beatCount > 0)
+			if (beatCount > 0)
 				Logf("> %d", Logger::Info, beatIndex);
 			playback.Update(mapTime);
 		}
@@ -146,9 +152,10 @@ Test("Beatmap.DoubleFilter")
 		BQFDSP* filter[2];
 
 		Vector<LaserObjectState*> lasers;
-		float laserValue[2] = { 0.0f };
+		float laserValue[2] = {0.0f};
 
-		Player(Beatmap& bm, const String& beatmapRootPath) : beatmap(bm), beatmapRootPath(beatmapRootPath)
+		Player(Beatmap& bm, const String& beatmapRootPath)
+			: beatmap(bm), beatmapRootPath(beatmapRootPath)
 		{
 			const BeatmapSettings& settings = beatmap.GetMapSettings();
 			String songPath = Path::Normalize(beatmapRootPath + Path::sep + settings.audioNoFX);
@@ -161,41 +168,43 @@ Test("Beatmap.DoubleFilter")
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
-			playback.OnObjectEntered.AddLambda([&](ObjectState* obj) {
-				if(obj->type == ObjectType::Laser)
+			playback.OnObjectEntered.AddLambda([&](ObjectState* obj)
+			{
+				if (obj->type == ObjectType::Laser)
 				{
 					LaserObjectState* laserObj = (LaserObjectState*)obj;
 					lasers.Add(laserObj);
 				}
 			});
 
-			for(int i = 0; i < 2; i++)
+			for (int i = 0; i < 2; i++)
 			{
 				filter[i] = new BQFDSP();
 				song->AddDSP(filter[i]);
 			}
 		}
+
 		void Update(float dt) override
 		{
 			int32 lastTime = playback.GetLastTime();
 			int32 mapTime = song->GetPosition();
 			int32 beatIndex = 0;
 			int32 beatCount = playback.CountBeats(lastTime, mapTime - lastTime, beatIndex, 4);
-			if(beatCount > 0)
+			if (beatCount > 0)
 				Logf("> %d [%f] [%f]", Logger::Info, beatIndex, laserValue[0], laserValue[1]);
 			playback.Update(mapTime);
 
 			laserValue[0] = 0.0f;
 			laserValue[1] = 0.0f;
-			for(auto it = lasers.begin(); it != lasers.end();)
+			for (auto it = lasers.begin(); it != lasers.end();)
 			{
 				LaserObjectState* laser = *it;
-				if(laser->time + laser->duration < mapTime)
+				if (laser->time + laser->duration < mapTime)
 				{
 					it = lasers.erase(it);
 					continue;
 				}
-				if(laser->time > mapTime)
+				if (laser->time > mapTime)
 				{
 					it++;
 					continue;
@@ -203,17 +212,17 @@ Test("Beatmap.DoubleFilter")
 
 				float& dst = laserValue[laser->index];
 				dst = laser->SamplePosition(mapTime);
-				if((laser->flags & LaserObjectState::flag_Extended) != 0)
+				if ((laser->flags & LaserObjectState::flag_Extended) != 0)
 					dst = LaserObjectState::ConvertToNormalRange(dst);
 				it++;
 			}
 
 			float dist = abs(laserValue[0] - laserValue[1]);
 			float distAtten = 1.0f;
-			if(dist < 0.2f)
+			if (dist < 0.2f)
 				distAtten = dist / 0.2f * 0.5f + 0.5f;
 
-			for(int i = 0; i < 2; i++)
+			for (int i = 0; i < 2; i++)
 			{
 				// Sweeping filter settings
 				const float filterSweepStart = 80.0f;
@@ -223,13 +232,13 @@ Test("Beatmap.DoubleFilter")
 				const float filterSweepGainStart = 20.0f;
 				const float filterSweepGainEnd = 10.0f;
 				float sweepInput = laserValue[i];
-				if(i == 1)
+				if (i == 1)
 					sweepInput = 1.0f - laserValue[i];
 				sweepInput = pow(sweepInput, 2.0f);
 				float sweepFreq = filterSweepStart + (filterSweepEnd - filterSweepStart) * sweepInput;
 				float sweepBw = filterSweepBwStart + (filterSweepBwEnd - filterSweepBwStart) * sweepInput;
 				float sweepGain = filterSweepGainStart + (filterSweepGainEnd - filterSweepGainStart) * sweepInput;
-				if(sweepInput < 0.05f)
+				if (sweepInput < 0.05f)
 					sweepGain *= (sweepInput / 0.05f);
 				filter[i]->SetPeaking(sweepBw, sweepFreq, sweepGain * distAtten);
 			}
@@ -254,9 +263,10 @@ Test("Beatmap.SingleFilter")
 		BQFDSP* filter;
 
 		Vector<LaserObjectState*> lasers;
-		float laserValue[2] = { 0.0f };
+		float laserValue[2] = {0.0f};
 
-		Player(Beatmap& bm, const String& beatmapRootPath) : beatmap(bm), beatmapRootPath(beatmapRootPath)
+		Player(Beatmap& bm, const String& beatmapRootPath)
+			: beatmap(bm), beatmapRootPath(beatmapRootPath)
 		{
 			const BeatmapSettings& settings = beatmap.GetMapSettings();
 			String songPath = Path::Normalize(beatmapRootPath + Path::sep + settings.audioNoFX);
@@ -269,8 +279,9 @@ Test("Beatmap.SingleFilter")
 				float bpm = (float)obj->GetBPM();
 				Logf("T %.2f BPM %d/%d", Logger::Info, bpm, obj->numerator, obj->denominator);
 			});
-			playback.OnObjectEntered.AddLambda([&](ObjectState* obj) {
-				if(obj->type == ObjectType::Laser)
+			playback.OnObjectEntered.AddLambda([&](ObjectState* obj)
+			{
+				if (obj->type == ObjectType::Laser)
 				{
 					LaserObjectState* laserObj = (LaserObjectState*)obj;
 					lasers.Add(laserObj);
@@ -280,27 +291,28 @@ Test("Beatmap.SingleFilter")
 			filter = new BQFDSP();
 			song->AddDSP(filter);
 		}
+
 		void Update(float dt) override
 		{
 			int32 lastTime = playback.GetLastTime();
 			int32 mapTime = song->GetPosition();
 			int32 beatIndex = 0;
 			int32 beatCount = playback.CountBeats(lastTime, mapTime - lastTime, beatIndex, 4);
-			if(beatCount > 0)
+			if (beatCount > 0)
 				Logf("> %d [%f] [%f]", Logger::Info, beatIndex, laserValue[0], laserValue[1]);
 			playback.Update(mapTime);
 
 			laserValue[0] = 0.0f;
 			laserValue[1] = 0.0f;
-			for(auto it = lasers.begin(); it != lasers.end();)
+			for (auto it = lasers.begin(); it != lasers.end();)
 			{
 				LaserObjectState* laser = *it;
-				if(laser->time + laser->duration < mapTime)
+				if (laser->time + laser->duration < mapTime)
 				{
 					it = lasers.erase(it);
 					continue;
 				}
-				if(laser->time > mapTime)
+				if (laser->time > mapTime)
 				{
 					it++;
 					continue;
@@ -308,14 +320,14 @@ Test("Beatmap.SingleFilter")
 
 				float& dst = laserValue[laser->index];
 				dst = laser->SamplePosition(mapTime);
-				if((laser->flags & LaserObjectState::flag_Extended) != 0)
+				if ((laser->flags & LaserObjectState::flag_Extended) != 0)
 					dst = LaserObjectState::ConvertToNormalRange(dst);
 				it++;
 			}
 
 			float dist = abs(laserValue[0] - laserValue[1]);
 			float distAtten = 1.0f;
-			if(dist < 0.2f)
+			if (dist < 0.2f)
 				distAtten = dist / 0.2f * 0.5f + 0.5f;
 
 			// Sweeping filter settings
@@ -330,7 +342,7 @@ Test("Beatmap.SingleFilter")
 			float sweepFreq = filterSweepStart + (filterSweepEnd - filterSweepStart) * sweepInput;
 			float sweepBw = filterSweepBwStart + (filterSweepBwEnd - filterSweepBwStart) * sweepInput;
 			float sweepGain = filterSweepGainStart + (filterSweepGainEnd - filterSweepGainStart) * sweepInput;
-			if(sweepInput < 0.05f)
+			if (sweepInput < 0.05f)
 				sweepGain *= (sweepInput / 0.05f);
 			filter->SetPeaking(sweepBw, sweepFreq, sweepGain * distAtten);
 		}

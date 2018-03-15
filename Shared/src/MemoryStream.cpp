@@ -33,15 +33,15 @@ size_t MemoryReader::Serialize(void* data, size_t len)
 {
 	assert(m_buffer);
 	const size_t endPos = m_cursor + len;
-	
-	if(endPos > m_buffer->size())
+
+	if (endPos > m_buffer->size())
 	{
-		if(m_cursor >= m_buffer->size())
+		if (m_cursor >= m_buffer->size())
 			return 0;
 		len = m_buffer->size() - m_cursor;
 	}
-	
-	if(len > 0)
+
+	if (len > 0)
 	{
 		memcpy(data, &(*m_buffer)[m_cursor], len);
 		m_cursor += len;
@@ -55,14 +55,14 @@ MemoryWriter::MemoryWriter(Buffer& buffer)
 
 size_t MemoryWriter::Serialize(void* data, size_t len)
 {
-	if(len == 0)
+	if (len == 0)
 		return 0;
 	assert(m_buffer);
 
 	const size_t newSize = std::max(m_buffer->size(), m_cursor + len);
-	
+
 	// Reserve space for new data
-	if(newSize > m_buffer->size())
+	if (newSize > m_buffer->size())
 		m_buffer->resize(newSize);
 
 	memcpy(&(*m_buffer)[m_cursor], data, len);

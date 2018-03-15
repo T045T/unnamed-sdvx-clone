@@ -28,14 +28,15 @@ public:
 	{
 		m_style = style;
 		m_diff = diff;
-		m_frame = m_style->diffFrames[Math::Min<size_t>(diff->settings.difficulty, m_style->numDiffFrames-1)];
+		m_frame = m_style->diffFrames[Math::Min<size_t>(diff->settings.difficulty, m_style->numDiffFrames - 1)];
 	}
+
 	virtual void Render(GUIRenderData rd)
 	{
 		m_TickAnimations(rd.deltaTime);
 
 		// Load jacket?
-		if(!m_jacket || m_jacket == m_style->loadingJacketImage)
+		if (!m_jacket || m_jacket == m_style->loadingJacketImage)
 		{
 			String jacketPath = m_diff->path;
 			jacketPath = Path::Normalize(Path::RemoveLast(jacketPath) + Path::sep + m_diff->settings.jacketPath);
@@ -43,7 +44,7 @@ public:
 		}
 
 		// Render lvl text?
-		if(!m_lvlText)
+		if (!m_lvlText)
 		{
 			WString lvlStr = Utility::WSprintf(L"%d", m_diff->settings.level);
 			m_lvlText = rd.guiRenderer->font->create_text(lvlStr, 20);
@@ -61,7 +62,7 @@ public:
 		MaterialParameterSet params;
 		params.SetParameter("selected", m_selected ? 1.0f : 0.0f);
 		params.SetParameter("frame", m_frame);
-		if(m_jacket)
+		if (m_jacket)
 			params.SetParameter("jacket", m_jacket);
 		rd.rq->Draw(transform, rd.guiRenderer->guiQuad, m_style->diffFrameMaterial, params);
 
@@ -74,22 +75,24 @@ public:
 		rd.guiRenderer->RenderRect(textFrameRect, Color::Black.WithAlpha(0.5f));
 		rd.guiRenderer->RenderText(m_lvlText, textRect.pos, Color::White);
 	}
+
 	virtual Vector2 GetDesiredSize(GUIRenderData rd)
 	{
 		Rect base = GUISlotBase::ApplyFill(FillMode::Fit, m_size, rd.area);
 		return base.size;
 	}
+
 	virtual void SetSelected(bool selected)
 	{
-		if(m_selected != selected)
+		if (m_selected != selected)
 		{
 			m_selected = selected;
 			// Zoom in animation
 			AddAnimation(std::shared_ptr<IGUIAnimation>(
-				new GUIAnimation<float>(&m_fade, selected ? 1.0f : 0.0f, 0.2f)), true);
+							new GUIAnimation<float>(&m_fade, selected ? 1.0f : 0.0f, 0.2f)), true);
 		}
 	}
-	
+
 	int GetScore()
 	{
 		if (m_diff->scores.size() == 0)
@@ -126,8 +129,8 @@ public:
 			return 4;
 		return 5; // D
 	}
-
 };
+
 const Vector2 SongDifficultyFrame::m_size = Vector2(512, 512);
 
 SongSelectItem::SongSelectItem(std::shared_ptr<SongSelectStyle> style)
@@ -175,8 +178,6 @@ SongSelectItem::SongSelectItem(std::shared_ptr<SongSelectStyle> style)
 		slot->allowOverflow = true;
 	}
 
-
-
 	SwitchCompact(true);
 }
 
@@ -184,6 +185,7 @@ void SongSelectItem::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	Canvas::PreRender(rd, inputElement);
 }
+
 void SongSelectItem::Render(GUIRenderData rd)
 {
 	// Update fade
@@ -197,12 +199,14 @@ void SongSelectItem::Render(GUIRenderData rd)
 	// Render canvas
 	Canvas::Render(rd);
 }
+
 Vector2 SongSelectItem::GetDesiredSize(GUIRenderData rd)
 {
 	Vector2 sizeOut = m_bg->texture->GetSize();
 	sizeOut.x = Math::Min(sizeOut.x, rd.area.size.x);
 	return sizeOut;
 }
+
 // TODO(local): Change this to SetEntry or something
 void SongSelectItem::SetIndex(struct SongSelectIndex map)
 {
@@ -213,7 +217,7 @@ void SongSelectItem::SetIndex(struct SongSelectIndex map)
 	// Add all difficulty icons
 	m_diffSelect->Clear();
 	m_diffSelectors.clear();
-	for(auto d : map.GetDifficulties())
+	for (auto d : map.GetDifficulties())
 	{
 		SongDifficultyFrame* frame = new SongDifficultyFrame(m_style, d);
 		LayoutBox::Slot* slot = m_diffSelect->Add(frame->MakeShared());
@@ -233,11 +237,12 @@ void SongSelectItem::SetIndex(struct SongSelectIndex map)
 		slot->allowOverflow = true;
 	}
 }
+
 void SongSelectItem::SwitchCompact(bool compact)
 {
 	Slot* mainSlot = (Slot*)m_mainVert->slot;
 	Slot* bgSlot = (Slot*)m_bg;
-	if(compact)
+	if (compact)
 	{
 		m_bg->texture = m_style->frameSub;
 		m_bg->texture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
@@ -261,13 +266,14 @@ void SongSelectItem::SwitchCompact(bool compact)
 		mainSlot->alignment = Vector2(0.0f, 0.5f);
 	}
 }
+
 void SongSelectItem::SetSelectedDifficulty(int32 selectedIndex)
 {
-	if(selectedIndex < 0)
+	if (selectedIndex < 0)
 		return;
-	if(selectedIndex < (int32)m_diffSelectors.size())
+	if (selectedIndex < (int32)m_diffSelectors.size())
 	{
-		if(m_selectedDifficulty < (int32)m_diffSelectors.size())
+		if (m_selectedDifficulty < (int32)m_diffSelectors.size())
 		{
 			m_diffSelectors[m_selectedDifficulty]->SetSelected(false);
 		}
@@ -300,4 +306,3 @@ SongStatistics::SongStatistics(std::shared_ptr<SongSelectStyle> style)
 	slot->anchor = Anchors::Full;
 	slot->SetZOrder(-1);
 }
-

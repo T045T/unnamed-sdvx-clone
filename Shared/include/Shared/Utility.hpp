@@ -3,49 +3,49 @@
 namespace Utility
 {
 	// Utility function that clears out an object passed to it by using memset on the object's size
-	template<typename T>
+	template <typename T>
 	void MemsetZero(T& obj)
 	{
 		memset(&obj, 0, sizeof(T));
 	}
 
 	// Static cast function
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T* StatCast(S* src)
 	{
 		return static_cast<T*>(src);
 	}
 
 	// Static cast function (using reference)
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T& StatCast(S& src)
 	{
 		return static_cast<T&>(src);
 	}
 
 	// Dynamic cast function
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T* DynCast(S* src)
 	{
 		return dynamic_cast<T*>(src);
 	}
 
 	// Dynamic cast function (using reference)
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T& DynCast(S& src)
 	{
 		return dynamic_cast<T&>(src);
 	}
 
 	// Reinterpret cast function
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T& Reinterpret(S& src)
 	{
 		return reinterpret_cast<T&>(src);
 	}
 
 	// Reinterpret input using an union
-	template<typename T, typename S>
+	template <typename T, typename S>
 	T UnionCast(S src)
 	{
 		union
@@ -58,7 +58,7 @@ namespace Utility
 	}
 
 	// Swaps two references
-	template<typename T>
+	template <typename T>
 	void Swap(T& a, T& b)
 	{
 		T tmp = a;

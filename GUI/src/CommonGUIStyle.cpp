@@ -7,7 +7,7 @@ CommonGUIStyle::CommonGUIStyle(class OpenGL* gl, String skin)
 	{
 		String fullPath = Path::Normalize(String("skins/") + skin + String("/textures/ui/") + path);
 		Image img = ImageRes::Create(fullPath);
-		if(!img)
+		if (!img)
 			return Texture();
 		return TextureRes::Create(gl, img);
 	};

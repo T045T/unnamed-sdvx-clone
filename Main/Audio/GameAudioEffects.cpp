@@ -14,7 +14,7 @@ DSP* GameAudioEffect::CreateDSP(class AudioBase* audioTrack, AudioPlayback& play
 	float filterInput = playback.GetLaserFilterInput();
 	uint32 actualLength = duration.Sample(filterInput).Absolute(noteDuration);
 
-	switch(type)
+	switch (type)
 	{
 	case EffectType::Bitcrush:
 	{
@@ -98,7 +98,7 @@ DSP* GameAudioEffect::CreateDSP(class AudioBase* audioTrack, AudioPlayback& play
 		audioTrack->AddDSP(fl);
 		fl->SetLength(actualLength);
 		fl->SetDelayRange(flanger.offset.Sample(filterInput),
-			flanger.depth.Sample(filterInput));
+						flanger.depth.Sample(filterInput));
 		ret = fl;
 		break;
 	}
@@ -122,19 +122,20 @@ DSP* GameAudioEffect::CreateDSP(class AudioBase* audioTrack, AudioPlayback& play
 	}
 	}
 
-	if(!ret)
+	if (!ret)
 	{
 		Logf("Failed to create game audio effect for type \"%s\"", Logger::Warning, Enum_EffectType::ToString(type));
 	}
 
 	return ret;
 }
+
 void GameAudioEffect::SetParams(DSP* dsp, AudioPlayback& playback, HoldObjectState* object)
 {
 	const TimingPoint& tp = playback.GetBeatmapPlayback().GetCurrentTimingPoint();
 	double noteDuration = tp.GetWholeNoteLength();
 
-	switch(type)
+	switch (type)
 	{
 	case EffectType::Bitcrush:
 	{

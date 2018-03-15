@@ -15,17 +15,19 @@ namespace Graphics
 		{
 			SDL_SetMainReady();
 			int r = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
-			if(r != 0)
+			if (r != 0)
 			{
-                Logf("SDL_Init Failed: %s", Logger::Error, SDL_GetError());
-                assert(false);
+				Logf("SDL_Init Failed: %s", Logger::Error, SDL_GetError());
+				assert(false);
 			}
 		}
+
 	public:
 		~SDL()
 		{
 			SDL_Quit();
 		}
+
 		static SDL& Main()
 		{
 			static SDL sdl;
@@ -39,7 +41,8 @@ namespace Graphics
 		// Handle to outer class to send delegates
 		Window& outer;
 	public:
-		Window_Impl(Window& outer, Vector2i size) : outer(outer)
+		Window_Impl(Window& outer, Vector2i size)
+			: outer(outer)
 		{
 			SDL::Main();
 
@@ -70,21 +73,21 @@ namespace Graphics
 			m_caption = L"Window";
 			String titleUtf8 = Utility::ConvertToUTF8(m_caption);
 			m_window = SDL_CreateWindow(*titleUtf8, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-				m_clntSize.x, m_clntSize.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+										m_clntSize.x, m_clntSize.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 			assert(m_window);
 
 			uint32 numJoysticks = SDL_NumJoysticks();
-			if(numJoysticks == 0)
+			if (numJoysticks == 0)
 			{
 				Logf("No joysticks found", Logger::Warning);
 			}
 			else
 			{
 				Logf("Listing %d Joysticks:", Logger::Info, numJoysticks);
-				for(uint32 i = 0; i < numJoysticks; i++)
+				for (uint32 i = 0; i < numJoysticks; i++)
 				{
 					SDL_Joystick* joystick = SDL_JoystickOpen(i);
-					if(!joystick)
+					if (!joystick)
 					{
 						Logf("[%d] <failed to open>", Logger::Warning, i);
 						continue;
@@ -97,12 +100,12 @@ namespace Graphics
 					SDL_JoystickClose(joystick);
 				}
 			}
-
 		}
+
 		~Window_Impl()
 		{
 			// Release gamepads
-			for(auto it : m_gamepads)
+			for (auto it : m_gamepads)
 			{
 				it.second.reset();
 			}
@@ -114,6 +117,7 @@ namespace Graphics
 		{
 			SDL_SetWindowPosition(m_window, pos.x, pos.y);
 		}
+
 		Vector2i GetWindowPos() const
 		{
 			Vector2i res;
@@ -125,6 +129,7 @@ namespace Graphics
 		{
 			SDL_SetWindowSize(m_window, size.x, size.y);
 		}
+
 		Vector2i GetWindowSize() const
 		{
 			Vector2i res;
@@ -134,14 +139,12 @@ namespace Graphics
 
 		void SetVSync(int8 setting)
 		{
-			if(SDL_GL_SetSwapInterval(setting) == -1)
+			if (SDL_GL_SetSwapInterval(setting) == -1)
 				Logf("Failed to set VSync: %s", Logger::Error, SDL_GetError());
 		}
 
 		void SetWindowStyle(WindowStyle style)
-		{
-		}
-
+		{ }
 
 
 		/* input handling */
@@ -149,27 +152,24 @@ namespace Graphics
 		{
 			SDL_Keymod m = SDL_GetModState();
 			m_modKeys = ModifierKeys::None;
-			if((m & KMOD_ALT) != 0)
+			if ((m & KMOD_ALT) != 0)
 			{
 				(uint8&)m_modKeys |= (uint8)ModifierKeys::Alt;
 			}
-			if((m & KMOD_CTRL) != 0)
+			if ((m & KMOD_CTRL) != 0)
 			{
 				(uint8&)m_modKeys |= (uint8)ModifierKeys::Ctrl;
 			}
-			if((m & KMOD_SHIFT) != 0)
+			if ((m & KMOD_SHIFT) != 0)
 			{
 				(uint8&)m_modKeys |= (uint8)ModifierKeys::Shift;
 			}
 
-			
-		
-
 			uint8& currentState = m_keyStates[code];
-			if(currentState != newState)
+			if (currentState != newState)
 			{
 				currentState = newState;
-				if(newState == 1)
+				if (newState == 1)
 				{
 					outer.OnKeyPressed.Call(code);
 				}
@@ -178,7 +178,7 @@ namespace Graphics
 					outer.OnKeyReleased.Call(code);
 				}
 			}
-			if(currentState == 1)
+			if (currentState == 1)
 			{
 				outer.OnKeyRepeat.Call(code);
 			}
@@ -189,10 +189,12 @@ namespace Graphics
 		{
 			SDL_ShowWindow(m_window);
 		}
+
 		void Hide()
 		{
 			SDL_HideWindow(m_window);
 		}
+
 		void SetCaption(const WString& cap)
 		{
 			m_caption = L"Window";
@@ -203,88 +205,89 @@ namespace Graphics
 		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot)
 		{
 #ifdef _WIN32
-			if(currentCursor)
+			if (currentCursor)
 			{
 				SDL_FreeCursor(currentCursor);
 				currentCursor = nullptr;
 			}
-			if(image)
+			if (image)
 			{
 				Vector2i size = image->GetSize();
 				void* bits = image->GetBits();
 				SDL_Surface* surf = SDL_CreateRGBSurfaceFrom(bits, size.x, size.y, 32, size.x * 4,
-					0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-				if(surf)
+															0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+				if (surf)
 				{
 					currentCursor = SDL_CreateColorCursor(surf, hotspot.x, hotspot.y);
 				}
 			}
 			SDL_SetCursor(currentCursor);
 #endif
-/// NOTE: Cursor transparency is broken on linux
+			/// NOTE: Cursor transparency is broken on linux
 		}
 
 		// Update loop
 		Timer t;
+
 		bool Update()
 		{
 			SDL_Event evt;
-			while(SDL_PollEvent(&evt))
+			while (SDL_PollEvent(&evt))
 			{
-				if(evt.type == SDL_EventType::SDL_KEYDOWN)
+				if (evt.type == SDL_EventType::SDL_KEYDOWN)
 				{
-					if(m_textComposition.composition.empty())
+					if (m_textComposition.composition.empty())
 					{
 						// Ignore key input when composition is being typed
 						HandleKeyEvent(evt.key.keysym.sym, 1, evt.key.repeat);
 					}
 				}
-				else if(evt.type == SDL_EventType::SDL_KEYUP)
+				else if (evt.type == SDL_EventType::SDL_KEYUP)
 				{
 					HandleKeyEvent(evt.key.keysym.sym, 0, 0);
 				}
-				else if(evt.type == SDL_EventType::SDL_JOYBUTTONDOWN)
+				else if (evt.type == SDL_EventType::SDL_JOYBUTTONDOWN)
 				{
 					Gamepad_Impl** gp = m_joystickMap.Find(evt.jbutton.which);
-					if(gp)
+					if (gp)
 						gp[0]->HandleInputEvent(evt.jbutton.button, true);
 				}
-				else if(evt.type == SDL_EventType::SDL_JOYBUTTONUP)
+				else if (evt.type == SDL_EventType::SDL_JOYBUTTONUP)
 				{
 					Gamepad_Impl** gp = m_joystickMap.Find(evt.jbutton.which);
-					if(gp)
+					if (gp)
 						gp[0]->HandleInputEvent(evt.jbutton.button, false);
 				}
-				else if(evt.type == SDL_EventType::SDL_JOYAXISMOTION)
+				else if (evt.type == SDL_EventType::SDL_JOYAXISMOTION)
 				{
 					Gamepad_Impl** gp = m_joystickMap.Find(evt.jaxis.which);
-					if(gp)
+					if (gp)
 						gp[0]->HandleAxisEvent(evt.jaxis.axis, evt.jaxis.value);
 				}
-				else if(evt.type == SDL_EventType::SDL_JOYHATMOTION)
+				else if (evt.type == SDL_EventType::SDL_JOYHATMOTION)
 				{
 					Gamepad_Impl** gp = m_joystickMap.Find(evt.jhat.which);
-					if(gp)
+					if (gp)
 						gp[0]->HandleHatEvent(evt.jhat.hat, evt.jhat.value);
 				}
-				else if(evt.type == SDL_EventType::SDL_MOUSEBUTTONDOWN)
+				else if (evt.type == SDL_EventType::SDL_MOUSEBUTTONDOWN)
 				{
-					switch(evt.button.button)
+					switch (evt.button.button)
 					{
 					case SDL_BUTTON_LEFT:
 						outer.OnMousePressed.Call(MouseButton::Left);
-							break;
+						break;
 					case SDL_BUTTON_MIDDLE:
 						outer.OnMousePressed.Call(MouseButton::Middle);
-							break;
+						break;
 					case SDL_BUTTON_RIGHT:
 						outer.OnMousePressed.Call(MouseButton::Right);
-							break;
+						break;
 					}
 				}
-				else if(evt.type == SDL_EventType::SDL_MOUSEBUTTONUP)
+				else if (evt.type == SDL_EventType::SDL_MOUSEBUTTONUP)
 				{
-					switch(evt.button.button)
+					switch (evt.button.button)
 					{
 					case SDL_BUTTON_LEFT:
 						outer.OnMouseReleased.Call(MouseButton::Left);
@@ -297,9 +300,9 @@ namespace Graphics
 						break;
 					}
 				}
-				else if(evt.type == SDL_EventType::SDL_MOUSEWHEEL)
+				else if (evt.type == SDL_EventType::SDL_MOUSEWHEEL)
 				{
-					if(evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+					if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 					{
 						outer.OnMouseScroll.Call(evt.wheel.y);
 					}
@@ -312,27 +315,27 @@ namespace Graphics
 				{
 					outer.OnMouseMotion.Call(evt.motion.xrel, evt.motion.yrel);
 				}
-				else if(evt.type == SDL_EventType::SDL_QUIT)
+				else if (evt.type == SDL_EventType::SDL_QUIT)
 				{
 					m_closed = true;
 				}
-				else if(evt.type == SDL_EventType::SDL_WINDOWEVENT)
+				else if (evt.type == SDL_EventType::SDL_WINDOWEVENT)
 				{
-					if(evt.window.windowID == SDL_GetWindowID(m_window))
+					if (evt.window.windowID == SDL_GetWindowID(m_window))
 					{
-						if(evt.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED)
+						if (evt.window.event == SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED)
 						{
 							Vector2i newSize(evt.window.data1, evt.window.data2);
 							outer.OnResized.Call(newSize);
 						}
 					}
 				}
-				else if(evt.type == SDL_EventType::SDL_TEXTINPUT)
+				else if (evt.type == SDL_EventType::SDL_TEXTINPUT)
 				{
 					WString wstr = Utility::ConvertToWString(evt.text.text);
 					outer.OnTextInput.Call(wstr);
 				}
-				else if(evt.type == SDL_EventType::SDL_TEXTEDITING)
+				else if (evt.type == SDL_EventType::SDL_TEXTEDITING)
 				{
 					SDL_Rect scr;
 					SDL_GetWindowPosition(m_window, &scr.x, &scr.y);
@@ -350,7 +353,7 @@ namespace Graphics
 
 		void SwitchFullscreen(uint32 monitorID)
 		{
-			if(m_fullscreen)
+			if (m_fullscreen)
 			{
 				SDL_SetWindowFullscreen(m_window, 0);
 				m_fullscreen = false;
@@ -361,6 +364,7 @@ namespace Graphics
 				m_fullscreen = true;
 			}
 		}
+
 		bool IsFullscreen() const
 		{
 			return m_fullscreen;
@@ -395,30 +399,37 @@ namespace Graphics
 	{
 		m_impl = new Window_Impl(*this, size);
 	}
+
 	Window::~Window()
 	{
 		delete m_impl;
 	}
+
 	void Window::Show()
 	{
 		m_impl->Show();
 	}
+
 	void Window::Hide()
 	{
 		m_impl->Hide();
 	}
+
 	bool Window::Update()
 	{
 		return m_impl->Update();
 	}
+
 	void* Window::Handle()
 	{
 		return m_impl->m_window;
 	}
+
 	void Window::SetCaption(const WString& cap)
 	{
 		m_impl->SetCaption(cap);
 	}
+
 	void Window::Close()
 	{
 		m_impl->m_closed = true;
@@ -430,10 +441,12 @@ namespace Graphics
 		SDL_GetMouseState(&res.x, &res.y);
 		return res;
 	}
+
 	void Window::SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot /*= Vector2i(0,0)*/)
 	{
 		m_impl->SetCursor(image, hotspot);
 	}
+
 	void Window::SetCursorVisible(bool visible)
 	{
 		SDL_ShowCursor(visible);
@@ -443,31 +456,37 @@ namespace Graphics
 	{
 		m_impl->SetWindowStyle(style);
 	}
+
 	Vector2i Window::GetWindowPos() const
 	{
 		return m_impl->GetWindowPos();
 	}
+
 	void Window::SetWindowPos(const Vector2i& pos)
 	{
 		m_impl->SetWindowPos(pos);
 	}
 
 	Vector2i Window::GetWindowSize() const
-{
+	{
 		return m_impl->GetWindowSize();
 	}
+
 	void Window::SetVSync(int8 setting)
 	{
 		m_impl->SetVSync(setting);
 	}
+
 	void Window::SetWindowSize(const Vector2i& size)
 	{
 		m_impl->SetWindowSize(size);
 	}
+
 	void Window::SwitchFullscreen(uint32 monitorID)
 	{
 		m_impl->SwitchFullscreen(monitorID);
 	}
+
 	bool Window::IsFullscreen() const
 	{
 		return m_impl->IsFullscreen();
@@ -492,10 +511,12 @@ namespace Graphics
 	{
 		SDL_StartTextInput();
 	}
+
 	void Window::StopTextInput()
 	{
 		SDL_StopTextInput();
 	}
+
 	const Graphics::TextComposition& Window::GetTextComposition() const
 	{
 		return m_impl->m_textComposition;
@@ -514,6 +535,7 @@ namespace Graphics
 	{
 		return SDL_NumJoysticks();
 	}
+
 	Vector<String> Window::GetGamepadDeviceNames() const
 	{
 		Vector<String> ret;
@@ -535,15 +557,15 @@ namespace Graphics
 
 	std::shared_ptr<Gamepad> Window::OpenGamepad(int32 deviceIndex)
 	{
-		std::shared_ptr<Gamepad_Impl> openGamepad = *(m_impl->m_gamepads.Find(deviceIndex));	// HACK: should fix this
-		if(openGamepad)
+		std::shared_ptr<Gamepad_Impl> openGamepad = *(m_impl->m_gamepads.Find(deviceIndex)); // HACK: should fix this
+		if (openGamepad)
 			return std::dynamic_pointer_cast<Gamepad>(openGamepad);
 
 		std::shared_ptr<Gamepad_Impl> newGamepad;
 
 		Gamepad_Impl* gamepadImpl = new Gamepad_Impl();
 		// Try to initialize new device
-		if(gamepadImpl->Init(this, deviceIndex))
+		if (gamepadImpl->Init(this, deviceIndex))
 		{
 			newGamepad = std::shared_ptr<Gamepad_Impl>(gamepadImpl);
 
@@ -555,7 +577,7 @@ namespace Graphics
 			delete gamepadImpl;
 		}
 
-		if(newGamepad)
+		if (newGamepad)
 		{
 			m_impl->m_gamepads.Add(deviceIndex, newGamepad);
 			m_impl->m_joystickMap.Add(SDL_JoystickInstanceID(gamepadImpl->m_joystick), gamepadImpl);
@@ -578,9 +600,6 @@ namespace Graphics
 	{
 		return SDL_GetRelativeMouseMode() == SDL_TRUE;
 	}
-
-
-
 }
 
 namespace Graphics

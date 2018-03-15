@@ -6,7 +6,7 @@
 /*
 	Parses comma separated list into enum string<=>value mapping
 */
-template<typename EnumType>
+template <typename EnumType>
 class EnumStringMap
 {
 	Map<EnumType, String> names;
@@ -68,7 +68,7 @@ public:
 /*
 Template class with helper functions to convert bitflag enums to string and parse them from a string
 */
-template<typename EnumType>
+template <typename EnumType>
 class BitflagEnumConversion
 {
 public:

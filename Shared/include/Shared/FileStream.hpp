@@ -5,7 +5,7 @@
 class FileStreamBase : public BinaryStream
 {
 public:
-	FileStreamBase()= default;
+	FileStreamBase() = default;
 	FileStreamBase(File& file, bool isReading);
 	void Seek(size_t pos) override;
 	size_t Tell() const override;

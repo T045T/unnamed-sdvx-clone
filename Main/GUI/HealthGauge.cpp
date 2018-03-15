@@ -4,8 +4,7 @@
 #include "Application.hpp"
 
 HealthGauge::HealthGauge()
-{
-}
+{}
 
 void HealthGauge::Render(GUIRenderData rd)
 {
@@ -15,7 +14,7 @@ void HealthGauge::Render(GUIRenderData rd)
 	GUISlotBase::ApplyAlignment(Vector2(0.5f), barArea, rd.area);
 
 	// Optional Bg?
-	if(backTexture)
+	if (backTexture)
 		rd.guiRenderer->RenderRect(barArea, Color::White, backTexture);
 
 	MaterialParameterSet params;
@@ -27,9 +26,8 @@ void HealthGauge::Render(GUIRenderData rd)
 	transform *= Transform::Translation(rd.area.pos);
 	transform *= Transform::Scale(Vector3(rd.area.size.x, rd.area.size.y, 1.0f));
 
-
 	Color color;
-	if(rate > 0.70f)
+	if (rate > 0.70f)
 	{
 		// Fade to max
 		//float f2 = (rate - 0.70f) / 0.25f;

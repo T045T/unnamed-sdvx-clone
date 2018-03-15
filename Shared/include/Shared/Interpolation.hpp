@@ -42,7 +42,7 @@ namespace Interpolation
 	// Typedef for use with predefined functions
 	typedef CubicBezier TimeFunction;
 
-	template<typename T>
+	template <typename T>
 	T Lerp(T a, T b, float f, TimeFunction timeFunction = Linear)
 	{
 		return a + (b - a) * timeFunction(f);

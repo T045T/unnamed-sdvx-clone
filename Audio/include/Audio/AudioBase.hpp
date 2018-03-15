@@ -40,6 +40,7 @@ public:
 	{
 		m_volume = volume;
 	}
+
 	float GetVolume() const
 	{
 		return m_volume;

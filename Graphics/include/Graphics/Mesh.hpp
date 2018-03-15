@@ -27,7 +27,7 @@ namespace Graphics
 		// Sets the vertex point data for this mesh
 		// must be set before drawing
 		// the vertex type must inherit from VertexFormat to automatically detect the correct format
-		template<typename T>
+		template <typename T>
 		void SetData(const Vector<T>& verts)
 		{
 			SetData(verts.data(), verts.size(), T::GetDescriptors());

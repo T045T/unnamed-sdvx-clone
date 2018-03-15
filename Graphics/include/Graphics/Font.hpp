@@ -47,7 +47,7 @@ namespace Graphics
 
 		FontSize* get_size(uint32 nSize);
 
-		static std::shared_ptr<FontRes> Create(class OpenGL* gl, const String& assetPath);
+		static std::shared_ptr<FontRes> create(class OpenGL* gl, const String& assetPath);
 
 		// Renders the input string into a drawable text object
 		std::shared_ptr<TextRes> create_text(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None);

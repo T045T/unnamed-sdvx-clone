@@ -7,16 +7,21 @@
 	Margin template class that is similar to the Rectangle class.
 	Defines offsets for left,right,top,bottom
 */
-template<typename T>
+template <typename T>
 class MarginBase
 {
 public:
-	MarginBase(T all = 0) 
-		: left(all), top(all), right(all), bottom(all) {};
-	MarginBase(T x, T y) 
-		: left(x), top(y), right(x), bottom(y) {};
-	MarginBase(T left, T top, T right, T bottom) 
-		: left(left), top(top), right(right), bottom(bottom) {};
+	MarginBase(T all = 0)
+		: left(all), top(all), right(all), bottom(all)
+	{};
+
+	MarginBase(T x, T y)
+		: left(x), top(y), right(x), bottom(y)
+	{};
+
+	MarginBase(T left, T top, T right, T bottom)
+		: left(left), top(top), right(right), bottom(bottom)
+	{};
 
 	// Apply this margin to a rectable
 	RectangleBase<T> Apply(const RectangleBase<T>& in) const
@@ -31,9 +36,9 @@ public:
 	MarginBase operator+(const MarginBase& other) const
 	{
 		return MarginBase(
-			left + other.left, 
+			left + other.left,
 			top + other.top,
-			right + other.right, 
+			right + other.right,
 			bottom + other.bottom);
 	}
 

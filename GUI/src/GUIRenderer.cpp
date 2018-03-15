@@ -14,6 +14,7 @@ GUIRenderer::~GUIRenderer()
 	SetInputFocus(nullptr);
 	SetWindow(nullptr);
 }
+
 bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String skin)
 {
 	assert(gl);
@@ -22,7 +23,7 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 	m_time = 0.0f;
 
 	// Font
-	CheckedLoad(font = FontRes::Create(gl, "skins/" + skin + "/fonts/segoeui.ttf"));
+	CheckedLoad(font = FontRes::create(gl, "skins/" + skin + "/fonts/segoeui.ttf"));
 
 	auto LoadMaterial = [&](const String& name)
 	{
@@ -31,7 +32,7 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 		String fs = Path::Normalize(basePath + name + ".fs");
 		String gs = Path::Normalize(basePath + name + ".gs");
 		Material ret = MaterialRes::Create(gl, vs, fs);
-		if(ret && Path::FileExists(gs))
+		if (ret && Path::FileExists(gs))
 		{
 			ret->AssignShader(ShaderType::Geometry, Graphics::ShaderRes::Create(m_gl, ShaderType::Geometry, gs));
 		}
@@ -53,7 +54,7 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 	guiQuad = MeshGenerators::Quad(m_gl, Vector2(0, 0), Vector2(1, 1));
 
 	pointMesh = MeshRes::Create(m_gl);
-	Vector<MeshGenerators::SimpleVertex> points = { MeshGenerators::SimpleVertex(Vector3(0,0,0), Vector2(0,0)) };
+	Vector<MeshGenerators::SimpleVertex> points = {MeshGenerators::SimpleVertex(Vector3(0, 0, 0), Vector2(0, 0))};
 	pointMesh->SetData(points);
 	pointMesh->SetPrimitiveType(PrimitiveType::PointList);
 
@@ -62,6 +63,7 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 
 	return true;
 }
+
 void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<class GUIElementBase> rootElement)
 {
 	m_time += deltaTime;
@@ -88,7 +90,7 @@ void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<cla
 	m_hoveredElement = inputElement;
 
 	// Clear input focus?
-	if(!m_hoveredElement && GetMouseButtonPressed(MouseButton::Left))
+	if (!m_hoveredElement && GetMouseButtonPressed(MouseButton::Left))
 	{
 		SetInputFocus(nullptr);
 	}
@@ -103,7 +105,7 @@ void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<cla
 	m_mouseScrollDelta = 0;
 
 	// Shift mouse button state
-	memcpy(m_mouseButtonStateLast, m_mouseButtonState, sizeof(bool)*3);
+	memcpy(m_mouseButtonStateLast, m_mouseButtonState, sizeof(bool) * 3);
 
 	End();
 }
@@ -127,6 +129,7 @@ Graphics::RenderQueue& GUIRenderer::Begin()
 
 	return *m_renderQueue;
 }
+
 void GUIRenderer::End()
 {
 	// Must have called Begin
@@ -151,7 +154,7 @@ void GUIRenderer::End()
 
 void GUIRenderer::SetWindow(Graphics::Window* window)
 {
-	if(m_window)
+	if (m_window)
 	{
 		m_window->OnKeyRepeat.RemoveAll(this);
 		m_window->OnTextInput.RemoveAll(this);
@@ -165,7 +168,7 @@ void GUIRenderer::SetWindow(Graphics::Window* window)
 
 	m_window = window;
 
-	if(m_window)
+	if (m_window)
 	{
 		m_window->OnKeyRepeat.Add(this, &GUIRenderer::m_OnKeyRepeat);
 		m_window->OnTextInput.Add(this, &GUIRenderer::m_OnTextInput);
@@ -184,7 +187,7 @@ Graphics::Window* GUIRenderer::GetWindow() const
 
 void GUIRenderer::PushScissorRect(const Rect& scissor)
 {
-	if(!m_scissorRectangles.empty())
+	if (!m_scissorRectangles.empty())
 	{
 		m_scissorRect = m_scissorRectangles.back().Clamp(scissor);
 	}
@@ -194,10 +197,11 @@ void GUIRenderer::PushScissorRect(const Rect& scissor)
 	}
 	m_scissorRectangles.Add(m_scissorRect);
 }
+
 void GUIRenderer::PopScissorRect()
 {
 	m_scissorRectangles.pop_back();
-	if(m_scissorRectangles.empty())
+	if (m_scissorRectangles.empty())
 	{
 		m_scissorRect = Rect(Vector2(), Vector2(-1));
 	}
@@ -206,13 +210,14 @@ void GUIRenderer::PopScissorRect()
 		m_scissorRect = m_scissorRectangles.back();
 	}
 }
+
 Rect GUIRenderer::GetScissorRect() const
 {
-	if(m_scissorRectangles.empty())
+	if (m_scissorRectangles.empty())
 	{
 		return m_viewportSize;
 	}
-	else 
+	else
 	{
 		return m_scissorRectangles.back();
 	}
@@ -220,18 +225,18 @@ Rect GUIRenderer::GetScissorRect() const
 
 void GUIRenderer::SetInputFocus(GUIElementBase* element)
 {
-	if(m_textInput.elementFocus)
+	if (m_textInput.elementFocus)
 	{
-		if(m_textInput.elementFocus == element)
+		if (m_textInput.elementFocus == element)
 			return; // Already focused
 		m_textInput.elementFocus->m_rendererFocus = nullptr;
 	}
 
 	m_textInput.elementFocus = element;
-	if(m_window)
+	if (m_window)
 	{
 		// Start/Stop allowing ime text input
-		if(element)
+		if (element)
 		{
 			element->m_rendererFocus = this;
 			m_window->StartTextInput();
@@ -242,6 +247,7 @@ void GUIRenderer::SetInputFocus(GUIElementBase* element)
 		}
 	}
 }
+
 GUIElementBase* GUIRenderer::GetInputFocus() const
 {
 	return m_textInput.elementFocus;
@@ -251,18 +257,22 @@ const GUITextInput& GUIRenderer::GetTextInput() const
 {
 	return m_textInput;
 }
+
 Vector2i GUIRenderer::GetTextSize(const WString& str, uint32 fontSize /*= 16*/)
 {
 	Text text = font->create_text(str, fontSize);
 	return text->size;
 }
+
 Vector2i GUIRenderer::GetTextSize(const String& str, uint32 fontSize /*= 16*/)
 {
 	return GetTextSize(Utility::ConvertToWString(str), fontSize);
 }
-Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, const Color& color /*= Color(1.0f)*/, uint32 fontSize /*= 16*/)
+
+Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, const Color& color /*= Color(1.0f)*/,
+								uint32 fontSize /*= 16*/)
 {
-	if(m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
+	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return Vector2i(0, 0);
 
 	Text text = font->create_text(str, fontSize);
@@ -273,13 +283,16 @@ Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, co
 	m_renderQueue->DrawScissored(m_scissorRect, textTransform, text, fontMaterial, params);
 	return text->size;
 }
-Vector2i GUIRenderer::RenderText(const String& str, const Vector2& position, const Color& color /*= Color(1.0f)*/, uint32 fontSize /*= 16*/)
+
+Vector2i GUIRenderer::RenderText(const String& str, const Vector2& position, const Color& color /*= Color(1.0f)*/,
+								uint32 fontSize /*= 16*/)
 {
 	return RenderText(Utility::ConvertToWString(str), position, color, fontSize);
 }
+
 void GUIRenderer::RenderText(Text& text, const Vector2& position, const Color& color /*= Color(1.0f)*/)
 {
-	if(m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
+	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
 
 	Transform textTransform;
@@ -288,9 +301,10 @@ void GUIRenderer::RenderText(Text& text, const Vector2& position, const Color& c
 	params.SetParameter("color", color);
 	m_renderQueue->DrawScissored(m_scissorRect, textTransform, text, fontMaterial, params);
 }
+
 void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f)*/, Texture texture /*= Texture()*/)
 {
-	if(m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
+	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
 
 	Transform transform;
@@ -298,7 +312,7 @@ void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f
 	transform *= Transform::Scale(Vector3(rect.size.x, rect.size.y, 1.0f));
 	MaterialParameterSet params;
 	params.SetParameter("color", color);
-	if(texture)
+	if (texture)
 	{
 		params.SetParameter("mainTex", texture);
 		m_renderQueue->DrawScissored(m_scissorRect, transform, guiQuad, textureMaterial, params);
@@ -308,6 +322,7 @@ void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f
 		m_renderQueue->DrawScissored(m_scissorRect, transform, guiQuad, colorMaterial, params);
 	}
 }
+
 void GUIRenderer::RenderGraph(const Rect& rect, const Texture& graphTex)
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
@@ -318,15 +333,14 @@ void GUIRenderer::RenderGraph(const Rect& rect, const Texture& graphTex)
 	transform *= Transform::Scale(Vector3(rect.size.x, rect.size.y, 1.0f));
 	MaterialParameterSet params;
 	params.SetParameter("graphTex", graphTex);
-	params.SetParameter("viewport", Vector2(rect.size.x,rect.size.y));
+	params.SetParameter("viewport", Vector2(rect.size.x, rect.size.y));
 	m_renderQueue->DrawScissored(m_scissorRect, transform, guiQuad, graphMaterial, params);
-	
 }
 
 
 void GUIRenderer::RenderButton(const Rect& rect, Texture texture, Margini border, const Color& color /*= Color::White*/)
 {
-	if(m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
+	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
 
 	Transform transform;
@@ -360,6 +374,7 @@ const Vector2i& GUIRenderer::GetMousePos() const
 {
 	return m_mousePos;
 }
+
 const Vector2i& GUIRenderer::GetMouseDelta() const
 {
 	return m_mouseDelta;
@@ -369,10 +384,12 @@ bool GUIRenderer::GetMouseButton(MouseButton btn) const
 {
 	return m_mouseButtonState[(size_t)btn];
 }
+
 bool GUIRenderer::GetMouseButtonPressed(MouseButton btn) const
 {
 	return m_mouseButtonState[(size_t)btn] && !m_mouseButtonStateLast[(size_t)btn];
 }
+
 bool GUIRenderer::GetMouseButtonReleased(MouseButton btn) const
 {
 	return !m_mouseButtonState[(size_t)btn] && m_mouseButtonStateLast[(size_t)btn];
@@ -392,15 +409,17 @@ void GUIRenderer::m_OnTextInput(const WString& input)
 {
 	m_textInput.input += input;
 }
+
 void GUIRenderer::m_OnTextComposition(const TextComposition& input)
 {
 	m_textInput.composition = input.composition;
 }
+
 void GUIRenderer::m_OnKeyRepeat(int32 key)
 {
-	if(key == SDLK_BACKSPACE)
+	if (key == SDLK_BACKSPACE)
 	{
-		if(m_textInput.input.empty())
+		if (m_textInput.input.empty())
 			m_textInput.backspaceCount++; // Send backspace
 		else
 		{
@@ -410,13 +429,14 @@ void GUIRenderer::m_OnKeyRepeat(int32 key)
 		}
 	}
 }
+
 void GUIRenderer::m_OnKeyPressed(int32 key)
 {
-	if(key == SDLK_v)
+	if (key == SDLK_v)
 	{
-		if(m_window->GetModifierKeys() == ModifierKeys::Ctrl)
+		if (m_window->GetModifierKeys() == ModifierKeys::Ctrl)
 		{
-			if(m_window->GetTextComposition().composition.empty())
+			if (m_window->GetTextComposition().composition.empty())
 			{
 				// Paste clipboard text into input buffer
 				m_textInput.input += m_window->GetClipboard();
@@ -424,14 +444,17 @@ void GUIRenderer::m_OnKeyPressed(int32 key)
 		}
 	}
 }
+
 void GUIRenderer::m_OnMousePressed(MouseButton btn)
 {
 	m_mouseButtonState[(size_t)btn] = true;
 }
+
 void GUIRenderer::m_OnMouseReleased(MouseButton btn)
 {
 	m_mouseButtonState[(size_t)btn] = false;
 }
+
 void GUIRenderer::m_OnMouseScroll(int32 scroll)
 {
 	m_mouseScrollDelta += scroll;
@@ -447,15 +470,16 @@ WString GUITextInput::Apply(const WString& in) const
 {
 	WString res = in + input;
 	auto it = res.end();
-	for(uint32 i = 0; i < backspaceCount; i++)
+	for (uint32 i = 0; i < backspaceCount; i++)
 	{
-		if(res.empty())
+		if (res.empty())
 			break;
 		--it;
 		it = res.erase(it);
 	}
 	return res;
 }
+
 bool GUITextInput::HasChanges() const
 {
 	return input.size() != backspaceCount;
@@ -465,7 +489,7 @@ bool GUIRenderData::OverlapTest(Rect rect) const
 {
 	Vector2 mouse = guiRenderer->GetMousePos();
 	// Overlap the given element
-	if(!GUIElementBase::OverlapTest(rect, mouse))
+	if (!GUIElementBase::OverlapTest(rect, mouse))
 		return false;
 	// Additionally check scissor rectangle
 	return GUIElementBase::OverlapTest(guiRenderer->GetScissorRect(), mouse);

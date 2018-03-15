@@ -7,7 +7,8 @@ namespace Graphics
 	// Windowed or bordered window style
 	enum class WindowStyle
 	{
-		Windowed, Borderless
+		Windowed,
+		Borderless
 	};
 
 	// Text input data
@@ -47,7 +48,7 @@ namespace Graphics
 		bool GetRelativeMouseMode();
 
 		// Sets cursor to use
-		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0,0));
+		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
 		void SetCursorVisible(bool visible);
 
 		// Switches between borderless and windowed
@@ -68,9 +69,9 @@ namespace Graphics
 		bool IsActive() const;
 		// Set window client area size
 		void SetWindowSize(const Vector2i& size);
-		void SwitchFullscreen(uint32 monitorID = -1); 
+		void SwitchFullscreen(uint32 monitorID = -1);
 		bool IsFullscreen() const;
-		
+
 		// Checks if a key is pressed
 		bool IsKeyPressed(int32 key) const;
 

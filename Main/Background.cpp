@@ -16,10 +16,12 @@ public:
 		fullscreenMesh = MeshGenerators::Quad(g_gl, Vector2(-1.0f), Vector2(2.0f));
 		return true;
 	}
+
 	void UpdateRenderState(float deltaTime)
 	{
 		renderState = g_application->GetRenderStateBase();
 	}
+
 	virtual void Render(float deltaTime) override
 	{
 		assert(fullscreenMaterial);
@@ -42,7 +44,7 @@ class TestBackground : public FullscreenBackground
 {
 	virtual bool Init(bool foreground) override
 	{
-		if(!FullscreenBackground::Init(foreground))
+		if (!FullscreenBackground::Init(foreground))
 			return false;
 
 		/// TODO: Handle invalid background configurations properly
@@ -82,12 +84,12 @@ class TestBackground : public FullscreenBackground
 			}
 		}
 
-
 		CheckedLoad(fullscreenMaterial = LoadBackgroundMaterial(matPath));
 		fullscreenMaterial->opaque = !foreground;
 
 		return true;
 	}
+
 	virtual void Render(float deltaTime) override
 	{
 		UpdateRenderState(deltaTime);
@@ -99,19 +101,18 @@ class TestBackground : public FullscreenBackground
 		// every 1/4 tick
 		float tickTime = fmodf(timing.x * (float)tp.numerator, 1.0f);
 		//timing.y = powf(tickTime, 2);
-		timing.y = powf(1.0f-tickTime, 1);
+		timing.y = powf(1.0f - tickTime, 1);
 		//if(tickTime > 0.7f)
 		//	timing.y += ((tickTime - 0.7f) / 0.3f) * 0.8f; // Gradual build up again
 
 		bool cleared = game->GetScoring().currentGauge >= 0.70f;
-		
-			if (cleared)
+
+		if (cleared)
 			clearTransition += deltaTime / tp.beatDuration * 1000;
 		else
 			clearTransition -= deltaTime / tp.beatDuration * 1000;
 
 		clearTransition = Math::Clamp(clearTransition, 0.0f, 1.0f);
-
 
 		Vector3 trackEndWorld = Vector3(0.0f, 25.0f, 0.0f);
 		Vector2i screenCenter = Vector2i(g_resolution.x / 2, game->GetCamera().GetHorizonHeight());
@@ -152,16 +153,14 @@ class TestBackground : public FullscreenBackground
 		Texture ret = TextureRes::Create(g_gl, ImageRes::Create(path));
 		return ret;
 	}
-
 };
-
 
 
 Background* CreateBackground(class Game* game, bool foreground /* = false*/)
 {
 	Background* bg = new TestBackground();
 	bg->game = game;
-	if(!bg->Init(foreground))
+	if (!bg->Init(foreground))
 	{
 		delete bg;
 		return nullptr;

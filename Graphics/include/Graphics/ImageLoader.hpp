@@ -9,6 +9,7 @@ namespace Graphics
 			- JPEG
 	 */
 	class ImageRes;
+
 	class ImageLoader
 	{
 	public:

@@ -17,7 +17,6 @@ void Input::Init(Graphics::Window& wnd)
 	m_window->OnKeyReleased.Add(this, &Input::OnKeyReleased);
 	m_window->OnMouseMotion.Add(this, &Input::OnMouseMotion);
 
-
 	m_lastMousePos[0] = m_window->GetMousePos().x;
 	m_lastMousePos[1] = m_window->GetMousePos().y;
 
@@ -37,17 +36,18 @@ void Input::Init(Graphics::Window& wnd)
 	m_controllerDeadzone = g_gameConfig.GetFloat(GameConfigKeys::Controller_Deadzone);
 
 	// Init controller mapping
-	if(m_laserDevice == InputDevice::Controller || m_buttonDevice == InputDevice::Controller)
+	if (m_laserDevice == InputDevice::Controller || m_buttonDevice == InputDevice::Controller)
 	{
 		int32 deviceIndex = g_gameConfig.GetInt(GameConfigKeys::Controller_DeviceID);
-		if(deviceIndex >= m_window->GetNumGamepads())
+		if (deviceIndex >= m_window->GetNumGamepads())
 		{
-			Logf("Out of range controller [%d], number of available controllers is %d", Logger::Error, deviceIndex, m_window->GetNumGamepads());
+			Logf("Out of range controller [%d], number of available controllers is %d", Logger::Error, deviceIndex,
+				m_window->GetNumGamepads());
 		}
 		else
 		{
 			m_gamepad = m_window->OpenGamepad(deviceIndex);
-			if(m_gamepad)
+			if (m_gamepad)
 			{
 				m_gamepad->OnButtonPressed.Add(this, &Input::m_OnGamepadButtonPressed);
 				m_gamepad->OnButtonReleased.Add(this, &Input::m_OnGamepadButtonReleased);
@@ -59,15 +59,16 @@ void Input::Init(Graphics::Window& wnd)
 	// Init keyboard mapping
 	m_InitKeyboardMapping();
 }
+
 void Input::Cleanup()
 {
-	if(m_gamepad)
+	if (m_gamepad)
 	{
 		m_gamepad->OnButtonPressed.RemoveAll(this);
 		m_gamepad->OnButtonReleased.RemoveAll(this);
 		m_gamepad.Release();
 	}
-	if(m_window)
+	if (m_window)
 	{
 		m_window->OnKeyPressed.RemoveAll(this);
 		m_window->OnKeyReleased.RemoveAll(this);
@@ -78,9 +79,9 @@ void Input::Cleanup()
 
 void Input::Update(float deltaTime)
 {
-	for(auto it = m_mouseLocks.begin(); it != m_mouseLocks.end();)
+	for (auto it = m_mouseLocks.begin(); it != m_mouseLocks.end();)
 	{
-		if(it->GetRefCount() == 1)
+		if (it->GetRefCount() == 1)
 		{
 			it = m_mouseLocks.erase(it);
 			continue;
@@ -88,7 +89,7 @@ void Input::Update(float deltaTime)
 		it++;
 	}
 
-	if(!m_mouseLocks.empty())
+	if (!m_mouseLocks.empty())
 	{
 		if (!m_window->GetRelativeMouseMode())
 			m_window->SetRelativeMouseMode(true);
@@ -98,25 +99,25 @@ void Input::Update(float deltaTime)
 		m_window->SetRelativeMouseMode(false);
 	}
 
-	if(m_laserDevice == InputDevice::Mouse)
+	if (m_laserDevice == InputDevice::Mouse)
 	{
-		for(uint32 i = 0; i < 2; i++)
+		for (uint32 i = 0; i < 2; i++)
 		{
-			if(m_mouseAxisMapping[i] < 0 || m_mouseAxisMapping[i] > 1)
+			if (m_mouseAxisMapping[i] < 0 || m_mouseAxisMapping[i] > 1)
 			{
 				// INVALID MAPPING
 				m_laserStates[i] = 0.0f;
 				continue;
 			}
-			
+
 			m_laserStates[i] = m_mouseSensitivity * m_mousePos[m_mouseAxisMapping[i]];
 			m_mousePos[i] = 0;
 		}
 	}
 
-	if(m_laserDevice == InputDevice::Keyboard)
+	if (m_laserDevice == InputDevice::Keyboard)
 	{
-		for(uint32 i = 0; i < 2; i++)
+		for (uint32 i = 0; i < 2; i++)
 		{
 			m_laserStates[i] = m_rawKeyLaserStates[i] * deltaTime;
 
@@ -139,13 +140,12 @@ void Input::Update(float deltaTime)
 		}
 	}
 
-
-	if(m_gamepad)
+	if (m_gamepad)
 	{
 		// Poll controller laser input
-		if(m_laserDevice == InputDevice::Controller)
+		if (m_laserDevice == InputDevice::Controller)
 		{
-			for(uint32 i = 0; i < 2; i++)
+			for (uint32 i = 0; i < 2; i++)
 			{
 				float axisState = m_gamepad->GetAxis(m_controllerAxisMapping[i]);
 				float delta = axisState - m_prevLaserStates[i];
@@ -178,15 +178,15 @@ bool Input::Are3BTsHeld() const
 
 String Input::GetControllerStateString() const
 {
-	if(m_gamepad)
+	if (m_gamepad)
 	{
 		String s = "Buttons\n";
-		for(uint32 i = 0; i < m_gamepad->NumButtons(); i++)
+		for (uint32 i = 0; i < m_gamepad->NumButtons(); i++)
 		{
 			s += Utility::Sprintf("  [%d]%d\n", i, m_gamepad->GetButton(i));
 		}
 		s += "\nAxes\n";
-		for(uint32 i = 0; i < m_gamepad->NumAxes(); i++)
+		for (uint32 i = 0; i < m_gamepad->NumAxes(); i++)
 		{
 			s += Utility::Sprintf("  [%d]%.2f\n", i, m_gamepad->GetAxis(i));
 		}
@@ -208,12 +208,13 @@ float Input::GetInputLaserDir(uint32 laserIdx)
 {
 	return m_laserStates[laserIdx];
 }
+
 void Input::m_InitKeyboardMapping()
 {
 	memset(m_buttonStates, 0, sizeof(m_buttonStates));
 	m_buttonMap.clear();
 
-	if(m_buttonDevice == InputDevice::Keyboard)
+	if (m_buttonDevice == InputDevice::Keyboard)
 	{
 		// Button mappings
 		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_BTS), Button::BT_S);
@@ -234,7 +235,7 @@ void Input::m_InitKeyboardMapping()
 		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_FX1Alt), Button::FX_1);
 	}
 
-	if(m_laserDevice == InputDevice::Keyboard)
+	if (m_laserDevice == InputDevice::Keyboard)
 	{
 		// Laser button mappings
 		m_buttonMap.Add(g_gameConfig.GetInt(GameConfigKeys::Key_Laser0Neg), Button::LS_0Neg);
@@ -247,7 +248,7 @@ void Input::m_InitKeyboardMapping()
 void Input::m_InitControllerMapping()
 {
 	m_controllerMap.clear();
-	if(m_buttonDevice == InputDevice::Controller)
+	if (m_buttonDevice == InputDevice::Controller)
 	{
 		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BTS), Button::BT_S);
 		m_controllerMap.Add(g_gameConfig.GetInt(GameConfigKeys::Controller_BT0), Button::BT_0);
@@ -262,10 +263,10 @@ void Input::m_InitControllerMapping()
 void Input::m_OnButtonInput(Button b, bool pressed)
 {
 	bool& state = m_buttonStates[(size_t)b];
-	if(state != pressed)
+	if (state != pressed)
 	{
 		state = pressed;
-		if(state)
+		if (state)
 		{
 			OnButtonPressed.Call(b);
 		}
@@ -276,20 +277,19 @@ void Input::m_OnButtonInput(Button b, bool pressed)
 	}
 
 	static Timer t;
-	if(b >= Button::LS_0Neg)
+	if (b >= Button::LS_0Neg)
 	{
 		int32 btnIdx = (int32)b - (int32)Button::LS_0Neg;
 		int32 laserIdx = btnIdx / 2;
 		// Set laser state based uppon the button that was pressed last
-		if(pressed)
+		if (pressed)
 			m_rawKeyLaserStates[laserIdx] = (btnIdx % 2) == 0 ? -m_keySensitivity : m_keySensitivity;
 		else // If a button was released check if the other one is still held
 		{
-			if(m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2])
+			if (m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2])
 				m_rawKeyLaserStates[laserIdx] = -m_keySensitivity;
-			else if(m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2 + 1])
+			else if (m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2 + 1])
 				m_rawKeyLaserStates[laserIdx] = m_keySensitivity;
-
 		}
 	}
 }
@@ -298,14 +298,15 @@ void Input::m_OnGamepadButtonPressed(uint8 button)
 {
 	// Handle button mappings
 	auto it = m_controllerMap.equal_range(button);
-	for(auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; it1++)
 		m_OnButtonInput(it1->second, true);
 }
+
 void Input::m_OnGamepadButtonReleased(uint8 button)
 {
 	// Handle button mappings
 	auto it = m_controllerMap.equal_range(button);
-	for(auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; it1++)
 		m_OnButtonInput(it1->second, false);
 }
 
@@ -313,14 +314,15 @@ void Input::OnKeyPressed(int32 key)
 {
 	// Handle button mappings
 	auto it = m_buttonMap.equal_range(key);
-	for(auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; it1++)
 		m_OnButtonInput(it1->second, true);
 }
+
 void Input::OnKeyReleased(int32 key)
 {
 	// Handle button mappings
 	auto it = m_buttonMap.equal_range(key);
-	for(auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; it1++)
 		m_OnButtonInput(it1->second, false);
 }
 

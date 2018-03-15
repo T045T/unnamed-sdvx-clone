@@ -9,7 +9,6 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 {
 	m_settings = game.GetBeatmap()->GetMapSettings();
 
-
 	LayoutBox* layoutBox = new LayoutBox();
 	m_layout = std::shared_ptr<LayoutBox>(layoutBox);
 	layoutBox->layoutDirection = LayoutBox::LayoutDirection::Horizontal;
@@ -38,10 +37,9 @@ PlayingSongInfo::PlayingSongInfo(Game& game)
 		titleSlot->fillY = true;
 		titleSlot->padding = Margin(10, 0, 0, 0);
 	}
-
 }
 
-void PlayingSongInfo::PreRender(GUIRenderData rd, GUIElementBase *& inputElement)
+void PlayingSongInfo::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	Canvas::PreRender(rd, inputElement);
 }
@@ -56,7 +54,8 @@ void PlayingSongInfo::Render(GUIRenderData rd)
 
 Vector2 PlayingSongInfo::GetDesiredSize(GUIRenderData rd)
 {
-	Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480), Rect(0, 0, g_resolution.x, g_resolution.y)).size;
+	Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
+												Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 	return Vector2(canvasRes.y * 0.16 * 3, canvasRes.y * 0.16);
 }
 
@@ -88,7 +87,7 @@ SongTitleArtist::SongTitleArtist(String title, String artist, PlayingSongInfo* i
 	m_psi = info;
 }
 
-void SongTitleArtist::PreRender(GUIRenderData rd, GUIElementBase *& inputElement)
+void SongTitleArtist::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	Panel::PreRender(rd, inputElement);
 }
@@ -99,7 +98,6 @@ void SongTitleArtist::Render(GUIRenderData rd)
 	WString speedText = Utility::WSprintf(
 		L"BPM: %.1f\nHiSpeed: %d x %.1f = %d",
 		BPM, (int)BPM, hiSpeed, (int)Math::Round(hiSpeed * BPM));
-
 
 	/// TODO: Cache stuff and only regen if the resolution changes.
 	std::shared_ptr<TextRes> title = rd.guiRenderer->font->create_text(m_title, rd.area.size.y / 2);
@@ -114,7 +112,6 @@ void SongTitleArtist::Render(GUIRenderData rd)
 	speedRect.size = speedRect.size * Vector2(1.f, m_speedSize);
 	artistRect.pos = artistRect.pos + Vector2(0.f, .5f * rd.area.size.y);
 
-
 	titleRect = GUISlotBase::ApplyFill(FillMode::Fit, title->size, titleRect);
 	artistRect = GUISlotBase::ApplyFill(FillMode::Fit, artist->size, artistRect);
 	speedRect = GUISlotBase::ApplyFill(FillMode::Fit, speedTextGraphic->size, speedRect);
@@ -124,13 +121,14 @@ void SongTitleArtist::Render(GUIRenderData rd)
 	speedTextGraphic = rd.guiRenderer->font->create_text(speedText, (speedRect.size.y / 2) * 0.75);
 
 	titleRect.pos.y = rd.area.pos.y + (0.5f * m_titleSize * rd.area.size.y) - (0.5f * title->size.y);
-	artistRect.pos.y = rd.area.pos.y + (m_titleSize * rd.area.size.y) + (0.5f * m_artistSize * rd.area.size.y) - (0.5f * artist->size.y);;
+	artistRect.pos.y = rd.area.pos.y + (m_titleSize * rd.area.size.y) + (0.5f * m_artistSize * rd.area.size.y) - (0.5f *
+		artist->size.y);;
 	Vector2 speedTextPos = Vector2(artistRect.pos.x, rd.area.pos.y + ((m_titleSize + m_artistSize) * rd.area.size.y));
 
 	rd.guiRenderer->RenderText(title, titleRect.pos, color);
 	rd.guiRenderer->RenderText(artist, artistRect.pos, color);
 	rd.guiRenderer->RenderText(speedTextGraphic, speedTextPos, color);
-	
+
 	Transform transform;
 	transform *= Transform::Translation(rd.area.pos);
 	transform *= Transform::Scale(Vector3(rd.area.size.x, rd.area.size.y, 1.0f));
@@ -140,20 +138,16 @@ void SongTitleArtist::Render(GUIRenderData rd)
 	params.SetParameter("progress", progress);
 	rd.rq->Draw(transform, rd.guiRenderer->guiQuad, m_psi->progressMaterial, params);
 
-
-
 	//Panel::Render(rd);
 }
 
 SongProgressBar::SongProgressBar()
-{
-}
+{}
 
 void SongProgressBar::Render(GUIRenderData rd)
 {
 	MaterialParameterSet params;
 	params.SetParameter("progress", progress);
-
 }
 
 Vector2 SongProgressBar::GetDesiredSize(GUIRenderData rd)

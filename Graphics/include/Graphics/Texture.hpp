@@ -18,6 +18,7 @@ namespace Graphics
 	};
 
 	class ImageRes;
+
 	/*
 		OpenGL texture wrapper, can be created from an Image object or raw data
 	*/

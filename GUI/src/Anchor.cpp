@@ -6,10 +6,12 @@ Vector2 Anchor::GetAreaMultiplier() const
 	Vector2 delta = Delta();
 	return Vector2((delta.x > 0) ? 1.0f : 0.0f, (delta.y > 0) ? 1.0f : 0.0f);
 }
+
 Vector2& Anchor::TopLeft()
 {
 	return *reinterpret_cast<Vector2*>(&left);
 }
+
 const Vector2& Anchor::TopLeft() const
 {
 	return *reinterpret_cast<const Vector2*>(&left);
@@ -19,10 +21,12 @@ Vector2& Anchor::BottomRight()
 {
 	return *reinterpret_cast<Vector2*>(&right);
 }
+
 const Vector2& Anchor::BottomRight() const
 {
 	return *reinterpret_cast<const Vector2*>(&right);
 }
+
 Vector2 Anchor::Delta() const
 {
 	return Vector2(right - left, bottom - top);

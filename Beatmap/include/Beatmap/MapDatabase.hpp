@@ -2,7 +2,6 @@
 #include "Beatmap.hpp"
 
 
-
 struct ScoreIndex
 {
 	int32 id;
@@ -31,8 +30,6 @@ struct DifficultyIndex
 	BeatmapSettings settings;
 	// Map scores
 	Vector<ScoreIndex*> scores;
-
-
 };
 
 // Map located in database

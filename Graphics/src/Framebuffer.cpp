@@ -16,28 +16,31 @@ namespace Graphics
 
 		friend class OpenGL;
 	public:
-		Framebuffer_Impl(OpenGL* gl) : m_gl(gl)
-		{
-		}
+		Framebuffer_Impl(OpenGL* gl)
+			: m_gl(gl)
+		{ }
+
 		~Framebuffer_Impl()
 		{
-			if(m_fb > 0)
+			if (m_fb > 0)
 				glDeleteFramebuffers(1, &m_fb);
 			assert(!m_isBound);
 		}
+
 		bool Init()
 		{
 			glGenFramebuffers(1, &m_fb);
 			return m_fb != 0;
 		}
+
 		virtual bool AttachTexture(Texture tex)
 		{
-			if(!tex)
+			if (!tex)
 				return false;
 			m_textureSize = tex->GetSize();
 			uint32 texHandle = (uint32)tex->Handle();
 			TextureFormat fmt = tex->GetFormat();
-			if(fmt == TextureFormat::D32)
+			if (fmt == TextureFormat::D32)
 			{
 				glNamedFramebufferTexture2DEXT(m_fb, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texHandle, 0);
 				m_depthAttachment = true;
@@ -48,6 +51,7 @@ namespace Graphics
 			}
 			return IsComplete();
 		}
+
 		virtual void Bind()
 		{
 			assert(!m_isBound);
@@ -57,7 +61,7 @@ namespace Graphics
 			//glViewport(0, 0, m_textureSize.x, m_textureSize.y);
 			glBindFramebuffer(GL_FRAMEBUFFER, m_fb);
 
-			if(m_depthAttachment)
+			if (m_depthAttachment)
 			{
 				GLenum drawBuffers[2] =
 				{
@@ -74,6 +78,7 @@ namespace Graphics
 			m_isBound = true;
 			m_gl->m_boundFramebuffer = this;
 		}
+
 		virtual void Unbind()
 		{
 			assert(m_isBound && m_gl->m_boundFramebuffer == this);
@@ -87,11 +92,13 @@ namespace Graphics
 			m_isBound = false;
 			m_gl->m_boundFramebuffer = nullptr;
 		}
+
 		virtual bool IsComplete() const
 		{
 			int complete = glCheckNamedFramebufferStatus(m_fb, GL_DRAW_FRAMEBUFFER);
 			return complete == GL_FRAMEBUFFER_COMPLETE;
 		}
+
 		virtual uint32 Handle() const
 		{
 			return m_fb;
@@ -101,7 +108,7 @@ namespace Graphics
 	Framebuffer FramebufferRes::Create(class OpenGL* gl)
 	{
 		Framebuffer_Impl* pImpl = new Framebuffer_Impl(gl);
-		if(!pImpl->Init())
+		if (!pImpl->Init())
 		{
 			delete pImpl;
 			return Framebuffer();

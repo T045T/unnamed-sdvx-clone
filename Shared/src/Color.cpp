@@ -11,10 +11,12 @@ Color::Color(const VectorMath::VectorBase<uint8, 4>& icolor)
 	);
 }
 
-Color::Color(float r, float g, float b) : Color(r, g, b, 1.0f)
+Color::Color(float r, float g, float b)
+	: Color(r, g, b, 1.0f)
 {}
 
-Color::Color(float all) : Color(all, all, all, 1.0f)
+Color::Color(float all)
+	: Color(all, all, all, 1.0f)
 {}
 
 Colori Color::ToRGBA8() const
@@ -71,7 +73,8 @@ const Color Color::Yellow = Color(1, 1, 0, 1);
 const Color Color::Magenta = Color(1, 0, 1, 1);
 const Color Color::Cyan = Color(0, 1, 1, 1);
 
-Colori::Colori(uint8 r, uint8 g, uint8 b) : Colori(r, g, b, 1.0f)
+Colori::Colori(uint8 r, uint8 g, uint8 b)
+	: Colori(r, g, b, 1.0f)
 {}
 
 // Converted integer constants

@@ -3,7 +3,8 @@
 class ProfilerScope
 {
 public:
-	ProfilerScope(const String& name) : name(name)
+	ProfilerScope(const String& name)
+		: name(name)
 	{
 		Logf("Starting task \"%s\"", Logger::Info, name);
 	}

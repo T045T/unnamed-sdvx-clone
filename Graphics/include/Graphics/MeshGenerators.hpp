@@ -14,7 +14,10 @@ namespace Graphics
 		struct SimpleVertex : public VertexFormat<Vector3, Vector2>
 		{
 			SimpleVertex() = default;
-			SimpleVertex(Vector3 pos, Vector2 tex) : pos(pos), tex(tex) {};
+
+			SimpleVertex(Vector3 pos, Vector2 tex)
+				: pos(pos), tex(tex)
+			{};
 			Vector3 pos;
 			Vector2 tex;
 		};

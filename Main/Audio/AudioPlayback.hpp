@@ -7,6 +7,7 @@
 	Audio effect with customized parameters
 */
 class AudioPlayback;
+
 struct GameAudioEffect : public AudioEffect
 {
 public:
@@ -43,7 +44,12 @@ public:
 
 	// Pause the playback
 	void TogglePause();
-	bool IsPaused() const { return m_paused; }
+
+	bool IsPaused() const
+	{
+		return m_paused;
+	}
+
 	bool HasEnded() const;
 
 	// Sets either button effect 0 or 1
@@ -95,7 +101,7 @@ private:
 	float m_laserInput = 0.0f;
 
 	GameAudioEffect m_buttonEffects[2];
-	class DSP* m_buttonDSPs[2] = { nullptr };
-	HoldObjectState* m_currentHoldEffects[2] = { nullptr };
-	float m_effectMix[2] = { 0.0f };
+	class DSP* m_buttonDSPs[2] = {nullptr};
+	HoldObjectState* m_currentHoldEffects[2] = {nullptr};
+	float m_effectMix[2] = {0.0f};
 };

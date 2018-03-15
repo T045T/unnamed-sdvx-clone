@@ -50,7 +50,8 @@ public:
 	// Draws the dark overlay behind the critical line
 	void DrawDarkTrack(RenderQueue& rq);
 	// Draw a centered sprite at pos, relative from the track
-	void DrawSprite(RenderQueue& rq, Vector3 pos, Vector2 size, Texture tex, Color color = Color::White, float tilt = 0.0f);
+	void DrawSprite(RenderQueue& rq, Vector3 pos, Vector2 size, Texture tex, Color color = Color::White,
+					float tilt = 0.0f);
 	void DrawCombo(RenderQueue& rq, uint32 score, Color color, float scale = 1.0f);
 
 	Vector3 TransformPoint(const Vector3& p);
@@ -70,9 +71,9 @@ public:
 	// Laser positions, as shown on the overlay
 	float laserPositions[2];
 	// Current lasers are extended
-	bool lasersAreExtend[2] = { false, false };
-	float laserPointerOpacity[2] = { 1.0f };
-	float laserAlertOpacity[2] = { 1.0f };
+	bool lasersAreExtend[2] = {false, false};
+	float laserPointerOpacity[2] = {1.0f};
+	float laserAlertOpacity[2] = {1.0f};
 
 	float laserSpeedOffset = 0.90;
 
@@ -115,7 +116,7 @@ public:
 	Texture scoreBarTexture;
 	Texture scoreHitTexture;
 	Texture laserPointerTexture;
-	Texture scoreHitTextures[3]; // Ok, Miss, Perfect
+	Texture scoreHitTextures[3];  // Ok, Miss, Perfect
 	Texture scoreTimeTextures[2]; // Early, Late
 	// Combo counter sprite sheet
 	Texture comboSpriteSheet;
@@ -137,7 +138,7 @@ public:
 
 private:
 	// Laser track generators
-	class LaserTrackBuilder* m_laserTrackBuilder[2] = { 0 };
+	class LaserTrackBuilder* m_laserTrackBuilder[2] = {0};
 
 	const TimingPoint* m_lastTimingPoint;
 
@@ -152,19 +153,19 @@ private:
 
 	MapTime m_lastMapTime = 0;
 
-	float m_alertTimer[2] = { 10.0f, 10.0f };
+	float m_alertTimer[2] = {10.0f, 10.0f};
 
 	// Camera variables Landscape, Portrait
-	float m_basePitch[2] = { -35.f, -47.f };
-	float m_baseRadius[2] = { 0.3f, 0.275f };
-	float m_pitchOffset[2] = { 0.05f, 0.265f }; // how far from the bottom of the screen should the crit line be
-	float m_fov[2] = { 70.f, 90.f };
+	float m_basePitch[2] = {-35.f, -47.f};
+	float m_baseRadius[2] = {0.3f, 0.275f};
+	float m_pitchOffset[2] = {0.05f, 0.265f}; // how far from the bottom of the screen should the crit line be
+	float m_fov[2] = {70.f, 90.f};
 
 
 	// How much the track is hidden. 1.0 = fully hidden, 0.0 = fully visible
 	float m_trackHide = 0.0f;
 	float m_trackHideSpeed = 0.0f;
-}; 
+};
 
 // Base class for sprite effects on the track
 struct TimedEffect
@@ -172,7 +173,12 @@ struct TimedEffect
 	TimedEffect(float duration);;
 	virtual ~TimedEffect() = default;
 	void Reset(float duration);
-	float GetRate() const { return time / duration; }
+
+	float GetRate() const
+	{
+		return time / duration;
+	}
+
 	virtual void Draw(class RenderQueue& rq) = 0;
 	virtual void Tick(float deltaTime);
 
@@ -190,6 +196,7 @@ struct ButtonHitEffect : public TimedEffect
 	uint32 buttonCode;
 	Color color;
 };
+
 // Button hit rating effect
 struct ButtonHitRatingEffect : public TimedEffect
 {

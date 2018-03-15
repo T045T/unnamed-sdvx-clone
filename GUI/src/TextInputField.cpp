@@ -25,7 +25,7 @@ void TextInputField::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	Rect inner = m_style->textfieldBorder.Apply(rd.area);
 	m_hovered = rd.OverlapTest(inner);
 
-	if(m_hovered)
+	if (m_hovered)
 		inputElement = this;
 
 	Rect inner1 = m_style->textfieldPadding.Apply(inner);
@@ -34,7 +34,7 @@ void TextInputField::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 
 	// Clip text to inner
 	m_cachedTextRect = Rect(Vector2(), LayoutBox::GetDesiredSize(rd));
-	if(m_cachedTextRect.size.x > m_cachedInnerRect.size.x)
+	if (m_cachedTextRect.size.x > m_cachedInnerRect.size.x)
 	{
 		m_cachedTextRect = GUISlotBase::ApplyAlignment(Vector2(1.0f, 0.0f), m_cachedTextRect, m_cachedInnerRect);
 		rd.area = m_cachedTextRect;
@@ -46,17 +46,18 @@ void TextInputField::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	}
 	LayoutBox::PreRender(rd, inputElement);
 }
+
 void TextInputField::Render(GUIRenderData rd)
 {
 	rd.guiRenderer->RenderButton(rd.area, HasInputFocus() ? m_style->textfieldHighlightTexture : m_style->textfieldTexture,
-		m_style->textfieldBorder, m_hovered ? Color::White : Color(0.7f));
+								m_style->textfieldBorder, m_hovered ? Color::White : Color(0.7f));
 
-	if(m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left))
+	if (m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left))
 	{
 		rd.guiRenderer->SetInputFocus(this);
 	}
 
-	if(HasInputFocus())
+	if (HasInputFocus())
 	{
 		const GUITextInput& input = rd.guiRenderer->GetTextInput();
 		WString newText = input.Apply(GetText());
@@ -98,7 +99,7 @@ Vector2 TextInputField::GetDesiredSize(GUIRenderData rd)
 	sizeOut += m_style->buttonBorder.GetSize() + m_style->buttonPadding.GetSize();
 
 	// Don't let horizontal size exceed the maximum area given
-	if(sizeOut.x > rd.area.size.x)
+	if (sizeOut.x > rd.area.size.x)
 		sizeOut.x = rd.area.size.x;
 
 	return sizeOut;
@@ -106,16 +107,18 @@ Vector2 TextInputField::GetDesiredSize(GUIRenderData rd)
 
 void TextInputField::SetText(const WString& newText)
 {
-	if(newText != text->GetText())
+	if (newText != text->GetText())
 	{
 		text->SetText(newText);
 		OnTextUpdated.Call(newText);
 	}
 }
+
 const WString& TextInputField::GetText() const
 {
 	return text->GetText();
 }
+
 void TextInputField::SetFontSize(int32 size)
 {
 	text->SetFontSize(size);

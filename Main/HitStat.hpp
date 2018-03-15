@@ -7,7 +7,8 @@ enum class ScoreHitRating
 	Miss = 0,
 	Good,
 	Perfect,
-	Idle, // Not actual score, used when a button is pressed when there are no notes
+	Idle,
+	// Not actual score, used when a button is pressed when there are no notes
 };
 
 

@@ -11,14 +11,20 @@ namespace Graphics
 	class ParticleSystemRes
 	{
 	public:
-		virtual ~ParticleSystemRes() = default;
 		static std::shared_ptr<ParticleSystemRes> Create(class OpenGL* gl);
-	public:
+
 		// Create a new emitter
-		virtual std::shared_ptr<ParticleEmitter> AddEmitter() = 0;
-		virtual void Render(const class RenderState& rs, float deltaTime) = 0;
+		std::shared_ptr<ParticleEmitter> add_emitter();
+		void render(const class RenderState& rs, float deltaTime);
 		// Removes all active particle systems
-		virtual void Reset() = 0;
+		void reset();
+
+		OpenGL* gl;
+
+	private:
+		friend ParticleEmitter;
+
+		Vector<std::shared_ptr<ParticleEmitter>> m_emitters;
 	};
 
 	typedef std::shared_ptr<ParticleSystemRes> ParticleSystem;

@@ -26,9 +26,9 @@ public:
 	void FadeTo(AudioStream stream)
 	{
 		// Already existing transition?
-		if(m_nextStream)
+		if (m_nextStream)
 		{
-			if(m_currentStream)
+			if (m_currentStream)
 			{
 				m_currentStream.Destroy();
 			}
@@ -36,26 +36,27 @@ public:
 		}
 		m_nextStream = stream;
 		m_nextSet = true;
-		if(m_nextStream)
+		if (m_nextStream)
 		{
 			m_nextStream->SetVolume(0.0f);
 			m_nextStream->Play();
 		}
 		m_fadeTimer = 0.0f;
 	}
+
 	void Update(float deltaTime)
 	{
-		if(m_nextSet)
+		if (m_nextSet)
 		{
 			m_fadeTimer += deltaTime;
-			if(m_fadeTimer >= m_fadeDuration)
+			if (m_fadeTimer >= m_fadeDuration)
 			{
-				if(m_currentStream)
+				if (m_currentStream)
 				{
 					m_currentStream.Destroy();
 				}
 				m_currentStream = m_nextStream;
-				if(m_currentStream)
+				if (m_currentStream)
 					m_currentStream->SetVolume(1.0f);
 				m_nextStream.Release();
 				m_nextSet = false;
@@ -64,25 +65,27 @@ public:
 			{
 				float fade = m_fadeTimer / m_fadeDuration;
 
-				if(m_currentStream)
+				if (m_currentStream)
 					m_currentStream->SetVolume(1.0f - fade);
-				if(m_nextStream)
+				if (m_nextStream)
 					m_nextStream->SetVolume(fade);
 			}
 		}
 	}
+
 	void Pause()
 	{
-		if(m_nextStream)
+		if (m_nextStream)
 			m_nextStream->Pause();
-		if(m_currentStream)
+		if (m_currentStream)
 			m_currentStream->Pause();
 	}
+
 	void Restore()
 	{
-		if(m_nextStream)
+		if (m_nextStream)
 			m_nextStream->Play();
-		if(m_currentStream)
+		if (m_currentStream)
 			m_currentStream->Play();
 	}
 
@@ -93,6 +96,7 @@ private:
 	AudioStream m_currentStream;
 	bool m_nextSet = false;
 };
+
 const float PreviewPlayer::m_fadeDuration = 0.5f;
 
 /*
@@ -118,32 +122,34 @@ class SelectionWheel : public Canvas
 	std::shared_ptr<SongSelectStyle> m_style;
 
 public:
-	SelectionWheel(std::shared_ptr<SongSelectStyle> style) : m_style(style)
-	{
-	}
+	SelectionWheel(std::shared_ptr<SongSelectStyle> style)
+		: m_style(style)
+	{ }
+
 	void OnMapsAdded(Vector<MapIndex*> maps)
 	{
-		for(auto m : maps)
+		for (auto m : maps)
 		{
 			SongSelectIndex index(m);
 			m_maps.Add(index.id, index);
 		}
-		if(!m_currentSelection)
+		if (!m_currentSelection)
 			AdvanceSelection(0);
 	}
+
 	void OnMapsRemoved(Vector<MapIndex*> maps)
 	{
-		for(auto m : maps)
+		for (auto m : maps)
 		{
 			// TODO(local): don't hard-code the id calc here, maybe make it a utility function?
 			SongSelectIndex index = m_maps.at(m->id * 10);
 			m_maps.erase(index.id);
 
 			auto it = m_guiElements.find(index.id);
-			if(it != m_guiElements.end())
+			if (it != m_guiElements.end())
 			{
 				// Clear selection if a removed item was selected
-				if(m_currentSelection == it->second)
+				if (m_currentSelection == it->second)
 					m_currentSelection.Release();
 
 				// Remove this item from the canvas that displays the items
@@ -151,29 +157,31 @@ public:
 				m_guiElements.erase(it);
 			}
 		}
-		if(!m_maps.Contains(m_currentlySelectedId))
+		if (!m_maps.Contains(m_currentlySelectedId))
 		{
 			AdvanceSelection(1);
 		}
 	}
+
 	void OnMapsUpdated(Vector<MapIndex*> maps)
 	{
-		for(auto m : maps)
+		for (auto m : maps)
 		{
 			// TODO(local): don't hard-code the id calc here, maybe make it a utility function?
 			SongSelectIndex index = m_maps.at(m->id * 10);
 
 			auto it = m_guiElements.find(index.id);
-			if(it != m_guiElements.end())
+			if (it != m_guiElements.end())
 			{
 				it->second->SetIndex(index.GetMap());
 			}
 		}
 	}
+
 	void OnMapsCleared(Map<int32, MapIndex*> newList)
 	{
 		m_currentSelection.Release();
-		for(auto g : m_guiElements)
+		for (auto g : m_guiElements)
 		{
 			Remove(g.second.As<GUIElementBase>());
 		}
@@ -186,7 +194,7 @@ public:
 			SongSelectIndex index(m.second);
 			m_maps.Add(index.id, index);
 		}
-		if(m_maps.size() > 0)
+		if (m_maps.size() > 0)
 		{
 			// Doing this here, before applying filters, causes our wheel to go
 			//  back to the top when a filter should be applied
@@ -195,21 +203,23 @@ public:
 			//AdvanceSelection(0);
 		}
 	}
+
 	void SelectRandom()
 	{
-		if(m_SourceCollection().empty())
+		if (m_SourceCollection().empty())
 			return;
 		uint32 selection = Random::IntRange(0, (int32)m_SourceCollection().size() - 1);
 		auto it = m_SourceCollection().begin();
 		std::advance(it, selection);
 		SelectMap(it->first);
 	}
+
 	void SelectMap(int32 newIndex)
 	{
 		Set<int32> visibleIndices;
 		auto& srcCollection = m_SourceCollection();
 		auto it = srcCollection.find(newIndex);
-		if(it != srcCollection.end())
+		if (it != srcCollection.end())
 		{
 			const float initialSpacing = 0.65f * m_style->frameMain->GetSize().y;
 			const float spacing = 0.8f * m_style->frameSub->GetSize().y;
@@ -218,17 +228,17 @@ public:
 			static const int32 numItems = 10;
 
 			int32 istart;
-			for(istart = 0; istart > -numItems;)
+			for (istart = 0; istart > -numItems;)
 			{
-				if(it == srcCollection.begin())
+				if (it == srcCollection.begin())
 					break;
 				it--;
 				istart--;
 			}
 
-			for(int32 i = istart; i <= numItems; i++)
+			for (int32 i = istart; i <= numItems; i++)
 			{
-				if(it != srcCollection.end())
+				if (it != srcCollection.end())
 				{
 					SongSelectIndex index = it->second;
 					int32 id = index.id;
@@ -239,7 +249,7 @@ public:
 					bool newItem = m_guiElements.find(id) == m_guiElements.end();
 					std::shared_ptr<SongSelectItem> item = m_GetMapGUIElement(index);
 					float offset = 0;
-					if(i != 0)
+					if (i != 0)
 					{
 						offset = initialSpacing * Math::Sign(i) +
 							spacing * (i - Math::Sign(i));
@@ -253,7 +263,7 @@ public:
 					slot->autoSizeX = true;
 					slot->autoSizeY = true;
 					slot->alignment = Vector2(0, 0.5f);
-					if(newItem)
+					if (newItem)
 					{
 						// Hard set target position
 						slot->offset.pos = Vector2(0, offset);
@@ -263,15 +273,15 @@ public:
 					{
 						// Animate towards target position
 						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<Vector2>(&slot->offset.pos, Vector2(0, offset), 0.1f)), true);
+												new GUIAnimation<Vector2>(&slot->offset.pos, Vector2(0, offset), 0.1f)), true);
 						item->AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<float>(&slot->offset.size.x, z * 50.0f, 0.1f)), true);
+												new GUIAnimation<float>(&slot->offset.size.x, z * 50.0f, 0.1f)), true);
 					}
 
 					item->fade = 1.0f - ((float)abs(i) / (float)numItems);
 					item->innerOffset = item->fade * 100.0f;
 
-					if(i == 0)
+					if (i == 0)
 					{
 						m_currentlySelectedId = newIndex;
 						m_OnMapSelected(index);
@@ -284,9 +294,9 @@ public:
 		m_currentlySelectedId = newIndex;
 
 		// Cleanup invisible elements
-		for(auto it = m_guiElements.begin(); it != m_guiElements.end();)
+		for (auto it = m_guiElements.begin(); it != m_guiElements.end();)
 		{
-			if(!visibleIndices.Contains(it->first))
+			if (!visibleIndices.Contains(it->first))
 			{
 				Remove(it->second.As<GUIElementBase>());
 				it = m_guiElements.erase(it);
@@ -295,13 +305,14 @@ public:
 			it++;
 		}
 	}
+
 	void AdvanceSelection(int32 offset)
 	{
 		auto& srcCollection = m_SourceCollection();
 		auto it = srcCollection.find(m_currentlySelectedId);
-		if(it == srcCollection.end())
+		if (it == srcCollection.end())
 		{
-			if(srcCollection.empty())
+			if (srcCollection.empty())
 			{
 				// Remove all elements, empty
 				m_currentSelection.Release();
@@ -311,26 +322,27 @@ public:
 			}
 			it = srcCollection.begin();
 		}
-		for(uint32 i = 0; i < (uint32)abs(offset); i++)
+		for (uint32 i = 0; i < (uint32)abs(offset); i++)
 		{
 			auto itn = it;
-			if(offset < 0)
+			if (offset < 0)
 			{
-				if(itn == srcCollection.begin())
+				if (itn == srcCollection.begin())
 					break;
 				itn--;
 			}
 			else
 				itn++;
-			if(itn == srcCollection.end())
+			if (itn == srcCollection.end())
 				break;
 			it = itn;
 		}
-		if(it != srcCollection.end())
+		if (it != srcCollection.end())
 		{
 			SelectMap(it->first);
 		}
 	}
+
 	void SelectDifficulty(int32 newDiff)
 	{
 		m_currentSelection->SetSelectedDifficulty(newDiff);
@@ -338,14 +350,15 @@ public:
 
 		Map<int32, SongSelectIndex> maps = m_SourceCollection();
 		SongSelectIndex* map = maps.Find(m_currentlySelectedId);
-		if(map)
+		if (map)
 		{
 			OnDifficultySelected.Call(map[0].GetDifficulties()[m_currentlySelectedDiff]);
 		}
 	}
+
 	void AdvanceDifficultySelection(int32 offset)
 	{
-		if(!m_currentSelection)
+		if (!m_currentSelection)
 			return;
 		Map<int32, SongSelectIndex> maps = m_SourceCollection();
 		SongSelectIndex map = maps[m_currentlySelectedId];
@@ -370,6 +383,7 @@ public:
 		m_filterSet = true;
 		AdvanceSelection(0);
 	}
+
 	void SetFilter(SongFilter* filter[2])
 	{
 		bool isFiltered = false;
@@ -385,9 +399,10 @@ public:
 		m_filterSet = isFiltered;
 		AdvanceSelection(0);
 	}
+
 	void ClearFilter()
 	{
-		if(m_filterSet)
+		if (m_filterSet)
 		{
 			m_filterSet = false;
 			AdvanceSelection(0);
@@ -397,14 +412,15 @@ public:
 	MapIndex* GetSelection() const
 	{
 		SongSelectIndex const* map = m_SourceCollection().Find(m_currentlySelectedId);
-		if(map)
+		if (map)
 			return map->GetMap();
 		return nullptr;
 	}
+
 	DifficultyIndex* GetSelectedDifficulty() const
 	{
 		SongSelectIndex const* map = m_SourceCollection().Find(m_currentlySelectedId);
-		if(map)
+		if (map)
 			return map->GetDifficulties()[m_currentlySelectedDiff];
 		return nullptr;
 	}
@@ -414,10 +430,11 @@ private:
 	{
 		return m_filterSet ? m_mapFilter : m_maps;
 	}
+
 	std::shared_ptr<SongSelectItem> m_GetMapGUIElement(SongSelectIndex index)
 	{
 		auto it = m_guiElements.find(index.id);
-		if(it != m_guiElements.end())
+		if (it != m_guiElements.end())
 			return it->second;
 
 		std::shared_ptr<SongSelectItem> newItem = std::shared_ptr<SongSelectItem>(new SongSelectItem(m_style));
@@ -428,11 +445,12 @@ private:
 		m_guiElements.Add(index.id, newItem);
 		return newItem;
 	}
+
 	// TODO(local): pretty sure this should be m_OnIndexSelected, and we should filter a call to OnMapSelected
 	void m_OnMapSelected(SongSelectIndex index)
 	{
 		// Update compact mode selection views
-		if(m_currentSelection)
+		if (m_currentSelection)
 			m_currentSelection->SwitchCompact(true);
 		m_currentSelection = m_guiElements[index.id];
 		m_currentSelection->SwitchCompact(false);
@@ -442,7 +460,7 @@ private:
 
 		// Clamp diff selection
 		int32 selectDiff = m_currentlySelectedDiff;
-		if(m_currentlySelectedDiff >= (int32)index.GetDifficulties().size())
+		if (m_currentlySelectedDiff >= (int32)index.GetDifficulties().size())
 		{
 			selectDiff = (int32)index.GetDifficulties().size() - 1;
 		}
@@ -459,7 +477,8 @@ private:
 class FilterSelection : public Canvas
 {
 public:
-	FilterSelection(std::shared_ptr<SelectionWheel> selectionWheel) : m_selectionWheel(selectionWheel)
+	FilterSelection(std::shared_ptr<SelectionWheel> selectionWheel)
+		: m_selectionWheel(selectionWheel)
 	{
 		SongFilter* lvFilter = new SongFilter();
 		SongFilter* flFilter = new SongFilter();
@@ -536,7 +555,7 @@ public:
 				coordinate.x -= ((int)m_currentFolderSelection - i) * ((int)m_currentFolderSelection - i) * 1.5;
 				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
 				AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
+								new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
 		}
@@ -551,7 +570,7 @@ public:
 				coordinate.x -= ((int)m_currentLevelSelection - i) * ((int)m_currentLevelSelection - i) * 1.5;
 				Canvas::Slot* labelSlot = Add(m_guiElements[songFilter]->MakeShared());
 				AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
+								new GUIAnimation<Vector2>(&labelSlot->offset.pos, coordinate, 0.1f)), true);
 				labelSlot->offset = Rect(coordinate, Vector2(0));
 			}
 		}
@@ -584,7 +603,7 @@ public:
 		for (String p : Path::GetSubDirs(g_gameConfig.GetString(GameConfigKeys::SongFolder)))
 		{
 			SongFilter* filter = new FolderFilter(p, m_mapDB);
-			if(filter->GetFiltered(Map<int32, SongSelectIndex>()).size() > 0)
+			if (filter->GetFiltered(Map<int32, SongSelectIndex>()).size() > 0)
 				AddFilter(filter, FilterType::Folder);
 		}
 	}
@@ -621,7 +640,7 @@ private:
 	int32 m_currentLevelSelection = 0;
 	bool m_selectingFolders = true;
 	Map<SongFilter*, Label*> m_guiElements;
-	SongFilter* m_currentFilters[2] = { nullptr };
+	SongFilter* m_currentFilters[2] = {nullptr};
 	MapDatabase* m_mapDB;
 };
 
@@ -648,7 +667,7 @@ private:
 	std::shared_ptr<TextInputField> m_searchField;
 	// Panel to fade out selection wheel
 	std::shared_ptr<Panel> m_fadePanel;
-	
+
 	std::shared_ptr<Label> m_filterStatus;
 
 	// Score list canvas
@@ -691,9 +710,9 @@ public:
 		statisticsSlot->anchor = Anchor(0, 0, screenSplit, 1.0f);
 		statisticsSlot->SetZOrder(2);
 
-        // Set up input
+		// Set up input
 		g_input.OnButtonPressed.Add(this, &SongSelect_Impl::m_OnButtonPressed);
-        
+
 		Panel* background = new Panel();
 		background->imageFillMode = FillMode::Fill;
 		background->texture = g_application->LoadTexture("bg.png");
@@ -722,9 +741,6 @@ public:
 			selectionSlot->fillY = true;
 			m_selectionWheel->OnMapSelected.Add(this, &SongSelect_Impl::OnMapSelected);
 			m_selectionWheel->OnDifficultySelected.Add(this, &SongSelect_Impl::OnDifficultySelected);
-
-
-			
 		}
 
 		{
@@ -738,7 +754,7 @@ public:
 		{
 			m_scoreCanvas = std::shared_ptr<Canvas>(new Canvas());
 			Canvas::Slot* slot = m_canvas->Add(m_scoreCanvas->MakeShared());
-			slot->anchor = Anchor(1.0,0.0,2.0,10.0);
+			slot->anchor = Anchor(1.0, 0.0, 2.0, 10.0);
 
 			Panel* scoreBg = new Panel();
 			scoreBg->color = Color(Vector3(0.5), 1.0);
@@ -777,6 +793,7 @@ public:
 
 		return true;
 	}
+
 	~SongSelect_Impl()
 	{
 		// Clear callbacks
@@ -787,10 +804,14 @@ public:
 	// When a map is selected in the song wheel
 	void OnMapSelected(MapIndex* map)
 	{
-		if (map == m_currentPreviewAudio){
-			if (m_previewDelayTicks){
+		if (map == m_currentPreviewAudio)
+		{
+			if (m_previewDelayTicks)
+			{
 				--m_previewDelayTicks;
-			}else if (!m_previewLoaded){
+			}
+			else if (!m_previewLoaded)
+			{
 				// Set current preview audio
 				DifficultyIndex* previewDiff = m_currentPreviewAudio->difficulties[0];
 				String audioPath = m_currentPreviewAudio->path + Path::sep + previewDiff->settings.audioNoFX;
@@ -809,13 +830,16 @@ public:
 				m_previewLoaded = true;
 				// m_previewPlayer.Restore();
 			}
-		} else{
+		}
+		else
+		{
 			// Wait at least 15 ticks before attempting to load song to prevent loading songs while scrolling very fast
 			m_previewDelayTicks = 15;
 			m_currentPreviewAudio = map;
 			m_previewLoaded = false;
 		}
 	}
+
 	// When a difficulty is selected in the song wheel
 	void OnDifficultySelected(DifficultyIndex* diff)
 	{
@@ -829,23 +853,21 @@ public:
 			WString grade = Utility::ConvertToWString(Scoring::CalculateGrade(s.score));
 
 			Label* text = new Label();
-			text->SetText(Utility::WSprintf(L"--%d--\n%08d\n%d%%\n%ls",place, s.score, (int)(s.gauge * 100), grade));
+			text->SetText(Utility::WSprintf(L"--%d--\n%08d\n%d%%\n%ls", place, s.score, (int)(s.gauge * 100), grade));
 			text->SetFontSize(32);
 			LayoutBox::Slot* slot = m_scoreList->Add(text->MakeShared());
 			slot->fillX = true;
 			slot->padding = Margin(10, 5, 0, 0);
-			
+
 			if (place++ > 9)
 				break;
 		}
-
-
 	}
 
 	/// TODO: Fix some conflicts between search field and filter selection
 	void OnSearchTermChanged(const WString& search)
 	{
-		if(search.empty())
+		if (search.empty())
 			m_filterSelection->AdvanceSelection(0);
 		else
 		{
@@ -854,17 +876,18 @@ public:
 			m_selectionWheel->SetFilter(filter);
 		}
 	}
-    
 
-    void m_OnButtonPressed(Input::Button buttonCode)
-    {
+
+	void m_OnButtonPressed(Input::Button buttonCode)
+	{
 		if (m_suspended)
 			return;
-		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::ButtonInputDevice) == InputDevice::Keyboard && m_searchField->HasInputFocus())
+		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::ButtonInputDevice) == InputDevice::Keyboard &&
+			m_searchField->HasInputFocus())
 			return;
 
-	    if(buttonCode == Input::Button::BT_S && !m_filterSelection->Active && !IsSuspended())
-        {
+		if (buttonCode == Input::Button::BT_S && !m_filterSelection->Active && !IsSuspended())
+		{
 			// NOTE(local): if filter selection is active, back doesn't work.
 			// For now that sounds right, but maybe it shouldn't matter
 			if (g_input.Are3BTsHeld())
@@ -893,8 +916,8 @@ public:
 					g_application->AddTickable(transistion);
 				}
 			}
-        }
-		else    
+		}
+		else
 		{
 			List<SongFilter*> filters;
 			switch (buttonCode)
@@ -903,13 +926,13 @@ public:
 				if (!m_showScores)
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				else
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				break;
@@ -919,21 +942,21 @@ public:
 					g_guiRenderer->SetInputFocus(nullptr);
 
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)),true);
+												new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				else
 				{
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+												new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
 					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)),true);
+												new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				break;
@@ -943,9 +966,8 @@ public:
 			default:
 				break;
 			}
-
 		}
-    }
+	}
 
 	virtual void OnKeyPressed(int32 key)
 	{
@@ -954,7 +976,6 @@ public:
 			if (key == SDLK_DOWN)
 			{
 				m_filterSelection->AdvanceSelection(1);
-
 			}
 			else if (key == SDLK_UP)
 			{
@@ -963,11 +984,11 @@ public:
 			else if (key == SDLK_ESCAPE)
 			{
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+											new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+											new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
 				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
+											new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 				m_filterSelection->Active = !m_filterSelection->Active;
 			}
 		}
@@ -1019,57 +1040,57 @@ public:
 			}
 		}
 	}
+
 	virtual void OnKeyReleased(int32 key)
-	{
-		
-	}
+	{ }
+
 	virtual void Tick(float deltaTime) override
 	{
-		if(m_dbUpdateTimer.Milliseconds() > 500)
+		if (m_dbUpdateTimer.Milliseconds() > 500)
 		{
 			m_mapDatabase.Update();
 			m_dbUpdateTimer.Restart();
 		}
-        
+
 		m_filterStatus->SetText(Utility::ConvertToWString(m_filterSelection->GetStatusText()));
 
-        // Tick navigation
+		// Tick navigation
 		if (!IsSuspended())
-            TickNavigation(deltaTime);
+			TickNavigation(deltaTime);
 
 		// Ugly hack to get previews working with the delaty
 		/// TODO: Move the ticking of the fade timer or whatever outside of onsongselected
 		OnMapSelected(m_currentPreviewAudio);
 
-
 		// Background
 		m_previewPlayer.Update(deltaTime);
 	}
 
-    void TickNavigation(float deltaTime)
-    {
+	void TickNavigation(float deltaTime)
+	{
 		// Lock mouse to screen when active 
-		if(g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) == InputDevice::Mouse && g_gameWindow->IsActive())
+		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) == InputDevice::Mouse && g_gameWindow->
+			IsActive())
 		{
-			if(!m_lockMouse)
+			if (!m_lockMouse)
 				m_lockMouse = g_input.LockMouse();
-		    //g_gameWindow->SetCursorVisible(false);
+			//g_gameWindow->SetCursorVisible(false);
 		}
 		else
 		{
-			if(m_lockMouse)
+			if (m_lockMouse)
 				m_lockMouse.Release();
 			g_gameWindow->SetCursorVisible(true);
 		}
-		
-        // Song navigation using laser inputs
+
+		// Song navigation using laser inputs
 		/// TODO: Investigate strange behaviour further and clean up.
 
-        float diff_input = g_input.GetInputLaserDir(0);
-        float song_input = g_input.GetInputLaserDir(1);
-        
-        m_advanceDiff += diff_input;
-        m_advanceSong += song_input;
+		float diff_input = g_input.GetInputLaserDir(0);
+		float song_input = g_input.GetInputLaserDir(1);
+
+		m_advanceDiff += diff_input;
+		m_advanceSong += song_input;
 
 		int advanceDiffActual = (int)Math::Floor(m_advanceDiff * Math::Sign(m_advanceDiff)) * Math::Sign(m_advanceDiff);;
 		int advanceSongActual = (int)Math::Floor(m_advanceSong * Math::Sign(m_advanceSong)) * Math::Sign(m_advanceSong);;
@@ -1088,10 +1109,10 @@ public:
 			if (advanceSongActual != 0)
 				m_filterSelection->AdvanceSelection(advanceSongActual);
 		}
-        
+
 		m_advanceDiff -= advanceDiffActual;
-        m_advanceSong -= advanceSongActual;
-    }
+		m_advanceSong -= advanceSongActual;
+	}
 
 	virtual void OnSuspend()
 	{
@@ -1103,6 +1124,7 @@ public:
 
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		m_suspended = false;
@@ -1110,7 +1132,7 @@ public:
 		m_mapDatabase.StartSearching();
 
 		OnSearchTermChanged(m_searchField->GetText());
-		
+
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
 		slot->anchor = Anchors::Full;
 	}

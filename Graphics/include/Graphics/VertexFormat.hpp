@@ -23,7 +23,7 @@ namespace Graphics
 	struct VertexFormats
 	{
 		// Vector formats
-		template<typename VT, size_t N>
+		template <typename VT, size_t N>
 		static void AddFormat(VertexFormatList& dsc, VectorMath::VectorBase<VT, N> dummy)
 		{
 			VertexFormatDesc d;
@@ -33,8 +33,9 @@ namespace Graphics
 			d.isSigned = std::is_signed<VT>::value;
 			dsc.push_back(d);
 		}
+
 		// Integer and float formats
-		template<typename K>
+		template <typename K>
 		static void AddFormat(VertexFormatList& dsc, K dummy)
 		{
 			VertexFormatDesc d;
@@ -45,7 +46,7 @@ namespace Graphics
 			dsc.push_back(d);
 		}
 
-		template<size_t left, typename TFirst, typename... TRest>
+		template <size_t left, typename TFirst, typename... TRest>
 		static void AddFormats(VertexFormatList& dsc)
 		{
 			AddFormat(dsc, TFirst());
@@ -53,7 +54,8 @@ namespace Graphics
 		}
 	};
 
-	template<> void VertexFormats::AddFormats<0, void>(VertexFormatList& dsc);
+	template <>
+	void VertexFormats::AddFormats<0, void>(VertexFormatList& dsc);
 
 	/*
 		Structure that generates a vertex format layout based on a variadic template argument list
@@ -69,7 +71,7 @@ namespace Graphics
 
 		this adds a fuction Verts::GetDescriptors() which returns an array of VertexFormatDesc
 	*/
-	template<typename... T>
+	template <typename... T>
 	struct VertexFormat
 	{
 		static Vector<VertexFormatDesc> GetDescriptors()
@@ -78,8 +80,7 @@ namespace Graphics
 			VertexFormats::AddFormats<sizeof...(T), T..., void>(res);
 			return res;
 		}
+
 	private:
-		
 	};
-	
 }

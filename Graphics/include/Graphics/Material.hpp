@@ -11,7 +11,7 @@ namespace Graphics
 		CopyableBuffer parameterData;
 		uint32 parameterType;
 
-		template<typename T>
+		template <typename T>
 		static MaterialParameter Create(const T& obj, uint32 type)
 		{
 			MaterialParameter r;
@@ -19,13 +19,15 @@ namespace Graphics
 			r.parameterType = type;
 			return r;
 		}
-		template<typename T>
+
+		template <typename T>
 		void Bind(const T& obj)
 		{
 			parameterData.resize(sizeof(T));
 			memcpy(parameterData.data(), &obj, sizeof(T));
 		}
-		template<typename T>
+
+		template <typename T>
 		const T& Get()
 		{
 			assert(sizeof(T) == parameterData.size());
@@ -34,9 +36,9 @@ namespace Graphics
 
 		bool operator==(const MaterialParameter& other) const
 		{
-			if(parameterType != other.parameterType)
+			if (parameterType != other.parameterType)
 				return false;
-			if(parameterData.size() != other.parameterData.size())
+			if (parameterData.size() != other.parameterData.size())
 				return false;
 			return memcmp(parameterData.data(), other.parameterData.data(), parameterData.size()) == 0;
 		}
@@ -55,7 +57,7 @@ namespace Graphics
 		void SetParameter(const String& name, const Vector4& vec);
 		void SetParameter(const String& name, const Colori& color);
 		void SetParameter(const String& name, const Vector2& vec2);
-		void SetParameter(const String & name, const Vector3 & vec3);
+		void SetParameter(const String& name, const Vector3& vec3);
 		void SetParameter(const String& name, const Vector2i& vec2);
 		void SetParameter(const String& name, const Transform& tf);
 		void SetParameter(const String& name, std::shared_ptr<class TextureRes> tex);

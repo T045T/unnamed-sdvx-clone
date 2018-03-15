@@ -21,7 +21,7 @@ public:
 		BT_3,
 		FX_0,
 		FX_1,
-        BT_S, //Start Button
+		BT_S,    //Start Button
 		LS_0Neg, // Left laser- 
 		LS_0Pos, // Left laser+		(|---->)
 		LS_1Neg, // Right laser-	(<----|)
@@ -72,9 +72,9 @@ private:
 	InputDevice m_buttonDevice;
 
 	bool m_buttonStates[(size_t)Button::Length];
-	float m_laserStates[2] = { 0.0f };
-	float m_rawKeyLaserStates[2] = { 0.0f };
-	float m_prevLaserStates[2] = { 0.0f };
+	float m_laserStates[2] = {0.0f};
+	float m_rawKeyLaserStates[2] = {0.0f};
+	float m_prevLaserStates[2] = {0.0f};
 
 	// Keyboard bindings
 	Multimap<int32, Button> m_buttonMap;
@@ -82,14 +82,14 @@ private:
 	float m_keyLaserReleaseTime;
 
 	// Mouse bindings
-	uint32 m_mouseAxisMapping[2] = { 0,1 };
+	uint32 m_mouseAxisMapping[2] = {0, 1};
 	float m_mouseSensitivity;
 	int32 m_lastMousePos[2];
 	int32 m_mousePos[2];
 
 	// Controller bindings
 	Multimap<uint32, Button> m_controllerMap;
-	uint32 m_controllerAxisMapping[2] = { 0,1 };
+	uint32 m_controllerAxisMapping[2] = {0, 1};
 	float m_controllerSensitivity;
 	float m_controllerDeadzone;
 

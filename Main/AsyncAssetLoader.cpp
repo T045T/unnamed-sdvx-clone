@@ -6,69 +6,88 @@ struct AsyncLoadOperation : public IAsyncLoadable
 {
 	String name;
 };
+
 struct AsyncTextureLoadOperation : public AsyncLoadOperation
 {
 	Texture& target;
 	Image image;
-	AsyncTextureLoadOperation(Texture& target, const String& path) : target(target)
+
+	AsyncTextureLoadOperation(Texture& target, const String& path)
+		: target(target)
 	{
 		name = path;
 	}
+
 	bool AsyncLoad()
 	{
 		image = g_application->LoadImage(name);
 		return image.IsValid();
 	}
+
 	bool AsyncFinalize()
 	{
 		target = TextureRes::Create(g_gl, image);
 		return target.IsValid();
 	}
 };
+
 struct AsyncMeshLoadOperation : public AsyncLoadOperation
 {
 	Mesh& target;
-	AsyncMeshLoadOperation(Mesh& target, const String& path) : target(target)
-	{
-	}
+
+	AsyncMeshLoadOperation(Mesh& target, const String& path)
+		: target(target)
+	{ }
+
 	bool AsyncLoad()
 	{
 		/// TODO: No mesh loading yet
 		return false;
 	}
+
 	bool AsyncFinalize()
 	{
 		/// TODO: No mesh loading yet
 		return false;
 	}
-}; 
+};
+
 struct AsyncMaterialLoadOperation : public AsyncLoadOperation
 {
 	Material& target;
-	AsyncMaterialLoadOperation(Material& target, const String& path) : target(target)
+
+	AsyncMaterialLoadOperation(Material& target, const String& path)
+		: target(target)
 	{
 		name = path;
 	}
+
 	bool AsyncLoad()
 	{
 		return true;
 	}
+
 	bool AsyncFinalize()
 	{
 		return (target = g_application->LoadMaterial(name)).IsValid();
 	}
 };
+
 struct AsyncWrapperOperation : public AsyncLoadOperation
 {
 	IAsyncLoadable& target;
-	AsyncWrapperOperation(IAsyncLoadable& target, const String& name) : target(target)
+
+	AsyncWrapperOperation(IAsyncLoadable& target, const String& name)
+		: target(target)
 	{
 		this->name = name;
 	}
+
 	bool AsyncLoad()
 	{
 		return target.AsyncLoad();
 	}
+
 	bool AsyncFinalize()
 	{
 		return target.AsyncFinalize();
@@ -79,9 +98,10 @@ class AsyncAssetLoader_Impl
 {
 public:
 	Vector<AsyncLoadOperation*> loadables;
+
 	~AsyncAssetLoader_Impl()
 	{
-		for(auto& loadable : loadables)
+		for (auto& loadable : loadables)
 		{
 			delete loadable;
 		}
@@ -92,6 +112,7 @@ AsyncAssetLoader::AsyncAssetLoader()
 {
 	m_impl = new AsyncAssetLoader_Impl();
 }
+
 AsyncAssetLoader::~AsyncAssetLoader()
 {
 	delete m_impl;
@@ -101,14 +122,17 @@ void AsyncAssetLoader::AddTexture(Texture& out, const String& path)
 {
 	m_impl->loadables.Add(new AsyncTextureLoadOperation(out, path));
 }
+
 void AsyncAssetLoader::AddMesh(Mesh& out, const String& path)
 {
 	m_impl->loadables.Add(new AsyncMeshLoadOperation(out, path));
 }
+
 void AsyncAssetLoader::AddMaterial(Material& out, const String& path)
 {
 	m_impl->loadables.Add(new AsyncMaterialLoadOperation(out, path));
 }
+
 void AsyncAssetLoader::AddLoadable(IAsyncLoadable& loadable, const String& id /*= "unknown"*/)
 {
 	m_impl->loadables.Add(new AsyncWrapperOperation(loadable, id));
@@ -117,9 +141,9 @@ void AsyncAssetLoader::AddLoadable(IAsyncLoadable& loadable, const String& id /*
 bool AsyncAssetLoader::Load()
 {
 	bool success = true;
-	for(auto& ld : m_impl->loadables)
+	for (auto& ld : m_impl->loadables)
 	{
-		if(!ld->AsyncLoad())
+		if (!ld->AsyncLoad())
 		{
 			Logf("[AsyncLoad] Load failed on %s", Logger::Error, ld->name);
 			success = false;
@@ -127,12 +151,13 @@ bool AsyncAssetLoader::Load()
 	}
 	return success;
 }
+
 bool AsyncAssetLoader::Finalize()
 {
 	bool success = true;
-	for(auto& ld : m_impl->loadables)
+	for (auto& ld : m_impl->loadables)
 	{
-		if(!ld->AsyncFinalize())
+		if (!ld->AsyncFinalize())
 		{
 			Logf("[AsyncLoad] Finalize failed on %s", Logger::Error, ld->name);
 			success = false;

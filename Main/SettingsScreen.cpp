@@ -34,9 +34,9 @@ private:
 	std::shared_ptr<SettingsBar> m_settings;
 	SettingBarSetting* m_sensSetting;
 
-	Vector<String> m_speedMods = { "XMod", "MMod", "CMod" };
-	Vector<String> m_laserModes = { "Keyboard", "Mouse", "Controller" };
-	Vector<String> m_buttonModes = { "Keyboard", "Controller" };
+	Vector<String> m_speedMods = {"XMod", "MMod", "CMod"};
+	Vector<String> m_laserModes = {"Keyboard", "Mouse", "Controller"};
+	Vector<String> m_buttonModes = {"Keyboard", "Controller"};
 	Vector<String> m_gamePads;
 	Vector<String> m_skins;
 
@@ -88,7 +88,7 @@ private:
 	float m_hispeed = 1.f;
 	float m_laserSens = 1.0f;
 	float m_masterVolume = 1.0f;
-	float m_laserColors[2] = { 0.25f, 0.75f };
+	float m_laserColors[2] = {0.25f, 0.75f};
 
 	//TODO: Use argument instead of many functions if possible.
 	void SetKey_BTA()
@@ -98,6 +98,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT0));
 	}
+
 	void SetKey_BTB()
 	{
 		if (m_buttonMode == 1)
@@ -105,6 +106,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT1));
 	}
+
 	void SetKey_BTC()
 	{
 		if (m_buttonMode == 1)
@@ -112,6 +114,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT2));
 	}
+
 	void SetKey_BTD()
 	{
 		if (m_buttonMode == 1)
@@ -119,6 +122,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_BT3));
 	}
+
 	void SetKey_FXL()
 	{
 		if (m_buttonMode == 1)
@@ -126,6 +130,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_FX0));
 	}
+
 	void SetKey_FXR()
 	{
 		if (m_buttonMode == 1)
@@ -133,6 +138,7 @@ private:
 		else
 			g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Key_FX1));
 	}
+
 	void SetKey_ST()
 	{
 		if (m_buttonMode == 1)
@@ -143,11 +149,14 @@ private:
 
 	void SetLL()
 	{
-		g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser0Axis, m_laserMode == 2, m_selectedGamepad));
+		g_application->AddTickable(
+			ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser0Axis, m_laserMode == 2, m_selectedGamepad));
 	}
+
 	void SetRL()
 	{
-		g_application->AddTickable(ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser1Axis, m_laserMode == 2, m_selectedGamepad));
+		g_application->AddTickable(
+			ButtonBindingScreen::Create(GameConfigKeys::Controller_Laser1Axis, m_laserMode == 2, m_selectedGamepad));
 	}
 
 	void CalibrateSens()
@@ -165,11 +174,11 @@ private:
 	void Exit()
 	{
 		Map<String, InputDevice> inputModeMap = {
-			{ "Keyboard", InputDevice::Keyboard },
-			{ "Mouse", InputDevice::Mouse },
-			{ "Controller", InputDevice::Controller },
+			{"Keyboard", InputDevice::Keyboard},
+			{"Mouse", InputDevice::Mouse},
+			{"Controller", InputDevice::Controller},
 		};
-		
+
 		g_gameConfig.SetEnum<Enum_InputDevice>(GameConfigKeys::ButtonInputDevice, inputModeMap[m_buttonModes[m_buttonMode]]);
 		g_gameConfig.SetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice, inputModeMap[m_laserModes[m_laserMode]]);
 
@@ -179,7 +188,7 @@ private:
 		g_gameConfig.Set(GameConfigKeys::Laser0Color, m_laserColors[0]);
 		g_gameConfig.Set(GameConfigKeys::Laser1Color, m_laserColors[1]);
 		g_gameConfig.Set(GameConfigKeys::Controller_DeviceID, m_selectedGamepad);
-		if(m_skins.size() > 0)
+		if (m_skins.size() > 0)
 			g_gameConfig.Set(GameConfigKeys::Skin, m_skins[m_selectedSkin]);
 
 		switch (inputModeMap[m_laserModes[m_laserMode]])
@@ -272,7 +281,6 @@ public:
 		else
 			m_selectedSkin = skinSearch - m_skins.begin();
 
-
 		//Options select
 		ScrollBox* scroller = new ScrollBox(m_guiStyle);
 
@@ -281,7 +289,7 @@ public:
 		slot->anchor = Anchor(0.1f, 0.f, 0.9f, 1.f);
 		//slot->autoSizeX = true;
 		//slot->alignment = Vector2(0.5, 0.0);
-		
+
 		LayoutBox* box = new LayoutBox();
 		box->layoutDirection = LayoutBox::Vertical;
 		scroller->SetContent(box->MakeShared());
@@ -300,7 +308,6 @@ public:
 				btnSlot = stBox->Add(stBtn->MakeShared());
 				btnSlot->padding = Margin(2);
 				btnSlot->padding = Margin(60.f, 2.f);
-
 			}
 			{
 				Button* stBtn = new Button(m_guiStyle);
@@ -322,7 +329,6 @@ public:
 				btnSlot->padding = Margin(2);
 				btnSlot->alignment = Vector2(1.f, 0.f);
 				btnSlot->padding = Margin(60.f, 2.f);
-
 			}
 			LayoutBox::Slot* stSlot = box->Add(stBox->MakeShared());
 			stSlot->alignment = Vector2(0.5f, 0.f);
@@ -387,7 +393,7 @@ public:
 				fxlBtn->SetText(L"FX-L");
 				fxlBtn->SetFontSize(32);
 				btnSlot = fxBox->Add(fxlBtn->MakeShared());
-				btnSlot->padding = Margin(20.f,2.f);
+				btnSlot->padding = Margin(20.f, 2.f);
 				btnSlot->fillX = true;
 				btnSlot->alignment = Vector2(0.25f, 0.f);
 			}
@@ -407,7 +413,7 @@ public:
 		}
 
 		// Laser sens calibration button
-		if(g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) != InputDevice::Keyboard)
+		if (g_gameConfig.GetEnum<Enum_InputDevice>(GameConfigKeys::LaserInputDevice) != InputDevice::Keyboard)
 		{
 			Button* calButton = new Button(m_guiStyle);
 			calButton->OnPressed.Add(this, &SettingsScreen_Impl::CalibrateSens);
@@ -420,7 +426,7 @@ public:
 		// Setting bar
 		{
 			SettingsBar* sb = new SettingsBar(m_guiStyle);
-			
+
 			m_settings = std::shared_ptr<SettingsBar>(sb);
 
 			sb->AddSetting(&m_masterVolume, 0.f, 1.0f, "Master Volume");
@@ -433,13 +439,11 @@ public:
 			if (m_gamePads.size() > 0)
 			{
 				sb->AddSetting(&m_selectedGamepad, m_gamePads, m_gamePads.size(), "Selected Controller");
-
 			}
 			if (m_skins.size() > 0)
 				sb->AddSetting(&m_selectedSkin, m_skins, m_skins.size(), "Selected Skin");
 			sb->AddSetting(m_laserColors, 0.0, 360.0f, "Left Laser Color");
 			sb->AddSetting(m_laserColors + 1, 0.0, 360.0f, "Right Laser Color");
-
 
 			LayoutBox::Slot* slot = box->Add(sb->MakeShared());
 			slot->fillX = true;
@@ -452,7 +456,6 @@ public:
 			laserColorLabel->SetFontSize(20);
 			box->Add(laserColorLabel->MakeShared());
 
-
 			// Make white square texture
 			m_whiteTex = TextureRes::Create(g_gl);
 			m_whiteTex->Init(Vector2i(50, 50), Graphics::TextureFormat::RGBA8);
@@ -461,7 +464,7 @@ public:
 
 			for (size_t i = 0; i < 2500; i++)
 			{
-				pixels[i] = Colori(255,255,255,255);
+				pixels[i] = Colori(255, 255, 255, 255);
 			}
 
 			m_whiteTex->SetData(Vector2i(50, 50), pixels);
@@ -474,7 +477,6 @@ public:
 				m_laserColorPanels[0] = lpanel;
 				lpanel->texture = m_whiteTex;
 				LayoutBox::Slot* lslot = colorBox->Add(lpanel->MakeShared());
-
 			}
 
 			{
@@ -483,14 +485,11 @@ public:
 				rpanel->texture = m_whiteTex;
 				LayoutBox::Slot* rslot = colorBox->Add(rpanel->MakeShared());
 				rslot->padding = Margin(20, 0);
-
 			}
 			LayoutBox::Slot* slot = box->Add(colorBox->MakeShared());
 			slot->fillX = true;
 			slot->fillY = true;
-
 		}
-
 
 		Button* exitBtn = new Button(m_guiStyle);
 		exitBtn->OnPressed.Add(this, &SettingsScreen_Impl::Exit);
@@ -525,15 +524,13 @@ public:
 			else
 			{
 				m_laserButtons[i]->SetText(Utility::WSprintf(
-					L"%ls/%ls", 
+					L"%ls/%ls",
 					Utility::ConvertToWString(SDL_GetKeyName(g_gameConfig.GetInt(m_keyboardLaserKeys[i * 2]))),
 					Utility::ConvertToWString(SDL_GetKeyName(g_gameConfig.GetInt(m_keyboardLaserKeys[i * 2 + 1])))
-					));
+				));
 			}
 
 			m_laserColorPanels[i]->color = Color::FromHSV(m_laserColors[i], 1.f, 1.f);
-
-
 		}
 	}
 
@@ -541,6 +538,7 @@ public:
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
@@ -575,7 +573,6 @@ public:
 		m_gamepadIndex = controllerindex;
 		m_isGamepad = gamepad;
 		m_knobs = (key == GameConfigKeys::Controller_Laser0Axis || key == GameConfigKeys::Controller_Laser1Axis);
-			
 	}
 
 	bool Init()
@@ -597,7 +594,6 @@ public:
 		box->Add(m_prompt->MakeShared());
 		if (m_knobs)
 			m_prompt->SetText(L"Press Left Key");
-
 
 		if (m_isGamepad)
 		{
@@ -630,7 +626,6 @@ public:
 					m_completed = true;
 					break;
 				}
-
 			}
 		}
 
@@ -699,6 +694,7 @@ public:
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
@@ -725,9 +721,7 @@ private:
 	bool m_firstStart = false;
 public:
 	LaserSensCalibrationScreen_Impl()
-	{
-
-	}
+	{ }
 
 	~LaserSensCalibrationScreen_Impl()
 	{
@@ -764,9 +758,10 @@ public:
 	{
 		m_delta += g_input.GetInputLaserDir(0);
 		if (m_state)
-		{	
+		{
 			float sens = 6.0 / (m_delta / m_currentSetting);
-			m_prompt->SetText(Utility::WSprintf(L"Turn left knob one revolution clockwise \nand then press start.\nCurrent Sens: %.2f", sens));
+			m_prompt->SetText(
+				Utility::WSprintf(L"Turn left knob one revolution clockwise \nand then press start.\nCurrent Sens: %.2f", sens));
 		}
 		else
 		{
@@ -810,6 +805,7 @@ public:
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());

@@ -29,15 +29,16 @@ Test("File.PathString")
 	Path::RemoveLast(a, &filename);
 	TestEnsure(filename == "FileName.ext");
 
-
 	String rem = Path::RemoveBase(a, b);
 	TestEnsure(rem == filename);
 }
+
 Test("File.Create")
 {
 	CreateDummyFile(TestFilename);
 	TestEnsure(Path::FileExists(TestFilename));
 }
+
 Test("File.ScanFilesRecursive")
 {
 	String folder = Path::Absolute(TestBasePath + Path::sep + context.GetName() + "_TestFolder");
@@ -58,13 +59,14 @@ Test("File.ScanFilesRecursive")
 	expectedPaths.Add(folder1 + Path::sep + "fileD");
 
 	Vector<FileInfo> files = Files::ScanFilesRecursive(folder);
-	for(auto& file : files)
+	for (auto& file : files)
 	{
 		TestEnsure(expectedPaths.Contains(file.fullPath));
 		expectedPaths.erase(file.fullPath);
 	}
 	TestEnsure(expectedPaths.empty());
 }
+
 Test("File.ScanFiles")
 {
 	String folder = Path::Absolute(TestBasePath + Path::sep + context.GetName() + "_TestFolder");
@@ -85,13 +87,14 @@ Test("File.ScanFiles")
 	expectedPaths.Add(folder + Path::sep + "Folder");
 
 	Vector<FileInfo> files = Files::ScanFiles(folder);
-	for(auto& file : files)
+	for (auto& file : files)
 	{
 		TestEnsure(expectedPaths.Contains(file.fullPath));
 		expectedPaths.erase(file.fullPath);
 	}
 	TestEnsure(expectedPaths.empty());
 }
+
 Test("File.Dir")
 {
 	String folder = TestFilename;
@@ -100,6 +103,7 @@ Test("File.Dir")
 	TestEnsure(Path::DeleteDir(folder));
 	TestEnsure(!Path::FileExists(folder));
 }
+
 Test("File.RecursiveDir")
 {
 	String folder = TestFilename + Path::sep + "Sub1" + Path::sep + "Sub2";
@@ -108,6 +112,7 @@ Test("File.RecursiveDir")
 	String folder1 = TestFilename + Path::sep + "Sub1" + Path::sep + "Sub3" + Path::sep;
 	TestEnsure(Path::CreateDirRecursive(folder1));
 }
+
 Test("File.Operations")
 {
 	CreateDummyFile(TestFilename);
@@ -123,6 +128,7 @@ Test("File.Operations")
 	TestEnsure(Path::Delete(TestFilename));
 	TestEnsure(!Path::FileExists(TestFilename));
 }
+
 Test("File.DirOperations")
 {
 	String folder = TestFilename;
@@ -140,6 +146,7 @@ Test("File.DirOperations")
 	TestEnsure(Path::FileExists(folder1 + Path::sep + "fileA"));
 	TestEnsure(Path::FileExists(sub1 + Path::sep + "fileA"));
 }
+
 Test("File.ReadWrite")
 {
 	char data[] = "\r\n-- Test Data --\r\n@@\r\n";

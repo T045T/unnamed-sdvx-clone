@@ -12,15 +12,18 @@ struct SettingBarSetting
 		Text,
 		Button
 	};
+
 	Type type = Type::Float;
+
 	union
 	{
-		struct 
+		struct
 		{
 			float* target;
 			float min;
 			float max;
 		} floatSetting;
+
 		struct
 		{
 			int* target;
@@ -28,6 +31,7 @@ struct SettingBarSetting
 			int optionsCount;
 		} textSetting;
 	};
+
 	WString name;
 	class Label* label;
 
@@ -53,9 +57,13 @@ public:
 	void SetValue(SettingBarSetting* setting, float value);
 	void SetValue(SettingBarSetting* setting, int value);
 	void ClearSettings();
-	
+
 	void SetShow(bool shown);
-	bool IsShown() const { return m_shown; }
+
+	bool IsShown() const
+	{
+		return m_shown;
+	}
 
 	Margini padding = Margini(5, 5, 0, 5);
 
@@ -65,5 +73,4 @@ private:
 	std::shared_ptr<CommonGUIStyle> m_style;
 	Map<SettingBarSetting*, GUIElement> m_settings;
 	Map<SettingBarSetting*, Slider*> m_sliders;
-
 };

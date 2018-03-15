@@ -22,7 +22,7 @@ public:
 
 	// Runs the application
 	bool Run();
-	
+
 	void SetCommandLine(int32 argc, char** argv);
 	void SetCommandLine(const char* cmdLine);
 
@@ -46,13 +46,17 @@ public:
 #undef LoadImage
 #endif
 	Image LoadImage(const String& name);
-	Image LoadImageExternal(const String & name);
+	Image LoadImageExternal(const String& name);
 	Texture LoadTexture(const String& name);
-	Texture LoadTexture(const String & name, const bool& external);
+	Texture LoadTexture(const String& name, const bool& external);
 	Material LoadMaterial(const String& name);
 	Sample LoadSample(const String& name, const bool& external = false);
 
-	float GetAppTime() const { return m_lastRenderTime; }
+	float GetAppTime() const
+	{
+		return m_lastRenderTime;
+	}
+
 	float GetRenderFPS() const;
 
 	Transform GetGUIProjection() const;

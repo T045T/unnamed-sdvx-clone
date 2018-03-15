@@ -8,45 +8,47 @@
 
 ConfigBase::~ConfigBase()
 {
-	for(auto e : m_entries)
+	for (auto e : m_entries)
 	{
 		delete e.second;
 	}
 }
+
 bool ConfigBase::Load(const String& path)
 {
-    File file;
-    if(!file.OpenRead(path))
-        return false;
-    FileReader reader(file);
-    return Load(reader);
+	File file;
+	if (!file.OpenRead(path))
+		return false;
+	FileReader reader(file);
+	return Load(reader);
 }
+
 bool ConfigBase::Load(BinaryStream& stream)
 {
 	// Clear and load defaults
 	Clear();
 
 	Set<uint32> setKeys;
-	for(auto e : m_entries)
+	for (auto e : m_entries)
 	{
 		setKeys.Add(e.first);
 	}
 
 	String line;
-	while(TextStream::ReadLine(stream, line))
+	while (TextStream::ReadLine(stream, line))
 	{
 		String k, v;
-		if(line.Split("=", &k, &v))
+		if (line.Split("=", &k, &v))
 		{
 			k.Trim(' ');
 			v.Trim(' ');
 			std::stringstream s(v);
 
 			auto it = m_keys.find(k);
-			if(it != m_keys.end())
+			if (it != m_keys.end())
 			{
 				auto it1 = m_entries.find(it->second);
-				if(it1 != m_entries.end())
+				if (it1 != m_entries.end())
 				{
 					setKeys.erase(it1->first);
 					m_entries[it1->first]->FromString(v);
@@ -55,8 +57,7 @@ bool ConfigBase::Load(BinaryStream& stream)
 		}
 	}
 
-
-	if(!setKeys.empty())
+	if (!setKeys.empty())
 	{
 		// Default setting missed in config file, flag as dirty
 		m_dirty = true;
@@ -68,18 +69,20 @@ bool ConfigBase::Load(BinaryStream& stream)
 	}
 	return true;
 }
+
 bool ConfigBase::Save(const String& path)
 {
-    File file;
-    if(!file.OpenWrite(path))
-        return false;
-    FileWriter reader(file);
-    Save(reader);
-    return true;
+	File file;
+	if (!file.OpenWrite(path))
+		return false;
+	FileWriter reader(file);
+	Save(reader);
+	return true;
 }
+
 void ConfigBase::Save(BinaryStream& stream)
 {
-	for(auto& e : m_entries)
+	for (auto& e : m_entries)
 	{
 		String key = m_reverseKeys[e.first];
 		String line = key + " = " + e.second->ToString();
@@ -89,19 +92,21 @@ void ConfigBase::Save(BinaryStream& stream)
 	// Saved
 	m_dirty = false;
 }
+
 bool ConfigBase::IsDirty() const
 {
 	return m_dirty;
 }
+
 void ConfigBase::Clear()
 {
-	for(auto e : m_entries)
+	for (auto e : m_entries)
 	{
 		delete e.second;
 	}
 	m_entries.clear();
 	InitDefaults();
 }
+
 ConfigBase::ConfigBase()
-{
-}
+{}

@@ -7,23 +7,45 @@ public:
 	// Run to call initialization code
 	virtual bool DoInit();
 	// Override for initialization
-	virtual bool Init() { return true; }
-	// Tick for tickable
-	virtual void Tick(float deltaTime) {};
-	virtual void Render(float deltaTime) {};
+	virtual bool Init()
+	{
+		return true;
+	}
 
-	virtual void OnKeyPressed(int32 key) {};
-	virtual void OnKeyReleased(int32 key) {};
+	// Tick for tickable
+	virtual void Tick(float deltaTime)
+	{};
+
+	virtual void Render(float deltaTime)
+	{};
+
+	virtual void OnKeyPressed(int32 key)
+	{};
+
+	virtual void OnKeyReleased(int32 key)
+	{};
 	// Called when focus of this item is lost
-	virtual void OnSuspend() {};
+	virtual void OnSuspend()
+	{};
 	// Called when focus to this item is restored
-	virtual void OnRestore() {};
+	virtual void OnRestore()
+	{};
 
 	// Return true to override application ticking behaviour
-	virtual bool GetTickRate(int32& rate) { return false; };
+	virtual bool GetTickRate(int32& rate)
+	{
+		return false;
+	};
 
-	bool IsSuspended() const { return m_suspended; }
-	bool IsSuccessfullyInitialized() const { return m_successfullyInitialized; }
+	bool IsSuspended() const
+	{
+		return m_suspended;
+	}
+
+	bool IsSuccessfullyInitialized() const
+	{
+		return m_successfullyInitialized;
+	}
 
 private:
 	void m_Suspend();

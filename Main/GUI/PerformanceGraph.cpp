@@ -3,12 +3,11 @@
 #include <GUI/GUIRenderer.hpp>
 
 PerformanceGraph::PerformanceGraph()
-{
+{}
 
-}
 void PerformanceGraph::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
-{
-}
+{}
+
 void PerformanceGraph::Render(GUIRenderData rd)
 {
 	rd.guiRenderer->RenderButton(rd.area, borderTexture, border);

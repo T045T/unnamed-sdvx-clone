@@ -9,7 +9,7 @@ template<> struct ResourceManagerTypes<ResourceType::_EnumMember>\
 	typedef _Type Type;\
 };
 
-/* Enum of all graphics resource types in this library */
+	/* Enum of all graphics resource types in this library */
 	enum class ResourceType
 	{
 		Image = 0,
@@ -24,7 +24,7 @@ template<> struct ResourceManagerTypes<ResourceType::_EnumMember>\
 		_Length
 	};
 
-	template<ResourceType E>
+	template <ResourceType E>
 	struct ResourceManagerTypes
 	{
 		// Dummy for gcc compiler

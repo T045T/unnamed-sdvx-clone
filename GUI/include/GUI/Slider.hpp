@@ -14,7 +14,10 @@ public:
 	float GetValue() const;
 	void SetValue(float val, bool callHandlers = true);
 
-	bool IsHeld() const { return m_held; }
+	bool IsHeld() const
+	{
+		return m_held;
+	}
 
 	enum LayoutDirection
 	{

@@ -23,19 +23,26 @@ typedef int32 MapTime;
 enum class ObjectType : uint8
 {
 	Invalid = 0,
-	Single, // Either normal or FX button
-	Hold, // Either normal or FX button but with a duration
-	Laser, // A laser segment
+	Single,
+	// Either normal or FX button
+	Hold,
+	// Either normal or FX button but with a duration
+	Laser,
+	// A laser segment
 	Event // Event object
 };
 
 // The key parameter for event objects
 enum class EventKey : uint8
 {
-	SlamVolume, // Float
-	LaserEffectType, // Effect
-	LaserEffectMix, // Float
-	TrackRollBehaviour, // uint8
+	SlamVolume,
+	// Float
+	LaserEffectType,
+	// Effect
+	LaserEffectMix,
+	// Float
+	TrackRollBehaviour,
+	// uint8
 };
 
 enum class TrackRollBehaviour : uint8
@@ -48,6 +55,7 @@ enum class TrackRollBehaviour : uint8
 	// Flag for keep
 	Keep = 0x4,
 };
+
 TrackRollBehaviour operator|(const TrackRollBehaviour& l, const TrackRollBehaviour& r);
 TrackRollBehaviour operator&(const TrackRollBehaviour& l, const TrackRollBehaviour& r);
 
@@ -57,7 +65,9 @@ TrackRollBehaviour operator&(const TrackRollBehaviour& l, const TrackRollBehavio
 // Common data for all object types
 struct ObjectTypeData_Base
 {
-	ObjectTypeData_Base(ObjectType type) : type(type) {};
+	ObjectTypeData_Base(ObjectType type)
+		: type(type)
+	{};
 
 	// Position in ms when this object appears
 	MapTime time;
@@ -68,30 +78,57 @@ struct ObjectTypeData_Base
 struct MultiObjectState;
 
 // Object state type with contains specific data of type T
-template<typename T>
+template <typename T>
 struct TObjectState : public ObjectTypeData_Base, T
 {
-	TObjectState() : ObjectTypeData_Base(T::staticType) {};
+	TObjectState()
+		: ObjectTypeData_Base(T::staticType)
+	{};
 
 	// Implicit down-cast
-	operator TObjectState<void>*() { return (TObjectState<void>*)this; }
-	operator const TObjectState<void>*() const { return (TObjectState<void>*)this; }
+	operator TObjectState<void>*()
+	{
+		return (TObjectState<void>*)this;
+	}
+
+	operator const TObjectState<void>*() const
+	{
+		return (TObjectState<void>*)this;
+	}
+
 	// Implicit down-cast
-	operator MultiObjectState*() { return (MultiObjectState*)this; }
-	operator const MultiObjectState*() const { return (MultiObjectState*)this; }
+	operator MultiObjectState*()
+	{
+		return (MultiObjectState*)this;
+	}
+
+	operator const MultiObjectState*() const
+	{
+		return (MultiObjectState*)this;
+	}
 };
 
 // Generic object, does not have an object member
-template<> struct TObjectState<void> : public ObjectTypeData_Base
+template <>
+struct TObjectState<void> : public ObjectTypeData_Base
 {
-	TObjectState() : ObjectTypeData_Base(ObjectType::Invalid) {};
+	TObjectState()
+		: ObjectTypeData_Base(ObjectType::Invalid)
+	{};
 
 	// Sort object states by their time and other properties
 	static void SortArray(Vector<TObjectState<void>*>& arr);
 
 	// Always allow casting from typeless object to Union State object
-	operator MultiObjectState*() { return (MultiObjectState*)this; }
-	operator const MultiObjectState*() const { return (MultiObjectState*)this; }
+	operator MultiObjectState*()
+	{
+		return (MultiObjectState*)this;
+	}
+
+	operator const MultiObjectState*() const
+	{
+		return (MultiObjectState*)this;
+	}
 };
 
 // A Single button
@@ -110,6 +147,7 @@ struct ObjectTypeData_Button
 
 	static const ObjectType staticType = ObjectType::Single;
 };
+
 // A Hold button, extends a normal button with duration and effect type
 struct ObjectTypeData_Hold : public ObjectTypeData_Button
 {
@@ -120,7 +158,7 @@ struct ObjectTypeData_Hold : public ObjectTypeData_Button
 	EffectType effectType = EffectType::None;
 	// The parameter for effects that have it
 	// the maximum number of parameters is 2 (only echo uses this)
-	int16 effectParams[2] = { 0 };
+	int16 effectParams[2] = {0};
 
 	// Set for hold notes that are a continuation of the previous one, but with a different effect
 	TObjectState<ObjectTypeData_Hold>* next = nullptr;
@@ -138,6 +176,7 @@ struct SpinStruct
 		Full = 0x1,
 		Quarter = 0x2
 	};
+
 	SpinType type = SpinType::None;
 	float direction = 0;
 	uint32 duration = 0;
@@ -178,20 +217,20 @@ struct ObjectTypeData_Laser
 	static const uint8 flag_Instant = 0x1;
 	// Indicates that the range of this laser is extended from -0.5 to 1.5
 	static const uint8 flag_Extended = 0x2;
-
-
 };
 
 struct EventData
 {
 	EventData() = default;
-	template<typename T>
+
+	template <typename T>
 	EventData(const T& obj)
 	{
 		static_assert(sizeof(T) <= 4, "Invalid object size");
 		memset(this, 0, 4);
 		memcpy(this, &obj, sizeof(T));
 	}
+
 	union
 	{
 		float floatVal;
@@ -230,6 +269,7 @@ struct MultiObjectState
 	MapTime time;
 	// Type of this object, determines the size of this struct and which type its data is
 	ObjectType type;
+
 	union
 	{
 		ObjectTypeData_Button button;
@@ -239,8 +279,15 @@ struct MultiObjectState
 	};
 
 	// Implicit down-cast
-	operator TObjectState<void>*() { return (TObjectState<void>*)this; }
-	operator const TObjectState<void>*() const { return (TObjectState<void>*)this; }
+	operator TObjectState<void>*()
+	{
+		return (TObjectState<void>*)this;
+	}
+
+	operator const TObjectState<void>*() const
+	{
+		return (TObjectState<void>*)this;
+	}
 };
 
 // Restore packing
@@ -257,9 +304,20 @@ struct TimingPoint
 {
 	static bool StaticSerialize(BinaryStream& stream, TimingPoint*& out);
 
-	double GetWholeNoteLength() const { return beatDuration * 4; }
-	double GetBarDuration() const { return GetWholeNoteLength() * ((double)numerator / (double)denominator); }
-	double GetBPM() const { return 60000.0 / beatDuration; }
+	double GetWholeNoteLength() const
+	{
+		return beatDuration * 4;
+	}
+
+	double GetBarDuration() const
+	{
+		return GetWholeNoteLength() * ((double)numerator / (double)denominator);
+	}
+
+	double GetBPM() const
+	{
+		return 60000.0 / beatDuration;
+	}
 
 	// Position in ms when this timing point appears
 	MapTime time;

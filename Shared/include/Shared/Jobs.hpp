@@ -15,6 +15,7 @@ enum class JobFlags : uint8
 	None = 0,
 	IO = 0x1,
 };
+
 JobFlags operator|(JobFlags a, JobFlags b);
 JobFlags operator&(JobFlags a, JobFlags b);
 
@@ -34,7 +35,7 @@ public:
 
 	// Either cancel this job or wait till it finished if it is already being processed
 	void Terminate();
-	
+
 	// Flags for jobs
 	// make sure to add the IO flag if this job performs file operations
 	JobFlags jobFlags = JobFlags::None;
@@ -49,8 +50,8 @@ public:
 	Delegate<std::shared_ptr<JobBase>> OnFinished;
 
 	// Create job from lambda function
-	template<typename Lambda, typename... Args>
-	static std::shared_ptr<JobBase> CreateLambda(Lambda&& obj, Args...);
+	template <typename Lambda, typename... Args>
+	static std::shared_ptr<JobBase> CreateLambda(Lambda&& obj, Args ...);
 
 private:
 	bool m_ret = false;
@@ -62,21 +63,23 @@ private:
 /*
 	Job that runs a lambda that returns a boolean
 */
-template<typename Lambda, typename... Args>
+template <typename Lambda, typename... Args>
 class LambdaJob : public JobBase
 {
 public:
-	LambdaJob(Lambda& lambda, Args... args) : m_lambda(lambda)
+	LambdaJob(Lambda& lambda, Args ... args)
+		: m_lambda(lambda)
 	{
-		m_args = { args... };
+		m_args = {args...};
 	}
+
 	virtual bool Run()
 	{
 		return m_CallFunc(std::index_sequence_for<Args...>{});
 	}
 
 private:
-	template<size_t... I>
+	template <size_t... I>
 	bool m_CallFunc(std::index_sequence<I...>)
 	{
 		return m_lambda(std::get<I>(m_args)...);
@@ -85,10 +88,11 @@ private:
 	std::tuple<Args...> m_args;
 	Lambda m_lambda;
 };
+
 typedef std::shared_ptr<JobBase> Job;
 
-template<typename Lambda, typename... Args>
-Job JobBase::CreateLambda(Lambda&& obj, Args... args)
+template <typename Lambda, typename... Args>
+Job JobBase::CreateLambda(Lambda&& obj, Args ... args)
 {
 	return Ref<JobBase>(new LambdaJob<Lambda, Args...>(obj, args...));
 }

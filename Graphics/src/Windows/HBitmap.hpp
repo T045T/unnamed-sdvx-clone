@@ -14,11 +14,14 @@ namespace Graphics
 		Vector2i m_size;
 		void* m_data;
 	public:
-		HBitmap(const Vector2i &size, HDC dc) : m_dc(dc)
+		HBitmap(const Vector2i& size, HDC dc)
+			: m_dc(dc)
 		{
 			m_CreateBitmap(size);
 		}
-		HBitmap(Image srcImg, HDC dc) : m_dc(dc)
+
+		HBitmap(Image srcImg, HDC dc)
+			: m_dc(dc)
 		{
 			assert(srcImg.IsValid());
 			m_source = srcImg;
@@ -27,18 +30,22 @@ namespace Graphics
 			uint32 dataLen = sizeof(Colori) * m_size.x * m_size.y;
 			memcpy(m_data, m_source->GetBits(), dataLen);
 		}
+
 		~HBitmap()
 		{
 			DeleteObject(m_handle);
 		}
+
 		const Vector2i& GetSize() const
 		{
 			return m_size;
 		}
+
 		operator HGDIOBJ()
 		{
 			return (HGDIOBJ)m_handle;
 		}
+
 		operator HBITMAP()
 		{
 			return m_handle;
@@ -47,7 +54,7 @@ namespace Graphics
 	private:
 		void m_CreateBitmap(const Vector2i& size)
 		{
-			BITMAPINFO dib = { 0 };
+			BITMAPINFO dib = {0};
 			dib.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 			dib.bmiHeader.biWidth = size.x;
 			dib.bmiHeader.biHeight = size.y;

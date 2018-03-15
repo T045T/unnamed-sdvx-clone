@@ -58,12 +58,13 @@ private:
 };
 
 // Log to Logger::Get() with formatting string
-template<typename... Args>
-void Logf(const char* format, Logger::Severity severity, Args... args)
+template <typename... Args>
+void Logf(const char* format, Logger::Severity severity, Args ... args)
 {
 	String msg = Utility::Sprintf<Args...>(format, args...);
 	Logger::Get().Log(msg, severity);
 }
+
 // Log to Logger::Get()
 void Log(const String& msg, Logger::Severity severity = Logger::Normal);
 

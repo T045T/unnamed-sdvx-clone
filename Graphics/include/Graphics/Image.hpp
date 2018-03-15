@@ -29,6 +29,7 @@ namespace Graphics
 		!! The packing is not optimal as the images are stacked for bottom to top and placed in columns based on their width
 	*/
 	class TextureRes;
+
 	class SpriteMapRes
 	{
 	public:
@@ -46,5 +47,6 @@ namespace Graphics
 	typedef std::shared_ptr<SpriteMapRes> SpriteMap;
 
 	DEFINE_RESOURCE_TYPE(Image, ImageRes);
+
 	DEFINE_RESOURCE_TYPE(SpriteMap, SpriteMapRes);
 }

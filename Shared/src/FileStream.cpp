@@ -3,7 +3,7 @@
 
 FileStreamBase::FileStreamBase(File& file, bool isReading)
 	: BinaryStream(isReading),
-	  m_file(&file)
+	m_file(&file)
 {}
 
 void FileStreamBase::Seek(size_t pos)
@@ -30,7 +30,8 @@ File& FileStreamBase::GetFile() const
 	return *m_file;
 }
 
-FileReader::FileReader(File& file) : FileStreamBase(file, true)
+FileReader::FileReader(File& file)
+	: FileStreamBase(file, true)
 {}
 
 size_t FileReader::Serialize(void* data, size_t len)
@@ -39,7 +40,8 @@ size_t FileReader::Serialize(void* data, size_t len)
 	return m_file->Read(data, len);
 }
 
-FileWriter::FileWriter(File& file) : FileStreamBase(file, false)
+FileWriter::FileWriter(File& file)
+	: FileStreamBase(file, false)
 {}
 
 size_t FileWriter::Serialize(void* data, size_t len)

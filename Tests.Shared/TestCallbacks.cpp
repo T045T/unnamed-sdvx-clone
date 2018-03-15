@@ -4,10 +4,12 @@
 
 // Testing callbacks
 static int callCounter = 0;
+
 void TestCallback(void)
 {
 	callCounter++;
 }
+
 class TestClass
 {
 public:
@@ -15,6 +17,7 @@ public:
 	{
 		classCallCounter++;
 	}
+
 	int classCallCounter = 0;
 };
 
@@ -97,6 +100,7 @@ float ConstantValue()
 {
 	return 2.0f;
 }
+
 Test("Action.Property")
 {
 	float localValue = 0.0f;
@@ -126,10 +130,12 @@ Test("Action.Property")
 		{
 			return val;
 		}
+
 		void Set(float v)
 		{
 			val = v;
 		}
+
 		float val = 0.0f;
 	};
 	FloatWrapper o;

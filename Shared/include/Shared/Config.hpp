@@ -40,19 +40,21 @@ protected:
 /*
 	Template config class, specify the type Enum_<enum name> as the key enum for config entries
 */
-template<typename EnumClass>
+template <typename EnumClass>
 class Config : public ConfigBase
 {
 public:
 	typedef typename EnumClass::EnumType KeyType;
+
 	Config()
 	{
-		for(auto it : EnumClass::GetMap())
+		for (auto it : EnumClass::GetMap())
 		{
 			m_keys.Add(it.second, (uint32)it.first);
 			m_reverseKeys.Add((uint32)it.first, it.second);
 		}
 	}
+
 	bool IsSet(KeyType key) const
 	{
 		auto it = m_entries.find((uint32)key);
@@ -63,19 +65,23 @@ public:
 	{
 		return GetEnsure<IntConfigEntry>(key)->data;
 	}
+
 	float GetFloat(KeyType key) const
 	{
 		return GetEnsure<FloatConfigEntry>(key)->data;
 	}
+
 	String GetString(KeyType key) const
 	{
 		return GetEnsure<StringConfigEntry>(key)->data;
 	}
+
 	bool GetBool(KeyType key) const
 	{
 		return GetEnsure<BoolConfigEntry>(key)->data;
 	}
-	template<typename EnumClass1>
+
+	template <typename EnumClass1>
 	typename EnumClass1::EnumType GetEnum(KeyType key) const
 	{
 		return GetEnsure<EnumConfigEntry<EnumClass1>>(key)->data;
@@ -84,53 +90,58 @@ public:
 	void Set(KeyType key, const int32& value)
 	{
 		int32& dst = SetEnsure<IntConfigEntry>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
 		}
 	}
+
 	void Set(KeyType key, const float& value)
 	{
 		float& dst = SetEnsure<FloatConfigEntry>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
 		}
 	}
+
 	void Set(KeyType key, const bool& value)
 	{
 		bool& dst = SetEnsure<BoolConfigEntry>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
 		}
 	}
+
 	void Set(KeyType key, const String& value)
 	{
 		String& dst = SetEnsure<StringConfigEntry>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
 		}
 	}
+
 	void Set(KeyType key, const char* value)
 	{
 		String& dst = SetEnsure<StringConfigEntry>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
 		}
 	}
-	template<typename EnumClass1>
+
+	template <typename EnumClass1>
 	void SetEnum(KeyType key, typename EnumClass1::EnumType value)
 	{
 		typename EnumClass1::EnumType& dst = SetEnsure<EnumConfigEntry<EnumClass1>>(key)->data;
-		if(dst != value)
+		if (dst != value)
 		{
 			dst = value;
 			m_dirty = true;
@@ -139,10 +150,11 @@ public:
 
 private:
 	// Create or returns with type checking
-	template<typename T> T* SetEnsure(KeyType key)
+	template <typename T>
+	T* SetEnsure(KeyType key)
 	{
 		IConfigEntry** found = m_entries.Find((uint32)key);
-		if(found)
+		if (found)
 		{
 			T* targetType = found[0]->As<T>();
 			assert(targetType); // Make sure type matches
@@ -156,8 +168,10 @@ private:
 			return ret;
 		}
 	}
+
 	// Gets the wanted type with type checking and seeing if it exists
-	template<typename T> const T* GetEnsure(KeyType key) const
+	template <typename T>
+	const T* GetEnsure(KeyType key) const
 	{
 		IConfigEntry*const* found = m_entries.Find((uint32)key);
 		assert(found);
@@ -166,4 +180,3 @@ private:
 		return targetType;
 	}
 };
-

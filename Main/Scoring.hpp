@@ -17,6 +17,7 @@ enum class TickFlags : uint8
 	Laser = 0x10,
 	Slam = 0x20,
 };
+
 TickFlags operator|(const TickFlags& a, const TickFlags& b);
 TickFlags operator&(const TickFlags& a, const TickFlags& b);
 
@@ -25,7 +26,10 @@ struct ScoreTick
 {
 public:
 	ScoreTick() = default;
-	ScoreTick(ObjectState* object) : object(object) {};
+
+	ScoreTick(ObjectState* object)
+		: object(object)
+	{};
 
 	// Returns the time frame in which this tick can be hit
 	MapTime GetHitWindow() const;
@@ -153,13 +157,12 @@ public:
 	//	0 = Miss
 	//	1 = Good
 	//	2 = Perfect
-	uint32 categorizedHits[3] = { 0 };
+	uint32 categorizedHits[3] = {0};
 
 	// Early and Late count:
 	// 0 = Early
 	// 1 = Late
-	uint32 timedHits[2] = { 0 };
-
+	uint32 timedHits[2] = {0};
 
 
 	// Amount of gauge to gain on a short note
@@ -191,9 +194,9 @@ public:
 	// Actual positions of the laser
 	float laserPositions[2];
 	// Sampled target position of the lasers in the map
-	float laserTargetPositions[2] = { 0 };
+	float laserTargetPositions[2] = {0};
 	// Current lasers are extended
-	bool lasersAreExtend[2] = { false, false };
+	bool lasersAreExtend[2] = {false, false};
 	// Time since laser has been used
 	float timeSinceLaserUsed[2];
 private:
@@ -255,13 +258,13 @@ private:
 	class BeatmapPlayback* m_playback = nullptr;
 
 	// Input values for laser [-1,1]
-	float m_laserInput[2] = { 0.0f };
+	float m_laserInput[2] = {0.0f};
 	// Keeps being set to the last direction the laser was moving in to create laser intertia
-	float m_lastLaserInputDirection[2] = { 0.0f };
+	float m_lastLaserInputDirection[2] = {0.0f};
 	// Decides if the coming tick should be auto completed
-	float m_autoLaserTime[2] = { 0,0 };
+	float m_autoLaserTime[2] = {0, 0};
 	// Saves the time when a button was hit, used to decide if a button was held before a hold object was active
-	MapTime m_buttonHitTime[6] = { -1,-1,-1,-1,-1,-1 };
+	MapTime m_buttonHitTime[6] = {-1, -1, -1, -1, -1, -1};
 	// Max number of ticks to assist
 	float m_assistLevel = 1.5f;
 	float m_assistTime = 0.0f;
@@ -273,7 +276,7 @@ private:
 
 	// Laser objects currently in range
 	//	used to sample target laser positions
-	LaserObjectState* m_currentLaserSegments[2] = { nullptr };
+	LaserObjectState* m_currentLaserSegments[2] = {nullptr};
 	// Queue for the above list
 	Vector<LaserObjectState*> m_laserSegmentQueue;
 
@@ -283,4 +286,3 @@ private:
 	ObjectState* m_holdObjects[8];
 	Set<ObjectState*> m_heldObjects;
 };
-

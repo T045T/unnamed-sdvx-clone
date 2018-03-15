@@ -49,7 +49,7 @@ public:
 	{
 		m_guiStyle = g_commonGUIStyle;
 		m_canvas = Utility::Makestd::shared_ptr(new Canvas());
-		
+
 		//GUI Buttons
 		{
 			LayoutBox* box = new LayoutBox();
@@ -59,7 +59,6 @@ public:
 			slot->autoSizeY = true;
 			slot->alignment = Vector2(0.5, 0.5);
 
-			
 			box->layoutDirection = LayoutBox::Vertical;
 
 			Label* titleLabel = new Label();
@@ -75,7 +74,7 @@ public:
 			btnSlot = box->Add(startBtn->MakeShared());
 			btnSlot->padding = Margin(2);
 			btnSlot->fillX = true;
-			
+
 			Button* settingsBtn = new Button(m_guiStyle);
 			settingsBtn->OnPressed.Add(this, &TitleScreen_Impl::Settings);
 			settingsBtn->SetText(L"Settings");
@@ -91,28 +90,26 @@ public:
 			btnSlot = box->Add(exitBtn->MakeShared());
 			btnSlot->padding = Margin(2);
 			btnSlot->fillX = true;
-
 		}
 
 		return true;
 	}
+
 	~TitleScreen_Impl()
-	{
-	}
+	{ }
 
 
 	virtual void OnSuspend()
 	{
 		g_rootCanvas->Remove(m_canvas.As<GUIElementBase>());
 	}
+
 	virtual void OnRestore()
 	{
 		Canvas::Slot* slot = g_rootCanvas->Add(m_canvas.As<GUIElementBase>());
 		slot->anchor = Anchors::Full;
 		g_gameWindow->SetCursorVisible(true);
 	}
-
-
 };
 
 TitleScreen* TitleScreen::Create()

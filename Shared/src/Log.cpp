@@ -8,13 +8,13 @@
 #include <map>
 
 static std::map<Logger::Color, const char*> params = {
-	{Logger::Color::Red,     "200;0;0"},
-	{Logger::Color::Green,   "0;200;0"},
-	{Logger::Color::Blue,    "0;70;200"},
-	{Logger::Color::Yellow,  "200;180;0"},
-	{Logger::Color::Cyan,    "0;200;200"},
+	{Logger::Color::Red, "200;0;0"},
+	{Logger::Color::Green, "0;200;0"},
+	{Logger::Color::Blue, "0;70;200"},
+	{Logger::Color::Yellow, "200;180;0"},
+	{Logger::Color::Cyan, "0;200;200"},
 	{Logger::Color::Magenta, "200;0;200"},
-	{Logger::Color::Gray,    "140;140;140"}
+	{Logger::Color::Gray, "140;140;140"}
 };
 
 // Severity strings
@@ -64,11 +64,11 @@ void Logger::SetColor(Color color) const
 			FOREGROUND_INTENSITY | FOREGROUND_RED,
 			FOREGROUND_INTENSITY | FOREGROUND_GREEN,
 			FOREGROUND_INTENSITY | FOREGROUND_BLUE,
-			FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN, // Yellow,
-			FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_RED, // Cyan,
-			FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED, // Magenta,
+			FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN,                  // Yellow,
+			FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_RED,                    // Cyan,
+			FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_RED,                   // Magenta,
 			FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY, // White
-			FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN, // Gray
+			FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN,                        // Gray
 		};
 		SetConsoleTextAttribute(consoleHandle, params[static_cast<size_t>(color)]);
 	}
@@ -124,6 +124,7 @@ void Logger::Write(const String& msg)
 	printf("%s", msg.c_str());
 	TextStream::Write(m_writer, msg);
 }
+
 void Log(const String& msg, Logger::Severity severity)
 {
 	Logger::Get().Log(msg, severity);

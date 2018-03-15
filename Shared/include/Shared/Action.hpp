@@ -4,18 +4,18 @@
 /*
 	Action is an objects that holds the neccesary information to call a single static function / member function / lambda
 */
-template<typename R = void, typename... A>
+template <typename R = void, typename... A>
 class Action : public Unique
 {
 public:
 	Action() = default;
 
-	Action(R(*staticFunction)(A...))
+	Action(R (*staticFunction)(A ...))
 	{
 		m_binding = new StaticBinding<R, A...>(staticFunction);
 	}
 
-	template<typename L>
+	template <typename L>
 	Action(L&& lambda)
 	{
 		m_binding = new LambdaBinding<L, R, A...>(std::forward<L>(lambda));
@@ -40,27 +40,27 @@ public:
 		return *this;
 	}
 
-	void Bind(R(*staticFunction)(A...))
+	void Bind(R (*staticFunction)(A ...))
 	{
 		Clear();
 		m_binding = new StaticBinding<R, A...>(staticFunction);
 	}
 
-	template<typename T>
-	void Bind(T* obj, R(T::*memberFunc)(A...))
+	template <typename T>
+	void Bind(T* obj, R (T::*memberFunc)(A ...))
 	{
 		Clear();
 		m_binding = new ObjectBinding<T, R, A...>(obj, memberFunc);
 	}
 
-	template<typename L>
+	template <typename L>
 	void BindLambda(L&& lambda)
 	{
 		Clear();
 		m_binding = new LambdaBinding<L, R, A...>(std::forward<L>(lambda));
 	}
 
-	R Call(A... args)
+	R Call(A ... args)
 	{
 		assert(IsBound());
 		return m_binding->Call(args...);
@@ -86,11 +86,12 @@ private:
 	Bindable property
 	This field either acts just as a normal variable or acts a a property using Get/Set methods to interface with the underlying value
 */
-template<typename T>
+template <typename T>
 class Property
 {
 public:
 	Property() = default;
+
 	Property(T val)
 		: m_value(val)
 	{}

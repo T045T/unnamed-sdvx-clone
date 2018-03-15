@@ -22,14 +22,19 @@
 class Timer
 {
 public:
-	Timer() : m_start(std::chrono::high_resolution_clock::now()) {}
+	Timer()
+		: m_start(std::chrono::high_resolution_clock::now())
+	{}
 
-	template<typename rep, typename period> Timer(std::chrono::duration<rep, period> duration) : m_start(std::chrono::high_resolution_clock::now())
+	template <typename rep, typename period>
+	Timer(std::chrono::duration<rep, period> duration)
+		: m_start(std::chrono::high_resolution_clock::now())
 	{
 		m_start -= duration;
 	}
 
-	template<typename rep, typename period> Timer& operator=(std::chrono::duration<rep, period> duration)
+	template <typename rep, typename period>
+	Timer& operator=(std::chrono::duration<rep, period> duration)
 	{
 		Restart();
 		m_start -= duration;
@@ -41,7 +46,8 @@ public:
 		m_start = std::chrono::high_resolution_clock::now();
 	}
 
-	template<typename dur> inline dur Duration() const
+	template <typename dur>
+	inline dur Duration() const
 	{
 		return std::chrono::duration_cast<dur>(std::chrono::high_resolution_clock::now() - m_start);
 	}
@@ -65,7 +71,7 @@ public:
 	{
 		return Duration<std::chrono::seconds>().count();
 	}
-	
+
 	std::chrono::minutes::rep Minutes() const
 	{
 		return Duration<std::chrono::minutes>().count();
@@ -75,24 +81,26 @@ public:
 	{
 		return Duration<std::chrono::hours>().count();
 	}
-	
+
 	float SecondsAsFloat() const
 	{
 		return Duration<std::chrono::duration<float>>().count();
 	}
-	
+
 	double SecondsAsDouble() const
 	{
 		return Duration<std::chrono::duration<double>>().count();
 	}
 
-	template<typename rep, typename period> Timer& operator+=(std::chrono::duration<rep, period> duration)
+	template <typename rep, typename period>
+	Timer& operator+=(std::chrono::duration<rep, period> duration)
 	{
 		m_start -= duration;
 		return *this;
 	}
 
-	template<typename rep, typename period> Timer& operator-=(std::chrono::duration<rep, period> duration)
+	template <typename rep, typename period>
+	Timer& operator-=(std::chrono::duration<rep, period> duration)
 	{
 		m_start += duration;
 		return *this;
