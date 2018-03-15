@@ -7,9 +7,9 @@ class Button : public GUIElementBase
 public:
 	Button(std::shared_ptr<CommonGUIStyle> style);
 
-	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
-	virtual void Render(GUIRenderData rd) override;
-	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
+	void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
+	void Render(GUIRenderData rd) override;
+	Vector2 GetDesiredSize(GUIRenderData rd) override;
 
 	// Set the text shown on the button
 	void SetText(const WString& text);

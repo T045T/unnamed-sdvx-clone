@@ -4,7 +4,7 @@
 
 Button::Button(std::shared_ptr<CommonGUIStyle> style)
 {
-	m_style = style;
+	m_style = std::move(style);
 }
 
 void Button::SetText(const WString& text)
@@ -44,8 +44,7 @@ void Button::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if (m_hovered || m_held)
 		{
-			AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<float>(&m_animationPadding, -2.0f, 0.1f)), true);
+			AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_animationPadding, -2.0f, 0.1f)), true);
 			m_animation = true;
 		}
 	}
@@ -53,8 +52,7 @@ void Button::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if (!m_hovered && !m_held)
 		{
-			AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<float>(&m_animationPadding, 0.0f, 0.2f)), true);
+			AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_animationPadding, 0.0f, 0.2f)), true);
 			m_animation = false;
 		}
 	}
@@ -68,10 +66,10 @@ void Button::Render(GUIRenderData rd)
 	m_TickAnimations(rd.deltaTime);
 
 	// Render BG
-	Margini padding = (int32)m_animationPadding;
+	Margini padding = static_cast<int32>(m_animationPadding);
 	rd.area = padding.Apply(rd.area);
 	rd.guiRenderer->RenderButton(rd.area, (m_hovered) ? m_style->buttonHighlightTexture : m_style->buttonTexture,
-								m_style->buttonBorder);
+		m_style->buttonBorder);
 
 	if (m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left))
 	{
@@ -92,8 +90,8 @@ void Button::Render(GUIRenderData rd)
 	rd.guiRenderer->PushScissorRect(m_cachedInnerRect);
 
 	// Render text
-	Rect textRect = GUISlotBase::ApplyAlignment(Vector2(0.5f), Rect(Vector2(), m_text->size), rd.area);
-	Color color = Color::White;
+	const Rect textRect = GUISlotBase::ApplyAlignment(Vector2(0.5f), Rect(Vector2(), m_text->size), rd.area);
+	const Color color = Color::White;
 	rd.guiRenderer->RenderText(m_text, textRect.pos, color);
 
 	rd.guiRenderer->PopScissorRect();
@@ -102,11 +100,10 @@ void Button::Render(GUIRenderData rd)
 Vector2 Button::GetDesiredSize(GUIRenderData rd)
 {
 	if (m_dirty)
-	{
 		m_text = rd.guiRenderer->font->create_text(m_textString, m_fontSize);
-	}
 
 	Vector2 sizeOut;
+
 	if (m_text)
 	{
 		sizeOut = m_text->size;

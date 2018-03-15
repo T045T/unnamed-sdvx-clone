@@ -28,19 +28,19 @@ bool GUIElementBase::AddAnimation(std::shared_ptr<IGUIAnimation> anim, bool remo
 		m_animationMap.erase(target);
 	}
 
-	m_animationMap.Add(target, anim);
+	m_animationMap.Add(target, std::move(anim));
 	return true;
 }
 
 std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(uint32 uid)
 {
-	size_t suid = (size_t)uid;
-	return GetAnimation((void*)suid);
+	const auto suid = static_cast<size_t>(uid);
+	return GetAnimation(reinterpret_cast<void*>(suid));
 }
 
 std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
 {
-	std::shared_ptr<IGUIAnimation>* found = m_animationMap.Find(target);
+	const auto found = m_animationMap.Find(target);
 	if (found)
 		return *found;
 	return std::shared_ptr<IGUIAnimation>();
@@ -75,22 +75,20 @@ void GUIElementBase::m_TickAnimations(float deltaTime)
 {
 	for (auto it = m_animationMap.begin(); it != m_animationMap.end();)
 	{
-		bool done = !it->second->Update(deltaTime);
+		const bool done = !it->second->Update(deltaTime);
 		if (done)
 		{
 			it = m_animationMap.erase(it);
 			continue;
 		}
-		it++;
+		++it;
 	}
 }
 
 GUISlotBase::~GUISlotBase()
 {
 	if (element)
-	{
 		element->m_OnRemovedFromParent();
-	}
 }
 
 void GUISlotBase::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
@@ -114,9 +112,9 @@ void GUISlotBase::Render(GUIRenderData rd)
 	rd.guiRenderer->PopScissorRect();
 }
 
-Vector2 GUISlotBase::GetDesiredSize(GUIRenderData rd)
+Vector2 GUISlotBase::GetDesiredSize(const GUIRenderData rd)
 {
-	Vector2 size = element->GetDesiredSize(rd);
+	const Vector2 size = element->GetDesiredSize(rd);
 	return size + padding.GetSize();
 }
 
@@ -127,51 +125,44 @@ Rect GUISlotBase::ApplyFill(FillMode fillMode, const Vector2& inSize, const Rect
 		return Rect(rect.pos, inSize);
 	}
 	else if (fillMode == FillMode::Stretch)
+	{
 		return rect;
+	}
 	else if (fillMode == FillMode::Fit)
 	{
-		float rx = inSize.x / rect.size.x;
-		float ry = inSize.y / rect.size.y;
+		const float rx = inSize.x / rect.size.x;
+		const float ry = inSize.y / rect.size.y;
 		float scale = 1.0f;
+
 		if (rx > ry)
-		{
-			{
-				scale = 1.0f / rx;
-			}
-		}
+			scale = 1.0f / rx;
 		else // ry is largest
-		{
-			{
-				scale = 1.0f / ry;
-			}
-		}
+			scale = 1.0f / ry;
 
 		Rect ret = rect;
 		{
-			Vector2 newSize = inSize * scale;
+			const Vector2 newSize = inSize * scale;
 			ret.size = newSize;
 		}
 		return ret;
 	}
 	else // Fill
 	{
-		float rx = inSize.x / rect.size.x;
-		float ry = inSize.y / rect.size.y;
+		const float rx = inSize.x / rect.size.x;
+		const float ry = inSize.y / rect.size.y;
 		float scale = 1.0f;
+
 		if (rx < ry)
-		{
 			scale = 1.0f / rx;
-		}
 		else // ry is smallest
-		{
 			scale = 1.0f / ry;
-		}
 
 		Rect ret = rect;
 		{
-			Vector2 newSize = inSize * scale;
+			const Vector2 newSize = inSize * scale;
 			ret.size = newSize;
 		}
+
 		return ret;
 	}
 }
