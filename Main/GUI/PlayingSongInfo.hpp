@@ -13,8 +13,8 @@ class SongTitleArtist : public Panel
 {
 public:
 	SongTitleArtist(String title, String artist, class PlayingSongInfo* info);
-	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
-	virtual void Render(GUIRenderData rd) override;
+	void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
+	void Render(GUIRenderData rd) override;
 	float progress = 0.5f;
 	float BPM = 120.f;
 	float hiSpeed = 1.5f;
@@ -35,8 +35,8 @@ class SongProgressBar : public GUIElementBase
 {
 public:
 	SongProgressBar();
-	virtual void Render(GUIRenderData rd) override;
-	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
+	void Render(GUIRenderData rd) override;
+	Vector2 GetDesiredSize(GUIRenderData rd) override;
 	float progress = 0.5f;
 };
 
@@ -44,9 +44,9 @@ class PlayingSongInfo : public Canvas
 {
 public:
 	PlayingSongInfo(Game& game);
-	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
-	virtual void Render(GUIRenderData rd) override;
-	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
+	void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
+	void Render(GUIRenderData rd) override;
+	Vector2 GetDesiredSize(GUIRenderData rd) override;
 	void SetProgress(float progress);
 	void SetBPM(float bpm);
 	void SetHiSpeed(float hiSpeed);

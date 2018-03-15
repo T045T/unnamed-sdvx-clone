@@ -182,18 +182,18 @@ namespace Graphics
 			}
 		}
 
-		virtual Recti GetCoords(uint32 nIndex)
+		Recti GetCoords(uint32 nIndex) override
 		{
 			assert(nIndex < m_segments.size());
 			return m_segments[nIndex]->coords;
 		}
 
-		virtual std::shared_ptr<ImageRes> GetImage() override
+		std::shared_ptr<ImageRes> GetImage() override
 		{
 			return m_image;
 		}
 
-		virtual Texture GenerateTexture(OpenGL* gl)
+		Texture GenerateTexture(OpenGL* gl) override
 		{
 			Texture tex = TextureRes::Create(gl, m_image);
 			tex->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);

@@ -59,7 +59,7 @@ public:
 		if (!m_tickableToLoad)
 			return false;
 
-		m_loadingOverlay = std::shared_ptr<Canvas>(new Canvas());
+		m_loadingOverlay = std::make_shared<Canvas>();
 
 		// Fill screen with black
 		auto black = std::make_shared<Panel>();

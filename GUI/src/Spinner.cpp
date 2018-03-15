@@ -4,7 +4,7 @@
 
 Spinner::Spinner(std::shared_ptr<CommonGUIStyle> style)
 {
-	m_style = style;
+	m_style = std::move(style);
 }
 
 void Spinner::Render(GUIRenderData rd)

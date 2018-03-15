@@ -5,7 +5,7 @@
 
 TextInputField::TextInputField(std::shared_ptr<CommonGUIStyle> style)
 {
-	m_style = style;
+	m_style = std::move(style);
 	layoutDirection = LayoutBox::Horizontal;
 
 	text = std::make_shared<Label>();

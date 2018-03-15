@@ -5,7 +5,7 @@
 
 ScrollBox::ScrollBox(std::shared_ptr<CommonGUIStyle> style)
 {
-	m_style = style;
+	m_style = std::move(style);
 
 	m_vscroll = new Slider(m_style);
 	m_vscroll->layoutDirection = Slider::Vertical;
@@ -128,7 +128,7 @@ ScrollBox::Slot* ScrollBox::GetContentSlot()
 
 void ScrollBox::m_AnimateScrollDelta(int32 delta)
 {
-	std::shared_ptr<IGUIAnimation> currentAnimation = GetAnimation(0u);
+	const auto currentAnimation = GetAnimation(0u);
 	if (currentAnimation)
 	{
 		// Apply scroll to target for current animation

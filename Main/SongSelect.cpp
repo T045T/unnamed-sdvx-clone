@@ -846,7 +846,7 @@ public:
 	}
 
 	// When a difficulty is selected in the song wheel
-	void OnDifficultySelected(DifficultyIndex* diff)
+	void OnDifficultySelected(DifficultyIndex* diff) const
 	{
 		m_scoreList->Clear();
 		uint32 place = 1;
@@ -930,14 +930,13 @@ public:
 			case Input::Button::FX_1:
 				if (!m_showScores)
 				{
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_scoreCanvas->slot)->padding.left, -200.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				else
 				{
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
+					// TODO: fix this shit
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_scoreCanvas->slot)->padding.left, 0.0f, 0.2f)), true);
 					m_showScores = !m_showScores;
 				}
 				break;
@@ -946,22 +945,16 @@ public:
 				{
 					g_guiRenderer->SetInputFocus(nullptr);
 
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&m_fadePanel->color.w, 0.75, 0.25)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.left, 0.0, 0.2f)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.right, 1.0f, 0.2f)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_fadePanel->color.w, 0.75, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				else
 				{
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
-					m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-						new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+					m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 					m_filterSelection->Active = !m_filterSelection->Active;
 				}
 				break;
@@ -974,7 +967,7 @@ public:
 		}
 	}
 
-	virtual void OnKeyPressed(int32 key)
+	void OnKeyPressed(int32 key) override
 	{
 		if (m_filterSelection->Active)
 		{
@@ -988,12 +981,9 @@ public:
 			}
 			else if (key == SDLK_ESCAPE)
 			{
-				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
-				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&((Canvas::Slot*)m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
-				m_canvas->AddAnimation(std::shared_ptr<IGUIAnimation>(
-					new GUIAnimation<float>(&m_fadePanel->color.w, 0.0, 0.25)), true);
+				m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.left, -1.0f, 0.2f)), true);
+				m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&dynamic_cast<Canvas::Slot*>(m_filterSelection->slot)->anchor.right, 0.0f, 0.2f)), true);
+				m_canvas->AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_fadePanel->color.w, 0.0, 0.25)), true);
 				m_filterSelection->Active = !m_filterSelection->Active;
 			}
 		}
@@ -1046,10 +1036,10 @@ public:
 		}
 	}
 
-	virtual void OnKeyReleased(int32 key)
-	{ }
+	void OnKeyReleased(int32 key) override
+	{}
 
-	virtual void Tick(float deltaTime) override
+	void Tick(float deltaTime) override
 	{
 		if (m_dbUpdateTimer.Milliseconds() > 500)
 		{
@@ -1091,14 +1081,14 @@ public:
 		// Song navigation using laser inputs
 		/// TODO: Investigate strange behaviour further and clean up.
 
-		float diff_input = g_input.GetInputLaserDir(0);
-		float song_input = g_input.GetInputLaserDir(1);
+		const float diff_input = g_input.GetInputLaserDir(0);
+		const float song_input = g_input.GetInputLaserDir(1);
 
 		m_advanceDiff += diff_input;
 		m_advanceSong += song_input;
 
-		int advanceDiffActual = (int)Math::Floor(m_advanceDiff * Math::Sign(m_advanceDiff)) * Math::Sign(m_advanceDiff);;
-		int advanceSongActual = (int)Math::Floor(m_advanceSong * Math::Sign(m_advanceSong)) * Math::Sign(m_advanceSong);;
+		const int advanceDiffActual = static_cast<int>(Math::Floor(m_advanceDiff * Math::Sign(m_advanceDiff))) * Math::Sign(m_advanceDiff);;
+		const int advanceSongActual = static_cast<int>(Math::Floor(m_advanceSong * Math::Sign(m_advanceSong))) * Math::Sign(m_advanceSong);;
 
 		if (!m_filterSelection->Active)
 		{
@@ -1119,7 +1109,7 @@ public:
 		m_advanceSong -= advanceSongActual;
 	}
 
-	virtual void OnSuspend()
+	void OnSuspend() override
 	{
 		m_suspended = true;
 		m_previewPlayer.Pause();
@@ -1130,7 +1120,7 @@ public:
 		g_rootCanvas->Remove(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
 	}
 
-	virtual void OnRestore()
+	void OnRestore() override
 	{
 		m_suspended = false;
 		m_previewPlayer.Restore();

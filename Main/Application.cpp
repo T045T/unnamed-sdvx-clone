@@ -338,11 +338,11 @@ bool Application::m_Init()
 	{
 		ProfilerScope $1("Loading common GUI elements");
 		// Load GUI style for common elements
-		g_commonGUIStyle = std::shared_ptr<CommonGUIStyle>(new CommonGUIStyle(g_gl, m_skin));
+		g_commonGUIStyle = std::make_shared<CommonGUIStyle>(g_gl, m_skin);
 	}
 
 	// Create root canvas
-	g_rootCanvas = std::shared_ptr<Canvas>(new Canvas());
+	g_rootCanvas = std::make_shared<Canvas>();
 
 	return true;
 }

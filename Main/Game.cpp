@@ -36,14 +36,15 @@ std::shared_ptr<Beatmap> TryLoadMap(const String& path)
 	if (!mapFile.OpenRead(path))
 	{
 		delete newMap;
-		return std::shared_ptr<Beatmap>();
+		return std::make_shared<Beatmap>();
 	}
 	FileReader reader(mapFile);
 	if (!newMap->Load(reader))
 	{
 		delete newMap;
-		return std::shared_ptr<Beatmap>();
+		return std::make_shared<Beatmap>();
 	}
+
 	return std::shared_ptr<Beatmap>(newMap);
 }
 
@@ -1369,12 +1370,12 @@ public:
 		}
 	}
 
-	virtual bool IsPlaying() const override
+	bool IsPlaying() const override
 	{
 		return m_playing;
 	}
 
-	virtual bool GetTickRate(int32& rate) override
+	bool GetTickRate(int32& rate) override
 	{
 		if (!m_audioPlayback.IsPaused())
 		{
@@ -1384,52 +1385,52 @@ public:
 		return false; // Default otherwise
 	}
 
-	virtual Texture GetJacketImage() override
+	Texture GetJacketImage() override
 	{
 		return m_jacketTexture;
 	}
 
-	virtual std::shared_ptr<Beatmap> GetBeatmap() override
+	std::shared_ptr<Beatmap> GetBeatmap() override
 	{
 		return m_beatmap;
 	}
 
-	virtual class Track& GetTrack() override
+	class Track& GetTrack() override
 	{
 		return *m_track;
 	}
 
-	virtual class Camera& GetCamera() override
+	class Camera& GetCamera() override
 	{
 		return m_camera;
 	}
 
-	virtual class BeatmapPlayback& GetPlayback() override
+	class BeatmapPlayback& GetPlayback() override
 	{
 		return m_playback;
 	}
 
-	virtual class Scoring& GetScoring() override
+	class Scoring& GetScoring() override
 	{
 		return m_scoring;
 	}
 
-	virtual float* GetGaugeSamples() override
+	float* GetGaugeSamples() override
 	{
 		return m_gaugeSamples;
 	}
 
-	virtual const String& GetMapRootPath() const
+	const String& GetMapRootPath() const override
 	{
 		return m_mapRootPath;
 	}
 
-	virtual const String& GetMapPath() const
+	const String& GetMapPath() const override
 	{
 		return m_mapPath;
 	}
 
-	virtual const DifficultyIndex& GetDifficultyIndex() const
+	const DifficultyIndex& GetDifficultyIndex() const override
 	{
 		return m_diffIndex;
 	}
@@ -1437,12 +1438,12 @@ public:
 
 Game* Game::Create(const DifficultyIndex& difficulty)
 {
-	Game_Impl* impl = new Game_Impl(difficulty);
+	auto impl = new Game_Impl(difficulty);
 	return impl;
 }
 
 Game* Game::Create(const String& difficulty)
 {
-	Game_Impl* impl = new Game_Impl(difficulty);
+	auto impl = new Game_Impl(difficulty);
 	return impl;
 }

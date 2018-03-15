@@ -201,7 +201,7 @@ String Input::GetControllerStateString() const
 
 std::shared_ptr<int32> Input::LockMouse()
 {
-	return m_mouseLocks.Add(MouseLockHandle(new int32(m_mouseLockIndex++)));
+	return m_mouseLocks.Add(std::make_shared<int32>(m_mouseLockIndex++));
 }
 
 float Input::GetInputLaserDir(uint32 laserIdx)
@@ -262,7 +262,7 @@ void Input::m_InitControllerMapping()
 
 void Input::m_OnButtonInput(Button b, bool pressed)
 {
-	bool& state = m_buttonStates[(size_t)b];
+	bool& state = m_buttonStates[static_cast<size_t>(b)];
 	if (state != pressed)
 	{
 		state = pressed;
@@ -279,16 +279,16 @@ void Input::m_OnButtonInput(Button b, bool pressed)
 	static Timer t;
 	if (b >= Button::LS_0Neg)
 	{
-		int32 btnIdx = (int32)b - (int32)Button::LS_0Neg;
-		int32 laserIdx = btnIdx / 2;
+		const int32 btnIdx = static_cast<int32>(b) - static_cast<int32>(Button::LS_0Neg);
+		const int32 laserIdx = btnIdx / 2;
 		// Set laser state based uppon the button that was pressed last
 		if (pressed)
 			m_rawKeyLaserStates[laserIdx] = (btnIdx % 2) == 0 ? -m_keySensitivity : m_keySensitivity;
 		else // If a button was released check if the other one is still held
 		{
-			if (m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2])
+			if (m_buttonStates[static_cast<int32>(Button::LS_0Neg) + laserIdx * 2])
 				m_rawKeyLaserStates[laserIdx] = -m_keySensitivity;
-			else if (m_buttonStates[(int32)Button::LS_0Neg + laserIdx * 2 + 1])
+			else if (m_buttonStates[static_cast<int32>(Button::LS_0Neg) + laserIdx * 2 + 1])
 				m_rawKeyLaserStates[laserIdx] = m_keySensitivity;
 		}
 	}
@@ -298,7 +298,7 @@ void Input::m_OnGamepadButtonPressed(uint8 button)
 {
 	// Handle button mappings
 	auto it = m_controllerMap.equal_range(button);
-	for (auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; ++it1)
 		m_OnButtonInput(it1->second, true);
 }
 
@@ -306,7 +306,7 @@ void Input::m_OnGamepadButtonReleased(uint8 button)
 {
 	// Handle button mappings
 	auto it = m_controllerMap.equal_range(button);
-	for (auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; ++it1)
 		m_OnButtonInput(it1->second, false);
 }
 
@@ -314,7 +314,7 @@ void Input::OnKeyPressed(int32 key)
 {
 	// Handle button mappings
 	auto it = m_buttonMap.equal_range(key);
-	for (auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; ++it1)
 		m_OnButtonInput(it1->second, true);
 }
 
@@ -322,7 +322,7 @@ void Input::OnKeyReleased(int32 key)
 {
 	// Handle button mappings
 	auto it = m_buttonMap.equal_range(key);
-	for (auto it1 = it.first; it1 != it.second; it1++)
+	for (auto it1 = it.first; it1 != it.second; ++it1)
 		m_OnButtonInput(it1->second, false);
 }
 

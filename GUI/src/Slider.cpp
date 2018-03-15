@@ -4,7 +4,7 @@
 
 Slider::Slider(std::shared_ptr<CommonGUIStyle> style)
 {
-	m_style = style;
+	m_style = std::move(style);
 }
 
 void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
@@ -42,8 +42,7 @@ void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if (m_hovered || m_held)
 		{
-			AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<float>(&m_buttonScale, 1.1f, 0.2f)), true);
+			AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_buttonScale, 1.1f, 0.2f)), true);
 			m_animation = true;
 		}
 	}
@@ -51,8 +50,7 @@ void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	{
 		if (!m_hovered && !m_held)
 		{
-			AddAnimation(std::shared_ptr<IGUIAnimation>(
-							new GUIAnimation<float>(&m_buttonScale, 1.0f, 0.3f)), true);
+			AddAnimation(std::static_pointer_cast<IGUIAnimation>(std::make_shared<GUIAnimation<float>>(&m_buttonScale, 1.0f, 0.3f)), true);
 			m_animation = false;
 		}
 	}
@@ -111,7 +109,7 @@ void Slider::Render(GUIRenderData rd)
 		if (showButton)
 		{
 			rd.guiRenderer->RenderRect(buttonRect, Color::White,
-										(m_hovered || m_held) ? m_style->sliderButtonHighlightTexture : m_style->sliderButtonTexture);
+				(m_hovered || m_held) ? m_style->sliderButtonHighlightTexture : m_style->sliderButtonTexture);
 		}
 	}
 	else
@@ -120,7 +118,7 @@ void Slider::Render(GUIRenderData rd)
 		if (showButton)
 		{
 			rd.guiRenderer->RenderRect(buttonRect, Color::White,
-										(m_hovered || m_held) ? m_style->verticalSliderButtonHighlightTexture : m_style->verticalSliderButtonTexture);
+				(m_hovered || m_held) ? m_style->verticalSliderButtonHighlightTexture : m_style->verticalSliderButtonTexture);
 		}
 	}
 }

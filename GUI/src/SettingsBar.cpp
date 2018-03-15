@@ -8,7 +8,7 @@
 SettingsBar::SettingsBar(std::shared_ptr<CommonGUIStyle> style)
 	: ScrollBox(style)
 {
-	m_style = style;
+	m_style = std::move(style);
 	m_container = std::make_shared<LayoutBox>();
 	m_container->layoutDirection = LayoutBox::Vertical;
 	ScrollBox::SetContent(m_container);
