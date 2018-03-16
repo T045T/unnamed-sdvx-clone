@@ -132,11 +132,9 @@ private:
 };
 
 template <typename T, typename Lambda>
-std::shared_ptr<IGUIAnimation> IGUIAnimation::CreateCallback(T next, T last, float duration, Lambda&& l,
-															uint32 identifier)
+std::shared_ptr<IGUIAnimation> IGUIAnimation::CreateCallback(T next, T last, float duration, Lambda&& l, uint32 identifier)
 {
-	return std::shared_ptr<IGUIAnimation>(
-		new GUICallbackAnimation<T, Lambda>(std::forward<Lambda>(l), next, last, duration, identifier));
+	return std::shared_ptr<IGUIAnimation>(new GUICallbackAnimation<T, Lambda>(std::forward<Lambda>(l), next, last, duration, identifier));
 }
 
 template <typename T>

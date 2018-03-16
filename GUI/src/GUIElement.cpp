@@ -43,7 +43,7 @@ std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
 	const auto found = m_animationMap.Find(target);
 	if (found)
 		return *found;
-	return std::make_shared<IGUIAnimation>();
+	return std::shared_ptr<IGUIAnimation>();
 }
 
 bool GUIElementBase::HasInputFocus() const

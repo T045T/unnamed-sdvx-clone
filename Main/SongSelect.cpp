@@ -846,7 +846,8 @@ public:
 	}
 
 	// When a difficulty is selected in the song wheel
-	void OnDifficultySelected(DifficultyIndex* diff) const
+	// cannot be const
+	void OnDifficultySelected(DifficultyIndex* diff)
 	{
 		m_scoreList->Clear();
 		uint32 place = 1;
