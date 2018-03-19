@@ -106,17 +106,12 @@ namespace Graphics
 		}
 	};
 
-	Mesh MeshRes::Create(class OpenGL* gl)
+	Mesh MeshRes::Create()
 	{
-		Mesh_Impl* pImpl = new Mesh_Impl();
+		const auto pImpl = make_shared<Mesh_Impl>();
 		if (!pImpl->Init())
-		{
-			delete pImpl;
 			return Mesh();
-		}
 		else
-		{
 			return GetResourceManager<ResourceType::Mesh>().Register(pImpl);
-		}
 	}
 }

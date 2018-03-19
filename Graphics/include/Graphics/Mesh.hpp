@@ -1,6 +1,7 @@
 #pragma once
 #include <Graphics/ResourceTypes.hpp>
 #include <Graphics/VertexFormat.hpp>
+#include <Graphics/OpenGL.hpp>
 
 namespace Graphics
 {
@@ -22,7 +23,8 @@ namespace Graphics
 	{
 	public:
 		virtual ~MeshRes() = default;
-		static std::shared_ptr<MeshRes> Create(class OpenGL* gl);
+		static shared_ptr<MeshRes> Create();
+
 	public:
 		// Sets the vertex point data for this mesh
 		// must be set before drawing

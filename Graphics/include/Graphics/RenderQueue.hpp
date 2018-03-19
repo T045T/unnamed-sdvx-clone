@@ -52,7 +52,7 @@ namespace Graphics
 	{
 	public:
 		RenderQueue() = default;
-		RenderQueue(OpenGL* ogl, const RenderState& rs);
+		RenderQueue(shared_ptr<OpenGL> gl, RenderState rs);
 		RenderQueue(RenderQueue&& other);
 		RenderQueue& operator=(RenderQueue&& other);
 		~RenderQueue();
@@ -75,6 +75,6 @@ namespace Graphics
 	private:
 		RenderState m_renderState;
 		Vector<RenderQueueItem*> m_orderedCommands;
-		class OpenGL* m_ogl = nullptr;
+		shared_ptr<OpenGL> m_gl;
 	};
 }

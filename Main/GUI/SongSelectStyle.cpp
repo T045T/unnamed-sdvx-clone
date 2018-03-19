@@ -2,6 +2,7 @@
 #include "SongSelectStyle.hpp"
 #include "Shared/Jobs.hpp"
 #include "Application.hpp"
+#include "Global.hpp"
 
 std::shared_ptr<SongSelectStyle> SongSelectStyle::instance;
 
@@ -10,7 +11,7 @@ std::shared_ptr<SongSelectStyle> SongSelectStyle::Get(Application* application)
 	if (!instance)
 	{
 		assert(application);
-		instance = std::shared_ptr<SongSelectStyle>(new SongSelectStyle(application));
+		instance = std::make_shared<SongSelectStyle>(application);
 	}
 	return instance;
 }
@@ -113,7 +114,7 @@ void JacketLoadingJob::Finalize()
 {
 	if (IsSuccessfull())
 	{
-		target->texture = TextureRes::Create(g_gl, loadedImage);
+		target->texture = TextureRes::Create(loadedImage);
 		target->texture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 	}
 }

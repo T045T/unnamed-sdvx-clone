@@ -3,7 +3,7 @@
 
 namespace Graphics
 {
-	Mesh MeshGenerators::Quad(OpenGL* gl, Vector2 pos, Vector2 size /*= Vector2(1,1)*/)
+	Mesh MeshGenerators::Quad(shared_ptr<OpenGL> gl, Vector2 pos, Vector2 size /*= Vector2(1,1)*/)
 	{
 		Vector<SimpleVertex> verts =
 		{
@@ -21,7 +21,7 @@ namespace Graphics
 			v.pos += pos;
 		}
 
-		Mesh mesh = MeshRes::Create(gl);
+		Mesh mesh = MeshRes::Create();
 		mesh->SetData(verts);
 		mesh->SetPrimitiveType(PrimitiveType::TriangleList);
 		return mesh;

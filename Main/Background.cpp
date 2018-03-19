@@ -6,6 +6,7 @@
 #include "Game.hpp"
 #include "Track.hpp"
 #include "Camera.hpp"
+#include "Global.hpp"
 
 /* Background template for fullscreen effects */
 class FullscreenBackground : public Background
@@ -150,7 +151,7 @@ class TestBackground : public FullscreenBackground
 
 	Texture LoadBackgroundTexture(const String& path)
 	{
-		Texture ret = TextureRes::Create(g_gl, ImageRes::Create(path));
+		Texture ret = TextureRes::Create(ImageRes::Create(path));
 		return ret;
 	}
 };

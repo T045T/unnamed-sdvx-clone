@@ -1,5 +1,6 @@
 #pragma once
 #include <Graphics/ResourceTypes.hpp>
+#include <Graphics/OpenGL.hpp>
 
 namespace Graphics
 {
@@ -18,8 +19,8 @@ namespace Graphics
 	{
 	public:
 		virtual ~ShaderRes() = default;
-		static std::shared_ptr<ShaderRes> Create(class OpenGL* gl, ShaderType type, const String& assetPath);
-		static void Unbind(class OpenGL* gl, ShaderType type);
+		static shared_ptr<ShaderRes> Create(shared_ptr<OpenGL> gl, ShaderType type, const String& assetPath);
+		static void Unbind(shared_ptr<OpenGL> gl, ShaderType type);
 		friend class OpenGL;
 	public:
 		// Tries to hot-reload the shader program, only works if _DEBUG is defined

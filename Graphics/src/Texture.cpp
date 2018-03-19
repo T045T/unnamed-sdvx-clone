@@ -181,36 +181,28 @@ namespace Graphics
 		}
 	};
 
-	Texture TextureRes::Create(OpenGL* gl)
+	Texture TextureRes::Create()
 	{
-		Texture_Impl* pImpl = new Texture_Impl();
+		const auto pImpl = make_shared<Texture_Impl>();
 		if (pImpl->Init())
-		{
 			return GetResourceManager<ResourceType::Texture>().Register(pImpl);
-		}
 		else
-		{
-			delete pImpl;
-			pImpl = nullptr;
-		}
-		return Texture();
+			return Texture();
 	}
 
-	Texture TextureRes::Create(OpenGL* gl, Image image)
+	Texture TextureRes::Create(Image image)
 	{
 		if (!image)
 			return Texture();
-		Texture_Impl* pImpl = new Texture_Impl();
+
+		const auto pImpl = make_shared<Texture_Impl>();
 		if (pImpl->Init())
 		{
 			pImpl->SetData(image->GetSize(), image->GetBits());
 			return GetResourceManager<ResourceType::Texture>().Register(pImpl);
 		}
 		else
-		{
-			delete pImpl;
 			return Texture();
-		}
 	}
 
 	float TextureRes::CalculateHeight(float width)

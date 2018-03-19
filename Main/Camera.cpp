@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include "Application.hpp"
 #include "Track.hpp"
+#include "Global.hpp"
 
 Camera::Camera()
 {}

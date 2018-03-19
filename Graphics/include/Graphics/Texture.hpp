@@ -26,8 +26,8 @@ namespace Graphics
 	{
 	public:
 		virtual ~TextureRes() = default;
-		static std::shared_ptr<TextureRes> Create(class OpenGL* gl);
-		static std::shared_ptr<TextureRes> Create(class OpenGL* gl, std::shared_ptr<class ImageRes> image);
+		static std::shared_ptr<TextureRes> Create();
+		static std::shared_ptr<TextureRes> Create(std::shared_ptr<class ImageRes> image);
 	public:
 		virtual void Init(Vector2i size, TextureFormat format = TextureFormat::RGBA8) = 0;
 		virtual void SetData(Vector2i size, void* pData) = 0;

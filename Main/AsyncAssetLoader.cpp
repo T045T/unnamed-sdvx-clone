@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AsyncAssetLoader.hpp"
 #include "Application.hpp"
+#include "Global.hpp"
 
 struct AsyncLoadOperation : public IAsyncLoadable
 {
@@ -26,7 +27,7 @@ struct AsyncTextureLoadOperation : public AsyncLoadOperation
 
 	bool AsyncFinalize()
 	{
-		target = TextureRes::Create(g_gl, image);
+		target = TextureRes::Create(image);
 		return target != nullptr;
 	}
 };

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Application.hpp"
-#include <Beatmap/Beatmap.hpp>
 #include "Game.hpp"
 #include "Test.hpp"
 #include "SongSelect.hpp"
@@ -17,22 +16,13 @@
 #include <GUI/Canvas.hpp>
 #include <GUI/CommonGUIStyle.hpp>
 #include "TransitionScreen.hpp"
+#include "Global.hpp"
+
 #ifdef _WIN32
 #include "SDL_keycode.h"
 #else
 #include "SDL2/SDL_keycode.h"
 #endif
-
-GameConfig g_gameConfig;
-OpenGL* g_gl = nullptr;
-Window* g_gameWindow = nullptr;
-Application* g_application = nullptr;
-JobSheduler* g_jobSheduler = nullptr;
-Input g_input;
-
-GUIRenderer* g_guiRenderer = nullptr;
-std::shared_ptr<Canvas> g_rootCanvas;
-std::shared_ptr<CommonGUIStyle> g_commonGUIStyle;
 
 // Tickable queue
 static Vector<IApplicationTickable*> g_tickables;
@@ -57,17 +47,12 @@ static Vector<TickableChange> g_tickableChanges;
 // Used to set the initial screen size
 static float g_screenHeight = 1000.0f;
 
-// Current screen size
-float g_aspectRatio = (16.0f / 9.0f);
-Vector2i g_resolution;
-
 static float g_avgRenderDelta = 0.0f;
 
 Application::Application()
 {
 	// Enforce single instance
 	assert(!g_application);
-	g_application = this;
 }
 
 Application::~Application()
@@ -76,9 +61,7 @@ Application::~Application()
 		ProfilerScope $("Application Cleanup");
 
 		for (auto it : g_tickables)
-		{
 			delete it;
-		}
 
 		g_tickables.clear();
 
@@ -88,34 +71,12 @@ Application::~Application()
 			g_audio = nullptr;
 		}
 
-		if (g_gl)
-		{
-			delete g_gl;
-			g_gl = nullptr;
-		}
-
 		// Cleanup input
 		g_input.Cleanup();
-
-		// Cleanup window after this
-		if (g_gameWindow)
-		{
-			delete g_gameWindow;
-			g_gameWindow = nullptr;
-		}
-
-		if (g_jobSheduler)
-		{
-			delete g_jobSheduler;
-			g_jobSheduler = nullptr;
-		}
 
 		// Finally, save config
 		m_SaveConfig();
 	}
-
-	assert(g_application == this);
-	g_application = nullptr;
 }
 
 void Application::SetCommandLine(int32 argc, char** argv)
@@ -221,7 +182,7 @@ bool Application::m_Init()
 	}
 
 	// Job sheduler
-	g_jobSheduler = new JobSheduler();
+	g_jobSheduler = make_shared<JobSheduler>();
 
 	m_allowMapConversion = false;
 	bool debugMute = false;
@@ -265,7 +226,7 @@ bool Application::m_Init()
 		g_gameConfig.GetInt(GameConfigKeys::ScreenWidth),
 		g_gameConfig.GetInt(GameConfigKeys::ScreenHeight));
 	g_aspectRatio = (float)g_resolution.x / (float)g_resolution.y;
-	g_gameWindow = new Graphics::Window(g_resolution);
+	g_gameWindow = make_shared<Window>(g_resolution);
 	g_gameWindow->Show();
 	m_OnWindowResized(g_resolution);
 	g_gameWindow->OnKeyPressed.Add(this, &Application::m_OnKeyPressed);
@@ -313,7 +274,7 @@ bool Application::m_Init()
 		ProfilerScope $1("GL Init");
 
 		// Create graphics context
-		g_gl = new OpenGL();
+		g_gl = make_shared<OpenGL>();
 		if (!g_gl->Init(*g_gameWindow))
 		{
 			Log("Failed to create OpenGL context", Logger::Error);
@@ -327,8 +288,11 @@ bool Application::m_Init()
 		ProfilerScope $1("GUI Init");
 
 		// GUI Rendering
-		g_guiRenderer = new GUIRenderer();
-		if (!g_guiRenderer->Init(g_gl, g_gameWindow, m_skin))
+		try
+		{
+			g_guiRenderer = make_shared<GUIRenderer>(g_gl, g_gameWindow.get(), m_skin);
+		}
+		catch (runtime_error& err)
 		{
 			Logf("Failed to initialize GUI renderer", Logger::Error);
 			return false;
@@ -338,7 +302,7 @@ bool Application::m_Init()
 	{
 		ProfilerScope $1("Loading common GUI elements");
 		// Load GUI style for common elements
-		g_commonGUIStyle = std::make_shared<CommonGUIStyle>(g_gl, m_skin);
+		g_commonGUIStyle = std::make_shared<CommonGUIStyle>(m_skin);
 	}
 
 	// Create root canvas
@@ -485,7 +449,7 @@ void Application::m_Tick()
 		}
 
 		// Time to render GUI
-		g_guiRenderer->Render(m_deltaTime, Rect(Vector2(0, 0), g_resolution), std::dynamic_pointer_cast<GUIElementBase>(g_rootCanvas));
+		g_guiRenderer->render(m_deltaTime, Rect(Vector2(0, 0), g_resolution), static_cast<GUIElementBase*>(g_rootCanvas.get()));
 
 		// Swap buffers
 		g_gl->SwapBuffers();
@@ -548,7 +512,7 @@ Graphics::Image Application::LoadImageExternal(const String& name)
 
 Texture Application::LoadTexture(const String& name)
 {
-	Texture ret = TextureRes::Create(g_gl, LoadImage(name));
+	Texture ret = TextureRes::Create(LoadImage(name));
 	return ret;
 }
 
@@ -556,12 +520,12 @@ Texture Application::LoadTexture(const String& name, const bool& external)
 {
 	if (external)
 	{
-		Texture ret = TextureRes::Create(g_gl, LoadImageExternal(name));
+		Texture ret = TextureRes::Create(LoadImageExternal(name));
 		return ret;
 	}
 	else
 	{
-		Texture ret = TextureRes::Create(g_gl, LoadImage(name));
+		Texture ret = TextureRes::Create(LoadImage(name));
 		return ret;
 	}
 }

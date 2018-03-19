@@ -1,5 +1,6 @@
 #pragma once
 #include <Graphics/ResourceTypes.hpp>
+#include "OpenGL.hpp"
 
 namespace Graphics
 {
@@ -34,17 +35,17 @@ namespace Graphics
 	{
 	public:
 		virtual ~SpriteMapRes() = default;
-		static std::shared_ptr<SpriteMapRes> Create();
-	public:
-		virtual uint32 AddSegment(std::shared_ptr<ImageRes> image) = 0;
+		static shared_ptr<SpriteMapRes> Create();
+
+		virtual uint32 AddSegment(shared_ptr<ImageRes> image) = 0;
 		virtual void Clear() = 0;
-		virtual std::shared_ptr<ImageRes> GetImage() = 0;
-		virtual std::shared_ptr<class TextureRes> GenerateTexture(class OpenGL* gl) = 0;
+		virtual shared_ptr<ImageRes> GetImage() = 0;
+		virtual shared_ptr<class TextureRes> GenerateTexture() = 0;
 		virtual Recti GetCoords(uint32 nIndex) = 0;
 	};
 
-	typedef std::shared_ptr<ImageRes> Image;
-	typedef std::shared_ptr<SpriteMapRes> SpriteMap;
+	typedef shared_ptr<ImageRes> Image;
+	typedef shared_ptr<SpriteMapRes> SpriteMap;
 
 	DEFINE_RESOURCE_TYPE(Image, ImageRes);
 

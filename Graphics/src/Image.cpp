@@ -84,23 +84,17 @@ namespace Graphics
 
 	Image ImageRes::Create(Vector2i size)
 	{
-		Image_Impl* pImpl = new Image_Impl();
+		const auto pImpl = make_shared<Image_Impl>();
 		pImpl->SetSize(size);
 		return GetResourceManager<ResourceType::Image>().Register(pImpl);
 	}
 
 	Image ImageRes::Create(const String& assetPath)
 	{
-		Image_Impl* pImpl = new Image_Impl();
+		const auto pImpl = make_shared<Image_Impl>();
 		if (ImageLoader::Load(pImpl, assetPath))
-		{
 			return GetResourceManager<ResourceType::Image>().Register(pImpl);
-		}
-		else
-		{
-			delete pImpl;
-			pImpl = nullptr;
-		}
+
 		return Image();
 	}
 }

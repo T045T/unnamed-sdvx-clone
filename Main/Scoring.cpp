@@ -3,6 +3,7 @@
 #include <Beatmap/BeatmapPlayback.hpp>
 #include <math.h>
 #include "GameConfig.hpp"
+#include "Global.hpp"
 
 const MapTime Scoring::missHitTime = 275;
 const MapTime Scoring::goodHitTime = 100;

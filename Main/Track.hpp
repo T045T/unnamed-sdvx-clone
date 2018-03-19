@@ -35,8 +35,8 @@ public:
 public:
 	Track();
 	~Track();
-	virtual bool AsyncLoad() override;
-	virtual bool AsyncFinalize() override;
+	bool AsyncLoad() override;
+	bool AsyncFinalize() override;
 	void Tick(class BeatmapPlayback& playback, float deltaTime);
 
 	// Just the board with tick lines

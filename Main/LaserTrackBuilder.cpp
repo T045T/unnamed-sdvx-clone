@@ -4,9 +4,9 @@
 #include "Track.hpp"
 #include <algorithm>
 
-LaserTrackBuilder::LaserTrackBuilder(class OpenGL* gl, class Track* track, uint32 laserIndex)
+LaserTrackBuilder::LaserTrackBuilder(shared_ptr<OpenGL> gl, class Track* track, uint32 laserIndex)
+	: m_gl(std::move(gl))
 {
-	m_gl = gl;
 	m_track = track;
 	m_laserIndex = laserIndex;
 	m_trackWidth = track->trackWidth;
@@ -21,7 +21,7 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 	if (m_objectCache.Contains(laser))
 		return m_objectCache[laser];
 
-	Mesh newMesh = MeshRes::Create(m_gl);
+	Mesh newMesh = MeshRes::Create();
 
 	float length = playback.DurationToViewDistanceAtTime(laser->time, laser->duration);
 
@@ -220,7 +220,7 @@ Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, Lase
 	if (m_cachedEntries.Contains(laser))
 		return m_cachedEntries[laser];
 
-	Mesh newMesh = MeshRes::Create(m_gl);
+	Mesh newMesh = MeshRes::Create();
 
 	// Starting point of laser
 	float startingX = laser->points[0] * effectiveWidth - effectiveWidth * 0.5f;
@@ -250,7 +250,7 @@ Mesh LaserTrackBuilder::GenerateTrackExit(class BeatmapPlayback& playback, Laser
 	if (m_cachedExits.Contains(laser))
 		return m_cachedExits[laser];
 
-	Mesh newMesh = MeshRes::Create(m_gl);
+	Mesh newMesh = MeshRes::Create();
 
 	// Ending point of laser 
 	float startingX = laser->points[1] * effectiveWidth - effectiveWidth * 0.5f;

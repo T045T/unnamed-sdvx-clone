@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Input.hpp"
 #include "GameConfig.hpp"
+#include "Global.hpp"
 
 Input::~Input()
 {

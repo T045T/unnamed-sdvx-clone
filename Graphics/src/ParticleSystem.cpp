@@ -21,10 +21,13 @@ namespace Graphics
 		Vector4 params;
 	};
 
-	std::shared_ptr<ParticleSystemRes> ParticleSystemRes::Create(class OpenGL* gl)
+	ParticleSystemRes::ParticleSystemRes(shared_ptr<OpenGL> gl)
+		: m_gl(std::move(gl))
+	{}
+
+	shared_ptr<ParticleSystemRes> ParticleSystemRes::Create(shared_ptr<OpenGL> gl)
 	{
-		auto impl = new ParticleSystemRes();
-		impl->gl = gl;
+		const auto impl = make_shared<ParticleSystemRes>(gl);
 		return GetResourceManager<ResourceType::ParticleSystem>().Register(impl);
 	}
 
@@ -214,7 +217,7 @@ namespace Graphics
 		}
 
 		// Create vertex buffer
-		Mesh mesh = MeshRes::Create(m_system->gl);
+		Mesh mesh = MeshRes::Create();
 
 		mesh->SetData(verts);
 		mesh->SetPrimitiveType(PrimitiveType::PointList);

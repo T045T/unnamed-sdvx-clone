@@ -21,6 +21,7 @@
 #include "Shared/Jobs.hpp"
 #include "ScoreScreen.hpp"
 #include "Shared/Enum.hpp"
+#include "Global.hpp"
 
 class TitleScreen_Impl : public TitleScreen
 {

@@ -42,15 +42,15 @@ namespace Graphics
 			Monospace = 0x1,
 		};
 
-		FontRes(OpenGL* gl, const String& assetPath);
+		FontRes(shared_ptr<OpenGL> gl, const String& assetPath);
 		~FontRes();
 
 		FontSize* get_size(uint32 nSize);
 
-		static std::shared_ptr<FontRes> create(class OpenGL* gl, const String& assetPath);
+		static shared_ptr<FontRes> create(shared_ptr<OpenGL> gl, const String& assetPath);
 
 		// Renders the input string into a drawable text object
-		std::shared_ptr<TextRes> create_text(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None);
+		shared_ptr<TextRes> create_text(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None);
 
 	private:
 		FT_Face m_face;
@@ -59,7 +59,7 @@ namespace Graphics
 		Map<uint32, FontSize*> m_sizes;
 		uint32 m_currentSize = 0;
 
-		OpenGL* m_gl;
+		shared_ptr<OpenGL> m_gl;
 	};
 
 	typedef std::shared_ptr<FontRes> Font;
@@ -105,7 +105,7 @@ namespace Graphics
 	class FontSize
 	{
 	public:
-		FontSize(OpenGL* gl, FT_Face& face);
+		FontSize(shared_ptr<OpenGL> gl, FT_Face& face);
 
 		SpriteMap spriteMap;
 		Texture textureMap;
@@ -122,7 +122,7 @@ namespace Graphics
 	private:
 		const CharInfo& add_char_info(wchar_t t);
 
-		OpenGL* m_gl;
+		shared_ptr<OpenGL> m_gl;
 	};
 
 	DEFINE_RESOURCE_TYPE(Font, FontRes);

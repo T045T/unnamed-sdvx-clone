@@ -35,14 +35,12 @@ public:
 
 	// Creates a new reference counted object to this object and returns it
 	// when the object is no longer referenced the resource manager will collect it when the next garbage collection triggers
-	std::shared_ptr<T> Register(T* pObject)
+	shared_ptr<T> Register(shared_ptr<T> pObject)
 	{
-		std::shared_ptr<T> ret;
-		ret.reset(pObject);
 		m_lock.lock();
-		m_objects.push_back(ret);
+		m_objects.push_back(pObject);	// TODO: transition to std::move
 		m_lock.unlock();
-		return ret;
+		return pObject;
 	}
 
 	void GarbageCollect() override

@@ -3,6 +3,8 @@
 
 // Types
 #include "Types.hpp"
+#include <string>
+using std::string;
 
 // Random Utility classes
 #include "Unique.hpp"
@@ -12,6 +14,13 @@
 
 // Reference counting
 #include <memory>
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+
+// Errors
+using std::runtime_error;
 
 // Filsystem headers
 #include "FileSystem.hpp"

@@ -20,6 +20,7 @@
 #include "ScoreScreen.hpp"
 #include "Shared/Enum.hpp"
 #include "Input.hpp"
+#include "Global.hpp"
 #ifdef _WIN32
 #include "SDL_keyboard.h"
 #else
@@ -457,7 +458,7 @@ public:
 			box->Add(laserColorLabel);
 
 			// Make white square texture
-			m_whiteTex = TextureRes::Create(g_gl);
+			m_whiteTex = TextureRes::Create();
 			m_whiteTex->Init(Vector2i(50, 50), Graphics::TextureFormat::RGBA8);
 
 			Colori pixels[2500];

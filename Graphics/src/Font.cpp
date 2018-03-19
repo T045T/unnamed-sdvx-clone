@@ -33,8 +33,8 @@ namespace Graphics
 		mesh->Draw();
 	}
 
-	FontRes::FontRes(OpenGL* gl, const String& assetPath)
-		: m_gl(gl)
+	FontRes::FontRes(shared_ptr<OpenGL> gl, const String& assetPath)
+		: m_gl(std::move(gl))
 	{
 		File in;
 		if (!in.OpenRead(assetPath))
@@ -55,6 +55,8 @@ namespace Graphics
 
 	FontRes::~FontRes()
 	{
+		for(auto s : m_sizes)
+			delete s.second;
 		m_sizes.clear();
 		FT_Done_Face(m_face);
 	}
@@ -81,11 +83,11 @@ namespace Graphics
 		return pMap;
 	}
 
-	Font FontRes::create(OpenGL* gl, const String& assetPath)
+	Font FontRes::create(shared_ptr<OpenGL> gl, const String& assetPath)
 	{
 		try
 		{
-			const auto pImpl = new FontRes(gl, assetPath);
+			const auto pImpl = make_shared<FontRes>(gl, assetPath);
 			return GetResourceManager<ResourceType::Font>().Register(pImpl);
 		}
 		catch (std::runtime_error& e)
@@ -114,7 +116,7 @@ namespace Graphics
 		};
 
 		auto ret = new TextRes();
-		ret->mesh = MeshRes::Create(m_gl);
+		ret->mesh = MeshRes::Create();
 
 		const float monospaceWidth = size->get_char_info(L'_').advance;
 
@@ -241,11 +243,11 @@ namespace Graphics
 		Add(key, {obj, timer.SecondsAsFloat()});
 	}
 
-	FontSize::FontSize(OpenGL* gl, FT_Face& face)
-		: face(face), m_gl(gl)
+	FontSize::FontSize(shared_ptr<OpenGL> gl, FT_Face& face)
+		: face(face), m_gl(std::move(gl))
 	{
 		spriteMap = SpriteMapRes::Create();
-		textureMap = TextureRes::Create(m_gl);
+		textureMap = TextureRes::Create();
 		lineHeight = static_cast<float>(face->size->metrics.height) / 64.0f;
 	}
 
@@ -261,7 +263,7 @@ namespace Graphics
 	{
 		if (bUpdated)
 		{
-			textureMap = spriteMap->GenerateTexture(m_gl);
+			textureMap = spriteMap->GenerateTexture();
 			bUpdated = false;
 		}
 		return textureMap;

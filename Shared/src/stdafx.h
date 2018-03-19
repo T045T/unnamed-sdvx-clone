@@ -12,3 +12,14 @@
 #endif
 
 #include "Shared/Types.hpp"
+
+#include <memory>
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+
+#include <string>
+using std::string;
+
+using std::runtime_error;

@@ -19,26 +19,25 @@ public:
 class GUIRenderer
 {
 public:
+	GUIRenderer(shared_ptr<OpenGL> gl, class Window* window, String skin);
 	~GUIRenderer();
 
-	// Loads gui shaders/textures/etc.
-	bool Init(class OpenGL* gl, Graphics::Window* window = nullptr, String skin = "Default");
-	void Render(float deltaTime, Rect viewportSize, std::shared_ptr<class GUIElementBase> rootElement);
+	void render(float deltaTime, Rect viewportSize, class GUIElementBase* root_element);
 
 	// Use to manually start rendering GUI elements
 	RenderQueue& Begin();
 	// Use to manually stop rendering GUI elements
 	void End();
 
-	void SetWindow(Graphics::Window* window);
-	Graphics::Window* GetWindow() const;
+	void SetWindow(Window* window);
+	Window* GetWindow() const;
 
 	void PushScissorRect(const Rect& scissor);
 	void PopScissorRect();
 	Rect GetScissorRect() const;
 
 	// The element that the mouse hovers over
-	GUIElementBase* GetHoveredElement();
+	GUIElementBase* GetHoveredElement() const;
 
 	// Set current input focus, this element receives keyboard text events
 	void SetInputFocus(class GUIElementBase* element);
@@ -49,19 +48,19 @@ public:
 	const GUITextInput& GetTextInput() const;
 
 	// Renders text, returns the size of the rendered text
-	Vector2i GetTextSize(const String& str, uint32 fontSize = 16);
-	Vector2i GetTextSize(const WString& str, uint32 fontSize = 16);
+	Vector2i GetTextSize(const String& str, uint32 fontSize = 16) const;
+	Vector2i GetTextSize(const WString& str, uint32 fontSize = 16) const;
 	Vector2i RenderText(const String& str, const Vector2& position, const Color& color = Color(1.0f),
-						uint32 fontSize = 16);
+						uint32 fontSize = 16) const;
 	Vector2i RenderText(const WString& str, const Vector2& position, const Color& color = Color(1.0f),
-						uint32 fontSize = 16);
-	void RenderText(Text& text, const Vector2& position, const Color& color = Color(1.0f));
+						uint32 fontSize = 16) const;
+	void RenderText(Text& text, const Vector2& position, const Color& color = Color(1.0f)) const;
 	// Draws a rectangle, either with a texture or just a color
-	void RenderRect(const Rect& rect, const Color& color = Color(1.0f), Texture texture = Texture());
-	void RenderGraph(const Rect& rect, const Texture& graphTex);
+	void RenderRect(const Rect& rect, const Color& color = Color(1.0f), Texture texture = Texture()) const;
+	void RenderGraph(const Rect& rect, const Texture& graphTex) const;
 	// Draws a button using the given edge coordinates to 
 	//	stretch the center over the given area without affecting the border
-	void RenderButton(const Rect& rect, Texture texture, Margini border, const Color& color = Color::White);
+	void RenderButton(const Rect& rect, Texture texture, Margini border, const Color& color = Color::White) const;
 
 	const Vector2i& GetMousePos() const;
 	const Vector2i& GetMouseDelta() const;
@@ -79,7 +78,7 @@ public:
 	int32 GetMouseScroll() const;
 
 	// Default used font
-	Graphics::Font font;
+	Font font;
 	// Material used for rendering fonts
 	Material fontMaterial;
 
@@ -108,13 +107,13 @@ private:
 	void m_ResetTextInput();
 
 	GUITextInput m_textInput;
-	OpenGL* m_gl;
-	Graphics::Window* m_window = nullptr;
+	shared_ptr<OpenGL> m_gl;
+	Window* m_window = nullptr;
 	RenderQueue* m_renderQueue = nullptr;
 	GUIElementBase* m_hoveredElement = nullptr;
 
-	bool m_mouseButtonState[3] = {0};
-	bool m_mouseButtonStateLast[3] = {0};
+	bool m_mouseButtonState[3] = {false};
+	bool m_mouseButtonStateLast[3] = {false};
 
 	// Internal timer for sending to shaders that use it and maybe other uses
 	float m_time;
@@ -127,6 +126,7 @@ private:
 
 	// Size.x < 0 means disabled
 	Rect m_scissorRect;
+
 	// Stack of scissor rectangles
 	Vector<Rect> m_scissorRectangles;
 };

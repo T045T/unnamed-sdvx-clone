@@ -13,6 +13,6 @@ namespace Graphics
 	class ImageLoader
 	{
 	public:
-		static bool Load(ImageRes* outPtr, const String& fullPath);
+		static bool Load(shared_ptr<ImageRes> outPtr, const String& fullPath);
 	};
 }

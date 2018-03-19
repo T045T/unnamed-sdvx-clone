@@ -121,7 +121,7 @@ namespace Graphics
 			return true;
 		}
 
-		bool Load(ImageRes* pImage, const String& fullPath)
+		bool Load(shared_ptr<ImageRes> pImage, const String& fullPath)
 		{
 			File f;
 			if (!f.OpenRead(fullPath))
@@ -134,9 +134,9 @@ namespace Graphics
 
 			// Check for PNG based on first 4 bytes
 			if (*(uint32*)b.data() == (uint32&)"‰PNG")
-				return LoadPNG(pImage, b);
+				return LoadPNG(pImage.get(), b);
 			else // jay-PEG ?
-				return LoadJPEG(pImage, b);
+				return LoadJPEG(pImage.get(), b);
 		}
 
 		static ImageLoader_Impl& Main()
@@ -147,7 +147,7 @@ namespace Graphics
 	};
 
 
-	bool ImageLoader::Load(ImageRes* pImage, const String& fullPath)
+	bool ImageLoader::Load(shared_ptr<ImageRes> pImage, const String& fullPath)
 	{
 		return ImageLoader_Impl::Main().Load(pImage, fullPath);
 	}

@@ -1,19 +1,6 @@
 #pragma once
 #include <Audio/Sample.hpp>
 
-extern class OpenGL* g_gl;
-extern class Window* g_gameWindow;
-extern float g_aspectRatio;
-extern Vector2i g_resolution;
-extern class Application* g_application;
-extern class JobSheduler* g_jobSheduler;
-extern class Input g_input;
-
-// GUI
-extern class GUIRenderer* g_guiRenderer;
-extern std::shared_ptr<class Canvas> g_rootCanvas;
-extern std::shared_ptr<class CommonGUIStyle> g_commonGUIStyle;
-
 class Application
 {
 public:

@@ -12,6 +12,7 @@
 #include "HealthGauge.hpp"
 #include "SongSelectStyle.hpp"
 #include "PerformanceGraph.hpp"
+#include "Global.hpp"
 #ifdef _WIN32
 #include "SDL_keycode.h"
 #else
@@ -75,7 +76,7 @@ public:
 									m_categorizedHits[0], m_finalGaugeValue);
 
 		// Used for jacket images
-		m_songSelectStyle = SongSelectStyle::Get(g_application);
+		m_songSelectStyle = SongSelectStyle::Get(g_application.get());
 
 		m_startPressed = false;
 
@@ -84,7 +85,7 @@ public:
 		m_jacketImage = game->GetJacketImage();
 
 		// Make texture for performance graph samples
-		m_graphTex = TextureRes::Create(g_gl);
+		m_graphTex = TextureRes::Create();
 		m_graphTex->Init(Vector2i(256, 1), Graphics::TextureFormat::RGBA8);
 		Colori graphPixels[256];
 		for (uint32 i = 0; i < 256; i++)

@@ -107,15 +107,10 @@ namespace Graphics
 
 	Framebuffer FramebufferRes::Create(class OpenGL* gl)
 	{
-		Framebuffer_Impl* pImpl = new Framebuffer_Impl(gl);
+		const auto pImpl = make_shared<Framebuffer_Impl>(gl);
 		if (!pImpl->Init())
-		{
-			delete pImpl;
 			return Framebuffer();
-		}
 		else
-		{
 			return GetResourceManager<ResourceType::Framebuffer>().Register(pImpl);
-		}
 	}
 }

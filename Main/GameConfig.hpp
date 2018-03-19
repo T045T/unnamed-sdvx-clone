@@ -80,8 +80,5 @@ public:
 	void SetKeyBinding(GameConfigKeys key, Key value);
 
 protected:
-	virtual void InitDefaults() override;
+	void InitDefaults() override;
 };
-
-// Main config instance
-extern class GameConfig g_gameConfig;

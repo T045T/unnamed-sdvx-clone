@@ -5,6 +5,7 @@
 #include <GUI/GUI.hpp>
 #include <GUI/Spinner.hpp>
 #include "AsyncLoadable.hpp"
+#include "Global.hpp"
 
 class TransitionScreen_Impl : public TransitionScreen
 {

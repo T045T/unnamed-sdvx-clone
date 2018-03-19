@@ -1,20 +1,20 @@
 #include "stdafx.h"
 #include "RenderQueue.hpp"
+#include <utility>
 #include "OpenGL.hpp"
 using Utility::DynCast;
 
 namespace Graphics
 {
-	RenderQueue::RenderQueue(OpenGL* ogl, const RenderState& rs)
-	{
-		m_ogl = ogl;
-		m_renderState = rs;
-	}
+	RenderQueue::RenderQueue(shared_ptr<OpenGL> gl, RenderState rs)
+		: m_renderState(std::move(rs)),
+		  m_gl(std::move(gl))
+	{}
 
 	RenderQueue::RenderQueue(RenderQueue&& other)
 	{
-		m_ogl = other.m_ogl;
-		other.m_ogl = nullptr;
+		m_gl = other.m_gl;
+		other.m_gl = nullptr;
 		m_orderedCommands = move(other.m_orderedCommands);
 		m_renderState = other.m_renderState;
 	}
@@ -22,8 +22,8 @@ namespace Graphics
 	RenderQueue& RenderQueue::operator=(RenderQueue&& other)
 	{
 		Clear();
-		m_ogl = other.m_ogl;
-		other.m_ogl = nullptr;
+		m_gl = other.m_gl;
+		other.m_gl = nullptr;
 		m_orderedCommands = move(other.m_orderedCommands);
 		m_renderState = other.m_renderState;
 		return *this;
@@ -36,7 +36,7 @@ namespace Graphics
 
 	void RenderQueue::Process(bool clearQueue)
 	{
-		assert(m_ogl);
+		assert(m_gl);
 
 		bool scissorEnabled = false;
 		bool blendEnabled = false;

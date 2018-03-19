@@ -4,7 +4,7 @@
 class LaserTrackBuilder
 {
 public:
-	LaserTrackBuilder(class OpenGL* gl, class Track* track, uint32 laserIndex);
+	LaserTrackBuilder(shared_ptr<OpenGL> gl, class Track* track, uint32 laserIndex);
 	void Reset();
 	void Update(MapTime newTime);
 
@@ -54,7 +54,7 @@ private:
 private:
 	void m_RecalculateConstants();
 	void m_Cleanup(MapTime newTime, Map<LaserObjectState*, Mesh>& arr);
-	class OpenGL* m_gl;
+	shared_ptr<OpenGL> m_gl;
 	class Track* m_track;
 
 	float m_trackWidth;

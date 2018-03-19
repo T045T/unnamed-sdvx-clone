@@ -66,7 +66,7 @@ namespace Graphics
 	class Material_Impl : public MaterialRes
 	{
 	public:
-		OpenGL* m_gl;
+		shared_ptr<OpenGL> m_gl;
 		Shader m_shaders[3];
 #if _DEBUG
 		String m_debugNames[3];
@@ -78,8 +78,8 @@ namespace Graphics
 		uint32 m_userID = SV_User;
 		uint32 m_textureID = 0;
 
-		Material_Impl(OpenGL* gl)
-			: m_gl(gl)
+		Material_Impl(shared_ptr<OpenGL> gl)
+			: m_gl(std::move(gl))
 		{
 			glGenProgramPipelines(1, &m_pipeline);
 		}
@@ -385,32 +385,31 @@ namespace Graphics
 		glProgramUniformMatrix4fv(shader, loc, 1, GL_FALSE, obj.mat);
 	}
 
-	Material MaterialRes::Create(OpenGL* gl)
+	Material MaterialRes::Create(shared_ptr<OpenGL> gl)
 	{
-		Material_Impl* impl = new Material_Impl(gl);
+		const auto impl = make_shared<Material_Impl>(gl);
 		return GetResourceManager<ResourceType::Material>().Register(impl);
 	}
 
-	Material MaterialRes::Create(OpenGL* gl, const String& vsPath, const String& fsPath)
+	Material MaterialRes::Create(shared_ptr<OpenGL> gl, const String& vsPath, const String& fsPath)
 	{
-		Material_Impl* impl = new Material_Impl(gl);
+		const auto impl = make_shared<Material_Impl>(gl);
 		impl->AssignShader(ShaderType::Vertex, ShaderRes::Create(gl, ShaderType::Vertex, vsPath));
 		impl->AssignShader(ShaderType::Fragment, ShaderRes::Create(gl, ShaderType::Fragment, fsPath));
 #if _DEBUG
-		impl->m_debugNames[(size_t)ShaderType::Vertex] = vsPath;
-		impl->m_debugNames[(size_t)ShaderType::Fragment] = fsPath;
+		impl->m_debugNames[static_cast<size_t>(ShaderType::Vertex)] = vsPath;
+		impl->m_debugNames[static_cast<size_t>(ShaderType::Fragment)] = fsPath;
 #endif
 
-		if (!impl->m_shaders[(size_t)ShaderType::Vertex])
+		if (!impl->m_shaders[static_cast<size_t>(ShaderType::Vertex)])
 		{
 			Logf("Failed to load vertex shader for material from %s", Logger::Error, vsPath);
-			delete impl;
 			return Material();
 		}
-		if (!impl->m_shaders[(size_t)ShaderType::Fragment])
+
+		if (!impl->m_shaders[static_cast<size_t>(ShaderType::Fragment)])
 		{
 			Logf("Failed to load fragment shader for material from %s", Logger::Error, fsPath);
-			delete impl;
 			return Material();
 		}
 

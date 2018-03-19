@@ -8,34 +8,38 @@
 #include "SDL2/SDL_keycode.h"
 #endif
 
-GUIRenderer::~GUIRenderer()
-{
-	assert(!m_renderQueue);
-	SetInputFocus(nullptr);
-	SetWindow(nullptr);
-}
+// Asset loading macro
+#define CheckedLoad(__stmt)\
+	if(!(__stmt))\
+	{\
+		Logf("Failed to load asset [%s]", Logger::Error, #__stmt);\
+		throw runtime_error("Failed to load asset");\
+	}
 
-bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String skin)
+/**
+ * \throws std::runtime_error on asset not found
+ */
+GUIRenderer::GUIRenderer(shared_ptr<OpenGL> gl, class Graphics::Window* window, String skin)
+	: m_gl(std::move(gl))
 {
-	assert(gl);
-	m_gl = gl;
+	assert(m_gl);
 
 	m_time = 0.0f;
 
 	// Font
-	CheckedLoad(font = FontRes::create(gl, "skins/" + skin + "/fonts/segoeui.ttf"));
+	CheckedLoad(font = FontRes::create(m_gl, "skins/" + skin + "/fonts/segoeui.ttf"));
 
-	auto LoadMaterial = [&](const String& name)
+	const auto LoadMaterial = [&](const String& name)
 	{
 		String basePath = String("skins/") + skin + String("/shaders/");
 		String vs = Path::Normalize(basePath + name + ".vs");
 		String fs = Path::Normalize(basePath + name + ".fs");
 		String gs = Path::Normalize(basePath + name + ".gs");
-		Material ret = MaterialRes::Create(gl, vs, fs);
+		Material ret = MaterialRes::Create(m_gl, vs, fs);
+
 		if (ret && Path::FileExists(gs))
-		{
 			ret->AssignShader(ShaderType::Geometry, Graphics::ShaderRes::Create(m_gl, ShaderType::Geometry, gs));
-		}
+
 		return ret;
 	};
 
@@ -53,26 +57,33 @@ bool GUIRenderer::Init(class OpenGL* gl, class Graphics::Window* window, String 
 
 	guiQuad = MeshGenerators::Quad(m_gl, Vector2(0, 0), Vector2(1, 1));
 
-	pointMesh = MeshRes::Create(m_gl);
-	Vector<MeshGenerators::SimpleVertex> points = {MeshGenerators::SimpleVertex(Vector3(0, 0, 0), Vector2(0, 0))};
+	pointMesh = MeshRes::Create();
+	const Vector<MeshGenerators::SimpleVertex> points = {MeshGenerators::SimpleVertex(Vector3(0, 0, 0), Vector2(0, 0))};
 	pointMesh->SetData(points);
 	pointMesh->SetPrimitiveType(PrimitiveType::PointList);
 
 	// Initial window assignment
 	SetWindow(window);
-
-	return true;
 }
 
-void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<class GUIElementBase> rootElement)
+GUIRenderer::~GUIRenderer()
 {
+	assert(!m_renderQueue);
+	SetInputFocus(nullptr);
+	SetWindow(nullptr);
+}
+
+void GUIRenderer::render(float deltaTime, Rect viewportSize, GUIElementBase* root_element)
+{
+	assert(root_element);
+
 	m_time += deltaTime;
 	m_viewportSize = viewportSize;
 
 	Begin();
 
 	// Update mouse input
-	Vector2i newMouse = m_window->GetMousePos();
+	const Vector2i newMouse = m_window->GetMousePos();
 	m_mouseDelta = newMouse - m_mousePos;
 	m_mousePos = newMouse;
 
@@ -86,17 +97,15 @@ void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<cla
 
 	// Handle input focus, position calculation, etc.
 	GUIElementBase* inputElement = nullptr;
-	rootElement->PreRender(grd, inputElement);
+	root_element->PreRender(grd, inputElement);
 	m_hoveredElement = inputElement;
 
 	// Clear input focus?
 	if (!m_hoveredElement && GetMouseButtonPressed(MouseButton::Left))
-	{
 		SetInputFocus(nullptr);
-	}
 
 	// Render
-	rootElement->Render(grd);
+	root_element->Render(grd);
 
 	// Clear text input after processing
 	m_ResetTextInput();
@@ -110,7 +119,7 @@ void GUIRenderer::Render(float deltaTime, Rect viewportSize, std::shared_ptr<cla
 	End();
 }
 
-Graphics::RenderQueue& GUIRenderer::Begin()
+RenderQueue& GUIRenderer::Begin()
 {
 	// Must have not called begin before this / or have called end
 	assert(m_renderQueue == nullptr);
@@ -119,7 +128,7 @@ Graphics::RenderQueue& GUIRenderer::Begin()
 	m_scissorRect = Rect(Vector2(0, 0), Vector2(-1));
 
 	// Render state/queue for the GUI
-	Vector2 windowSize = m_window->GetWindowSize();
+	const Vector2 windowSize = m_window->GetWindowSize();
 	RenderState guiRs;
 	guiRs.viewportSize = windowSize;
 	guiRs.projectionTransform = ProjectionMatrix::CreateOrthographic(0, windowSize.x, windowSize.y, 0.0f, -1.0f, 100.0f);
@@ -180,7 +189,7 @@ void GUIRenderer::SetWindow(Graphics::Window* window)
 	}
 }
 
-Graphics::Window* GUIRenderer::GetWindow() const
+Window* GUIRenderer::GetWindow() const
 {
 	return m_window;
 }
@@ -258,24 +267,22 @@ const GUITextInput& GUIRenderer::GetTextInput() const
 	return m_textInput;
 }
 
-Vector2i GUIRenderer::GetTextSize(const WString& str, uint32 fontSize /*= 16*/)
+Vector2i GUIRenderer::GetTextSize(const WString& str, uint32 fontSize /*= 16*/) const
 {
-	Text text = font->create_text(str, fontSize);
-	return text->size;
+	return font->create_text(str, fontSize)->size;
 }
 
-Vector2i GUIRenderer::GetTextSize(const String& str, uint32 fontSize /*= 16*/)
+Vector2i GUIRenderer::GetTextSize(const String& str, uint32 fontSize /*= 16*/) const
 {
 	return GetTextSize(Utility::ConvertToWString(str), fontSize);
 }
 
-Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, const Color& color /*= Color(1.0f)*/,
-								uint32 fontSize /*= 16*/)
+Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, const Color& color /*= Color(1.0f)*/,	uint32 fontSize /*= 16*/) const
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return Vector2i(0, 0);
 
-	Text text = font->create_text(str, fontSize);
+	const Text text = font->create_text(str, fontSize);
 	Transform textTransform;
 	textTransform *= Transform::Translation(position);
 	MaterialParameterSet params;
@@ -284,13 +291,12 @@ Vector2i GUIRenderer::RenderText(const WString& str, const Vector2& position, co
 	return text->size;
 }
 
-Vector2i GUIRenderer::RenderText(const String& str, const Vector2& position, const Color& color /*= Color(1.0f)*/,
-								uint32 fontSize /*= 16*/)
+Vector2i GUIRenderer::RenderText(const String& str, const Vector2& position, const Color& color /*= Color(1.0f)*/, uint32 fontSize /*= 16*/) const
 {
 	return RenderText(Utility::ConvertToWString(str), position, color, fontSize);
 }
 
-void GUIRenderer::RenderText(Text& text, const Vector2& position, const Color& color /*= Color(1.0f)*/)
+void GUIRenderer::RenderText(Text& text, const Vector2& position, const Color& color /*= Color(1.0f)*/) const
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
@@ -302,7 +308,7 @@ void GUIRenderer::RenderText(Text& text, const Vector2& position, const Color& c
 	m_renderQueue->DrawScissored(m_scissorRect, textTransform, text, fontMaterial, params);
 }
 
-void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f)*/, Texture texture /*= Texture()*/)
+void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f)*/, Texture texture /*= Texture()*/) const
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
@@ -323,7 +329,7 @@ void GUIRenderer::RenderRect(const Rect& rect, const Color& color /*= Color(1.0f
 	}
 }
 
-void GUIRenderer::RenderGraph(const Rect& rect, const Texture& graphTex)
+void GUIRenderer::RenderGraph(const Rect& rect, const Texture& graphTex) const
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
@@ -338,7 +344,7 @@ void GUIRenderer::RenderGraph(const Rect& rect, const Texture& graphTex)
 }
 
 
-void GUIRenderer::RenderButton(const Rect& rect, Texture texture, Margini border, const Color& color /*= Color::White*/)
+void GUIRenderer::RenderButton(const Rect& rect, Texture texture, Margini border, const Color& color /*= Color::White*/) const
 {
 	if (m_scissorRect.size.x == 0 || m_scissorRect.size.y == 0)
 		return;
@@ -350,17 +356,17 @@ void GUIRenderer::RenderButton(const Rect& rect, Texture texture, Margini border
 	params.SetParameter("mainTex", texture);
 
 	// Calculate border offsets
-	Rect r2 = border.Apply(Recti(rect));
-	Vector2 size = texture->GetSize();
+	const Rect r2 = border.Apply(Recti(rect));
+	const Vector2 size = texture->GetSize();
 
-	Vector2 tl = (r2.pos - rect.pos) / rect.size;
-	Vector2 br = (r2.size + r2.pos - rect.pos) / rect.size;
-	Vector4 borderCoords = Vector4(tl.x, tl.y, br.x, br.y);
+	const Vector2 tl = (r2.pos - rect.pos) / rect.size;
+	const Vector2 br = (r2.size + r2.pos - rect.pos) / rect.size;
+	const Vector4 borderCoords = Vector4(tl.x, tl.y, br.x, br.y);
 
 	// Texture border coords
-	Vector2 textl = Vector2((float)border.left, (float)border.top) / size;
-	Vector2 texbr = Vector2(1.0f) - Vector2((float)border.right, (float)border.bottom) / size;
-	Vector4 texBorderCoords = Vector4(textl.x, textl.y, texbr.x, texbr.y);
+	const Vector2 textl = Vector2(static_cast<float>(border.left), static_cast<float>(border.top)) / size;
+	const Vector2 texbr = Vector2(1.0f) - Vector2(static_cast<float>(border.right), static_cast<float>(border.bottom)) / size;
+	const Vector4 texBorderCoords = Vector4(textl.x, textl.y, texbr.x, texbr.y);
 
 	params.SetParameter("border", borderCoords);
 	params.SetParameter("texBorder", texBorderCoords);
@@ -382,17 +388,17 @@ const Vector2i& GUIRenderer::GetMouseDelta() const
 
 bool GUIRenderer::GetMouseButton(MouseButton btn) const
 {
-	return m_mouseButtonState[(size_t)btn];
+	return m_mouseButtonState[static_cast<size_t>(btn)];
 }
 
 bool GUIRenderer::GetMouseButtonPressed(MouseButton btn) const
 {
-	return m_mouseButtonState[(size_t)btn] && !m_mouseButtonStateLast[(size_t)btn];
+	return m_mouseButtonState[static_cast<size_t>(btn)] && !m_mouseButtonStateLast[static_cast<size_t>(btn)];
 }
 
 bool GUIRenderer::GetMouseButtonReleased(MouseButton btn) const
 {
-	return !m_mouseButtonState[(size_t)btn] && m_mouseButtonStateLast[(size_t)btn];
+	return !m_mouseButtonState[static_cast<size_t>(btn)] && m_mouseButtonStateLast[static_cast<size_t>(btn)];
 }
 
 int32 GUIRenderer::GetMouseScroll() const
@@ -400,7 +406,7 @@ int32 GUIRenderer::GetMouseScroll() const
 	return m_mouseScrollDelta;
 }
 
-GUIElementBase* GUIRenderer::GetHoveredElement()
+GUIElementBase* GUIRenderer::GetHoveredElement() const
 {
 	return m_hoveredElement;
 }
@@ -447,12 +453,12 @@ void GUIRenderer::m_OnKeyPressed(int32 key)
 
 void GUIRenderer::m_OnMousePressed(MouseButton btn)
 {
-	m_mouseButtonState[(size_t)btn] = true;
+	m_mouseButtonState[static_cast<size_t>(btn)] = true;
 }
 
 void GUIRenderer::m_OnMouseReleased(MouseButton btn)
 {
-	m_mouseButtonState[(size_t)btn] = false;
+	m_mouseButtonState[static_cast<size_t>(btn)] = false;
 }
 
 void GUIRenderer::m_OnMouseScroll(int32 scroll)

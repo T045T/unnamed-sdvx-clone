@@ -1,15 +1,14 @@
 #include "stdafx.h"
 #include "CommonGUIStyle.hpp"
 
-CommonGUIStyle::CommonGUIStyle(class OpenGL* gl, String skin)
+CommonGUIStyle::CommonGUIStyle(String skin)
 {
-	auto LoadTexture = [&](const String& path)
-	{
+	const auto LoadTexture = [&](const String& path) {
 		String fullPath = Path::Normalize(String("skins/") + skin + String("/textures/ui/") + path);
 		Image img = ImageRes::Create(fullPath);
 		if (!img)
 			return Texture();
-		return TextureRes::Create(gl, img);
+		return TextureRes::Create(img);
 	};
 
 	buttonTexture = LoadTexture("button.png");

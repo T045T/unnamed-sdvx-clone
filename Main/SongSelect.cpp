@@ -11,6 +11,7 @@
 #include "GameConfig.hpp"
 #include "SongFilter.hpp"
 #include <Audio/Audio.hpp>
+#include "Global.hpp"
 #ifdef _WIN32
 #include "SDL_keycode.h"
 #else
@@ -704,7 +705,7 @@ public:
 		m_canvas = std::make_shared<Canvas>();
 
 		// Load textures for song select
-		m_style = SongSelectStyle::Get(g_application);
+		m_style = SongSelectStyle::Get(g_application.get());
 
 		// Split between statistics and selection wheel (in percentage)
 		const float screenSplit = 0.0f;

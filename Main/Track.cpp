@@ -1,12 +1,11 @@
 #include "stdafx.h"
-#include "Application.hpp"
 #include "GameConfig.hpp"
-#include "Game.hpp"
 #include "Track.hpp"
 #include "LaserTrackBuilder.hpp"
 #include <Beatmap/BeatmapPlayback.hpp>
 #include <Beatmap/BeatmapObjects.hpp>
 #include "AsyncAssetLoader.hpp"
+#include "Global.hpp"
 
 const float Track::trackWidth = 1.0f;
 const float Track::buttonWidth = 1.0f / 6;
@@ -187,7 +186,7 @@ bool Track::AsyncFinalize()
 		Vector<MeshGenerators::SimpleVertex> verts;
 		MeshGenerators::GenerateSimpleXYQuad(Rect3D(Vector2(-0.5f), Vector2(1.0f)), Rect(texStart, comboFontTexCoordSize),
 											verts);
-		Mesh m = comboSpriteMeshes[i] = MeshRes::Create(g_gl);
+		Mesh m = comboSpriteMeshes[i] = MeshRes::Create();
 		m->SetData(verts);
 		m->SetPrimitiveType(PrimitiveType::TriangleList);
 	}

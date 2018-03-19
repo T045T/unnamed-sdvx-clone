@@ -22,7 +22,7 @@ namespace Graphics
 	{
 		ShaderType m_type;
 		uint32 m_prog;
-		OpenGL* m_gl;
+		shared_ptr<OpenGL> m_gl;
 
 		String m_sourcePath;
 
@@ -32,8 +32,8 @@ namespace Graphics
 		uint64 m_lwt = -1;
 #endif
 	public:
-		Shader_Impl(OpenGL* gl)
-			: m_gl(gl)
+		Shader_Impl(shared_ptr<OpenGL> gl)
+			: m_gl(std::move(gl))
 		{ }
 
 		~Shader_Impl()
@@ -230,21 +230,16 @@ namespace Graphics
 		}
 	};
 
-	Shader ShaderRes::Create(class OpenGL* gl, ShaderType type, const String& assetPath)
+	Shader ShaderRes::Create(shared_ptr<OpenGL> gl, ShaderType type, const String& assetPath)
 	{
-		Shader_Impl* pImpl = new Shader_Impl(gl);
+		const auto pImpl = make_shared<Shader_Impl>(gl);
 		if (!pImpl->Init(type, assetPath))
-		{
-			delete pImpl;
 			return Shader();
-		}
 		else
-		{
 			return GetResourceManager<ResourceType::Shader>().Register(pImpl);
-		}
 	}
 
-	void ShaderRes::Unbind(class OpenGL* gl, ShaderType type)
+	void ShaderRes::Unbind(shared_ptr<OpenGL> gl, ShaderType type)
 	{
 		if (gl->m_activeShaders[(size_t)type] != 0)
 		{

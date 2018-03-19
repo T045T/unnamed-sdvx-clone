@@ -18,6 +18,7 @@
 #include "Shared/Jobs.hpp"
 #include "ScoreScreen.hpp"
 #include "Shared/Enum.hpp"
+#include "Global.hpp"
 
 #ifdef _WIN32
 #include "SDL_keycode.h"

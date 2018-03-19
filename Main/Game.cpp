@@ -26,6 +26,7 @@
 #include "GUI/HealthGauge.hpp"
 #include "GUI/SettingsBar.hpp"
 #include "GUI/PlayingSongInfo.hpp"
+#include "Global.hpp"
 
 // Try load map helper
 std::shared_ptr<Beatmap> TryLoadMap(const String& path)
@@ -345,7 +346,7 @@ public:
 	{
 		if (m_jacketImage)
 		{
-			m_jacketTexture = TextureRes::Create(g_gl, m_jacketImage);
+			m_jacketTexture = TextureRes::Create(m_jacketImage);
 			m_psi->SetJacket(m_jacketTexture);
 		}
 

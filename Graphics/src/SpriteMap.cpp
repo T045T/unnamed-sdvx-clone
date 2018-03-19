@@ -193,9 +193,9 @@ namespace Graphics
 			return m_image;
 		}
 
-		Texture GenerateTexture(OpenGL* gl) override
+		Texture GenerateTexture() override
 		{
-			Texture tex = TextureRes::Create(gl, m_image);
+			Texture tex = TextureRes::Create(m_image);
 			tex->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 			return tex;
 		}
@@ -203,7 +203,7 @@ namespace Graphics
 
 	SpriteMap SpriteMapRes::Create()
 	{
-		SpriteMap_Impl* pImpl = new SpriteMap_Impl();
+		auto pImpl = make_shared<SpriteMap_Impl>();
 		return GetResourceManager<ResourceType::SpriteMap>().Register(pImpl);
 	}
 }

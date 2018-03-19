@@ -78,9 +78,9 @@ namespace Graphics
 	public:
 		virtual ~MaterialRes() = default;
 		// Create a default material
-		static std::shared_ptr<MaterialRes> Create(class OpenGL* gl);
+		static shared_ptr<MaterialRes> Create(shared_ptr<OpenGL> gl);
 		// Create a material that has both a vertex and fragment shader
-		static std::shared_ptr<MaterialRes> Create(class OpenGL* gl, const String& vsPath, const String& fsPath);
+		static shared_ptr<MaterialRes> Create(shared_ptr<OpenGL> gl, const String& vsPath, const String& fsPath);
 
 		bool opaque = true;
 		MaterialBlendMode blendMode = MaterialBlendMode::Normal;
