@@ -10,13 +10,13 @@ public:
 	~Canvas();
 	void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	void Render(GUIRenderData rd) override;
-	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
+	Vector2 GetDesiredSize(GUIRenderData rd) override;
 
 	class Slot : public GUISlotBase
 	{
 	public:
-		virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
-		virtual void Render(GUIRenderData rd) override;
+		void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
+		void Render(GUIRenderData rd) override;
 
 		// Anchor for the element
 		Anchor anchor = Anchors::TopLeft;
@@ -34,13 +34,13 @@ public:
 		Vector2 alignment;
 	};
 
-	class Canvas::Slot* Add(GUIElement element);
+	class Slot* Add(GUIElement element);
 	void Remove(GUIElement element);
 	void Clear();
-	const Vector<Canvas::Slot*>& GetChildren();
+	const Vector<Slot*>& GetChildren();
 
 protected:
-	virtual void m_OnZOrderChanged(GUISlotBase* slot);
+	void m_OnZOrderChanged(GUISlotBase* slot) override;
 
 private:
 	void m_SortChildren();

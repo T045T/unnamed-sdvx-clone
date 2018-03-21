@@ -8,8 +8,7 @@ int32 __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 {
 	g_application = make_shared<Application>();
 	g_application->SetCommandLine(GetCommandLineA());
-	int32 ret = g_application->Run();
-	return ret;
+	return g_application->Run();
 }
 #else
 // Linux entry point
@@ -17,7 +16,6 @@ int main(int argc, char** argv)
 {
 	g_application = make_shared<Application>();
 	g_application->SetCommandLine(argc, argv);
-	int32 ret = g_application->Run();
-	return ret;
+	return g_application->Run();
 }
 #endif
