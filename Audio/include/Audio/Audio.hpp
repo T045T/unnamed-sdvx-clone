@@ -1,22 +1,34 @@
 #pragma once
 #include "AudioStream.hpp"
 #include "Sample.hpp"
-
-extern class Audio* g_audio;
+#include "AudioOutput.hpp"
+#include <thread>
+#include <mutex>
+using std::thread;
+using std::mutex;
 
 /*
 	Main audio manager
 	keeps track of active samples and audio streams
 	also handles mixing and DSP's on playing items
 */
-class Audio : Unique
+class Audio : Unique, IMixer
 {
 public:
 	Audio();
 	~Audio();
-	// Initializes the audio device
-	bool Init();
+
+	void start();
+	void stop();
+
+	// Registers an AudioBase to be rendered
+	void Register(AudioBase* audio);
+	// Removes an AudioBase so it is no longer rendered
+	void Deregister(AudioBase* audio);
+
 	void SetGlobalVolume(float vol);
+
+	void Mix(float* data, uint32& numSamples) override;
 
 	// Opens a stream at path
 	//	settings preload loads the whole file into memory before playing
@@ -27,12 +39,29 @@ public:
 	// Target/Output sample rate
 	uint32 GetSampleRate() const;
 
-	// Private
-	class Audio_Impl* GetImpl();
+	double get_seconds_per_sample() const;
+	int64 get_audio_latency() const;
+
+	mutex lock;
+
+private:
+	unique_ptr<AudioOutput> output;
+
+	// Used to limit rendering to a fixed number of samples (512)
+	float* m_sampleBuffer = nullptr;
+	uint32 m_sampleBufferLength = 384;
+	uint32 m_remainingSamples = 0;
+
+	float globalVolume = 1.0f;
+
+	thread audioThread;
+	bool runAudioThread = false;
+	
+	Vector<AudioBase*> itemsToRender;
+	Vector<DSP*> globalDSPs;
+
+	class LimiterDSP* limiter = nullptr;
 
 	// Calculated audio latency by the audio driver (currently unused)
 	int64 audioLatency;
-
-private:
-	bool m_initialized = false;
 };

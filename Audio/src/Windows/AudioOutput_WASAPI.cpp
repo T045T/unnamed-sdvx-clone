@@ -364,26 +364,21 @@ HRESULT STDMETHODCALLTYPE NotificationClient::OnPropertyValueChanged(
 
 AudioOutput::AudioOutput()
 {
-	m_impl = new AudioOutput_Impl();
+	m_impl = make_unique<AudioOutput_Impl>();
 }
 
-AudioOutput::~AudioOutput()
-{
-	delete m_impl;
-}
-
-bool AudioOutput::Init()
+bool AudioOutput::Init() const
 {
 	return m_impl->Init();
 }
 
-void AudioOutput::Start(IMixer* mixer)
+void AudioOutput::Start(IMixer* mixer) const
 {
 	m_impl->m_mixer = mixer;
 	m_impl->Start();
 }
 
-void AudioOutput::Stop()
+void AudioOutput::Stop() const
 {
 	m_impl->Stop();
 	m_impl->m_mixer = nullptr;

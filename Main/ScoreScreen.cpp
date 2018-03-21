@@ -13,6 +13,7 @@
 #include "SongSelectStyle.hpp"
 #include "PerformanceGraph.hpp"
 #include "Global.hpp"
+#include "Audio/Global.hpp"
 #ifdef _WIN32
 #include "SDL_keycode.h"
 #else

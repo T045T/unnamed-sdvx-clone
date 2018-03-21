@@ -23,7 +23,7 @@ Test("Audio.Playback")
 	Sample testSample = audio->CreateSample(testSamplePath);
 	TestEnsure(testSample.IsValid());
 
-	testSample->SetVolume(1.0f);
+	testSample->set_volume(1.0f);
 
 	Timer t;
 	float time = FLT_MAX;

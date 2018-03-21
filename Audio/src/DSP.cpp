@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "DSP.hpp"
-#include "AudioOutput.hpp"
-#include "Audio_Impl.hpp"
+#include "Audio.hpp"
 #include <Shared/Interpolation.hpp>
 
 void PanDSP::Process(float* out, uint32 numSamples)
@@ -115,7 +114,7 @@ void BQFDSP::SetPeaking(float q, float freq, float gain)
 
 void LimiterDSP::Process(float* out, uint32 numSamples)
 {
-	float secondsPerSample = (float)audio->GetSecondsPerSample();
+	float secondsPerSample = (float)audio->get_seconds_per_sample();
 	for (uint32 i = 0; i < numSamples; i++)
 	{
 		float currentGain = 1.0f;
@@ -562,13 +561,10 @@ private:
 	Vector<float> m_receiveBuffer;
 
 public:
-	PitchShiftDSP_Impl()
-	{ }
+	PitchShiftDSP_Impl() = default;
+	~PitchShiftDSP_Impl() = default;
 
-	~PitchShiftDSP_Impl()
-	{ }
-
-	void Init(Audio_Impl* audio)
+	void Init(Audio* audio)
 	{
 		m_soundtouch.setChannels(2);
 		m_soundtouch.setSampleRate(audio->GetSampleRate());

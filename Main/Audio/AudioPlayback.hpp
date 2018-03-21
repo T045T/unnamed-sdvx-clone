@@ -8,9 +8,8 @@
 */
 class AudioPlayback;
 
-struct GameAudioEffect : public AudioEffect
+struct GameAudioEffect : AudioEffect
 {
-public:
 	GameAudioEffect() = default;
 	GameAudioEffect(const AudioEffect& other);
 

@@ -12,6 +12,7 @@
 #include "SongFilter.hpp"
 #include <Audio/Audio.hpp>
 #include "Global.hpp"
+#include "Audio/Global.hpp"
 #ifdef _WIN32
 #include "SDL_keycode.h"
 #else
@@ -39,7 +40,7 @@ public:
 		m_nextSet = true;
 		if (m_nextStream)
 		{
-			m_nextStream->SetVolume(0.0f);
+			m_nextStream->set_volume(0.0f);
 			m_nextStream->Play();
 		}
 		m_fadeTimer = 0.0f;
@@ -58,7 +59,7 @@ public:
 				}
 				m_currentStream = m_nextStream;
 				if (m_currentStream)
-					m_currentStream->SetVolume(1.0f);
+					m_currentStream->set_volume(1.0f);
 				m_nextStream.reset(); // unsure, was Release()
 				m_nextSet = false;
 			}
@@ -67,9 +68,9 @@ public:
 				float fade = m_fadeTimer / m_fadeDuration;
 
 				if (m_currentStream)
-					m_currentStream->SetVolume(1.0f - fade);
+					m_currentStream->set_volume(1.0f - fade);
 				if (m_nextStream)
-					m_nextStream->SetVolume(fade);
+					m_nextStream->set_volume(fade);
 			}
 		}
 	}

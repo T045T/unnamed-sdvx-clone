@@ -8,6 +8,7 @@
 bin/songs/*
 maps.db
 bin/Main.cfg
+bin/log*.txt
 
 # Intermediate Files
 x64

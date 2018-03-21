@@ -17,6 +17,7 @@
 #include <GUI/CommonGUIStyle.hpp>
 #include "TransitionScreen.hpp"
 #include "Global.hpp"
+#include "Audio/Global.hpp"
 
 #ifdef _WIN32
 #include "SDL_keycode.h"
@@ -44,9 +45,6 @@ struct TickableChange
 // Applied at the end of each main loop
 static Vector<TickableChange> g_tickableChanges;
 
-// Used to set the initial screen size
-static float g_screenHeight = 1000.0f;
-
 static float g_avgRenderDelta = 0.0f;
 
 Application::Application()
@@ -57,45 +55,18 @@ Application::Application()
 
 Application::~Application()
 {
-	{
-		ProfilerScope $("Application Cleanup");
+	ProfilerScope $("Application Cleanup");
 
-		for (auto it : g_tickables)
-			delete it;
+	for (auto it : g_tickables)
+		delete it;
 
-		g_tickables.clear();
+	g_tickables.clear();
 
-		if (g_audio)
-		{
-			delete g_audio;
-			g_audio = nullptr;
-		}
+	// Cleanup input
+	g_input.Cleanup();
 
-		// Cleanup input
-		g_input.Cleanup();
-
-		// Finally, save config
-		m_SaveConfig();
-	}
-}
-
-void Application::SetCommandLine(int32 argc, char** argv)
-{
-	m_commandLine.clear();
-
-	// Split up command line parameters
-	for (int32 i = 0; i < argc; i++)
-	{
-		m_commandLine.Add(argv[i]);
-	}
-}
-
-void Application::SetCommandLine(const char* cmdLine)
-{
-	m_commandLine.clear();
-
-	// Split up command line parameters
-	m_commandLine = Path::SplitCommandLine(cmdLine);
+	// Finally, save config
+	m_SaveConfig();
 }
 
 bool Application::Run()
@@ -144,6 +115,25 @@ bool Application::Run()
 	return true;
 }
 
+void Application::SetCommandLine(int32 argc, char** argv)
+{
+	m_commandLine.clear();
+
+	// Split up command line parameters
+	for (int32 i = 0; i < argc; i++)
+	{
+		m_commandLine.Add(argv[i]);
+	}
+}
+
+void Application::SetCommandLine(const char* cmdLine)
+{
+	m_commandLine.clear();
+
+	// Split up command line parameters
+	m_commandLine = Path::SplitCommandLine(cmdLine);
+}
+
 bool Application::m_LoadConfig()
 {
 	File configFile;
@@ -174,12 +164,10 @@ bool Application::m_Init()
 	ProfilerScope $("Application Setup");
 
 	// Must have command line
-	assert(m_commandLine.size() >= 1);
+	assert(!m_commandLine.empty());
 
 	if (!m_LoadConfig())
-	{
 		Logf("Failed to load config file", Logger::Warning);
-	}
 
 	// Job sheduler
 	g_jobSheduler = make_shared<JobSheduler>();
@@ -187,12 +175,12 @@ bool Application::m_Init()
 	m_allowMapConversion = false;
 	bool debugMute = false;
 	bool startFullscreen = false;
-	uint32 fullscreenMonitor = -1;
 
 	// Fullscreen settings from config
 	if (g_gameConfig.GetBool(GameConfigKeys::Fullscreen))
 		startFullscreen = true;
-	fullscreenMonitor = g_gameConfig.GetInt(GameConfigKeys::FullscreenMonitorIndex);
+
+	uint32 fullscreenMonitor = g_gameConfig.GetInt(GameConfigKeys::FullscreenMonitorIndex);
 
 	for (auto& cl : m_commandLine)
 	{
@@ -200,24 +188,16 @@ bool Application::m_Init()
 		if (cl.Split("=", &k, &v))
 		{
 			if (k == "-monitor")
-			{
-				fullscreenMonitor = atol(*v);
-			}
+				fullscreenMonitor = strtol(*v, nullptr, 0);
 		}
 		else
 		{
 			if (cl == "-convertmaps")
-			{
 				m_allowMapConversion = true;
-			}
 			else if (cl == "-mute")
-			{
 				debugMute = true;
-			}
 			else if (cl == "-fullscreen")
-			{
 				startFullscreen = true;
-			}
 		}
 	}
 
@@ -225,13 +205,14 @@ bool Application::m_Init()
 	g_resolution = Vector2i(
 		g_gameConfig.GetInt(GameConfigKeys::ScreenWidth),
 		g_gameConfig.GetInt(GameConfigKeys::ScreenHeight));
-	g_aspectRatio = (float)g_resolution.x / (float)g_resolution.y;
+	g_aspectRatio = static_cast<float>(g_resolution.x) / static_cast<float>(g_resolution.y);
 	g_gameWindow = make_shared<Window>(g_resolution);
 	g_gameWindow->Show();
 	m_OnWindowResized(g_resolution);
 	g_gameWindow->OnKeyPressed.Add(this, &Application::m_OnKeyPressed);
 	g_gameWindow->OnKeyReleased.Add(this, &Application::m_OnKeyReleased);
 	g_gameWindow->OnResized.Add(this, &Application::m_OnWindowResized);
+
 	// Initialize Input
 	g_input.Init(*g_gameWindow);
 
@@ -239,7 +220,7 @@ bool Application::m_Init()
 	m_skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 
 	// Window cursor
-	Image cursorImg = ImageRes::Create("skins/" + m_skin + "/textures/cursor.png");
+	const Image cursorImg = ImageRes::Create("skins/" + m_skin + "/textures/cursor.png");
 	g_gameWindow->SetCursor(cursorImg, Vector2i(5, 5));
 
 	if (startFullscreen)
@@ -254,12 +235,14 @@ bool Application::m_Init()
 		ProfilerScope $1("Audio Init");
 
 		// Init audio
-		new Audio();
-		if (!g_audio->Init())
+		try
+		{
+			g_audio = make_unique<Audio>();
+		}
+		catch (std::runtime_error& err)
 		{
 			Log("Audio initialization failed", Logger::Error);
-			delete g_audio;
-			return 1;
+			return true;
 		}
 
 		// Debug Mute?
@@ -338,7 +321,7 @@ void Application::m_MainLoop()
 				if (ch.insertBefore)
 				{
 					// Find insertion point
-					for (insertionPoint = g_tickables.begin(); insertionPoint != g_tickables.end(); insertionPoint++)
+					for (insertionPoint = g_tickables.begin(); insertionPoint != g_tickables.end(); ++insertionPoint)
 					{
 						if (*insertionPoint == ch.insertBefore)
 							break;
@@ -449,7 +432,8 @@ void Application::m_Tick()
 		}
 
 		// Time to render GUI
-		g_guiRenderer->render(m_deltaTime, Rect(Vector2(0, 0), g_resolution), static_cast<GUIElementBase*>(g_rootCanvas.get()));
+		g_guiRenderer->render(m_deltaTime, Rect(Vector2(0, 0), g_resolution),
+			static_cast<GUIElementBase*>(g_rootCanvas.get()));
 
 		// Swap buffers
 		g_gl->SwapBuffers();
@@ -499,13 +483,13 @@ RenderState Application::GetRenderStateBase() const
 	return m_renderStateBase;
 }
 
-Graphics::Image Application::LoadImage(const String& name)
+Image Application::LoadImage(const String& name)
 {
 	String path = String("skins/") + m_skin + String("/textures/") + name;
 	return ImageRes::Create(path);
 }
 
-Graphics::Image Application::LoadImageExternal(const String& name)
+Image Application::LoadImageExternal(const String& name)
 {
 	return ImageRes::Create(name);
 }
@@ -523,11 +507,8 @@ Texture Application::LoadTexture(const String& name, const bool& external)
 		Texture ret = TextureRes::Create(LoadImageExternal(name));
 		return ret;
 	}
-	else
-	{
-		Texture ret = TextureRes::Create(LoadImage(name));
-		return ret;
-	}
+	Texture ret = TextureRes::Create(LoadImage(name));
+	return ret;
 }
 
 Material Application::LoadMaterial(const String& name)

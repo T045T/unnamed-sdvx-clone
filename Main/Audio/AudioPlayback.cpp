@@ -4,6 +4,7 @@
 #include <Beatmap/Beatmap.hpp>
 #include <Audio/Audio.hpp>
 #include <Audio/DSP.hpp>
+#include "Audio/Global.hpp"
 
 AudioPlayback::AudioPlayback()
 {}
@@ -46,7 +47,7 @@ bool AudioPlayback::Init(class BeatmapPlayback& playback, const String& mapRootP
 		Logf("Failed to load any audio for beatmap \"%s\"", Logger::Error, audioPath);
 		return false;
 	}
-	m_music->SetVolume(1.0f);
+	m_music->set_volume(1.0f);
 
 	// Load FX track
 	audioPath = Path::Normalize(m_beatmapRootPath + Path::sep + mapSettings.audioFX);
@@ -64,7 +65,7 @@ bool AudioPlayback::Init(class BeatmapPlayback& playback, const String& mapRootP
 			if (m_fxtrack)
 			{
 				// Initially mute normal track if fx is enabled
-				m_music->SetVolume(0.0f);
+				m_music->set_volume(0.0f);
 			}
 		}
 	}
@@ -239,13 +240,13 @@ void AudioPlayback::SetFXTrackEnabled(bool enabled)
 	{
 		if (enabled)
 		{
-			m_fxtrack->SetVolume(1.0f);
-			m_music->SetVolume(0.0f);
+			m_fxtrack->set_volume(1.0f);
+			m_music->set_volume(0.0f);
 		}
 		else
 		{
-			m_fxtrack->SetVolume(0.0f);
-			m_music->SetVolume(1.0f);
+			m_fxtrack->set_volume(0.0f);
+			m_music->set_volume(1.0f);
 		}
 	}
 	m_fxtrackEnabled = enabled;

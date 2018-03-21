@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Sample.hpp"
-#include "Audio_Impl.hpp"
 #include "Audio.hpp"
 
 // Fixed point format for resampling
@@ -219,7 +218,7 @@ Sample SampleRes::Create(Audio* audio, const String& path)
 		return Sample();
 	}
 
-	audio->GetImpl()->Register(res);
+	audio->Register(res);
 
 	return Sample(res);
 }

@@ -1,14 +1,12 @@
 #include "stdafx.h"
 #include "Audio.hpp"
 #include "AudioStream.hpp"
-#include "Audio_Impl.hpp"
 #include "AudioOutput.hpp"
 #include "DSP.hpp"
 
-Audio* g_audio = nullptr;
-Audio_Impl impl;
+shared_ptr<Audio> g_audio;
 
-void Audio_Impl::Mix(float* data, uint32& numSamples)
+void Audio::Mix(float* data, uint32& numSamples)
 {
 #if _DEBUG
 	static const uint32 guardBand = 1024;
@@ -17,9 +15,9 @@ void Audio_Impl::Mix(float* data, uint32& numSamples)
 #endif
 
 	// Per-Channel data buffer
-	float* tempData = new float[m_sampleBufferLength * 2 + guardBand];
-	uint32* guardBuffer = (uint32*)tempData + 2 * m_sampleBufferLength;
-	double adv = GetSecondsPerSample();
+	auto tempData = new float[m_sampleBufferLength * 2 + guardBand];
+	uint32* guardBuffer = reinterpret_cast<uint32*>(tempData) + 2 * m_sampleBufferLength;
+	double adv = get_seconds_per_sample();
 
 	uint32 outputChannels = this->output->GetNumChannels();
 	memset(data, 0, numSamples * sizeof(float) * outputChannels);
@@ -59,8 +57,8 @@ void Audio_Impl::Mix(float* data, uint32& numSamples)
 				// Mix into buffer and apply volume scaling
 				for (uint32 i = 0; i < m_sampleBufferLength; i++)
 				{
-					m_sampleBuffer[i * 2 + 0] += tempData[i * 2] * item->GetVolume();
-					m_sampleBuffer[i * 2 + 1] += tempData[i * 2 + 1] * item->GetVolume();
+					m_sampleBuffer[i * 2 + 0] += tempData[i * 2] * item->get_volume();
+					m_sampleBuffer[i * 2 + 1] += tempData[i * 2 + 1] * item->get_volume();
 				}
 			}
 
@@ -83,8 +81,8 @@ void Audio_Impl::Mix(float* data, uint32& numSamples)
 		}
 
 		// Copy samples from sample buffer
-		uint32 sampleOffset = m_sampleBufferLength - m_remainingSamples;
-		uint32 maxSamples = Math::Min(numSamples - currentNumberOfSamples, m_remainingSamples);
+		const uint32 sampleOffset = m_sampleBufferLength - m_remainingSamples;
+		const uint32 maxSamples = Math::Min(numSamples - currentNumberOfSamples, m_remainingSamples);
 		for (uint32 c = 0; c < outputChannels; c++)
 		{
 			if (c < 2)
@@ -103,7 +101,7 @@ void Audio_Impl::Mix(float* data, uint32& numSamples)
 	delete[] tempData;
 }
 
-void Audio_Impl::Start()
+void Audio::start()
 {
 	m_sampleBuffer = new float[2 * m_sampleBufferLength];
 
@@ -114,7 +112,7 @@ void Audio_Impl::Start()
 	output->Start(this);
 }
 
-void Audio_Impl::Stop()
+void Audio::stop()
 {
 	output->Stop();
 	delete limiter;
@@ -124,7 +122,7 @@ void Audio_Impl::Stop()
 	m_sampleBuffer = nullptr;
 }
 
-void Audio_Impl::Register(AudioBase* audio)
+void Audio::Register(AudioBase* audio)
 {
 	lock.lock();
 	itemsToRender.AddUnique(audio);
@@ -132,7 +130,7 @@ void Audio_Impl::Register(AudioBase* audio)
 	lock.unlock();
 }
 
-void Audio_Impl::Deregister(AudioBase* audio)
+void Audio::Deregister(AudioBase* audio)
 {
 	lock.lock();
 	itemsToRender.Remove(audio);
@@ -140,66 +138,46 @@ void Audio_Impl::Deregister(AudioBase* audio)
 	lock.unlock();
 }
 
-uint32 Audio_Impl::GetSampleRate() const
-{
-	return output->GetSampleRate();
-}
-
-double Audio_Impl::GetSecondsPerSample() const
-{
-	return 1.0 / (double)GetSampleRate();
-}
-
+/**
+ * \throws std::runtime_error Failed to init AudioOutput
+ */
 Audio::Audio()
 {
 	// Enforce single instance
 	assert(g_audio == nullptr);
-	g_audio = this;
+
+	audioLatency = 0;
+
+	output = make_unique<AudioOutput>();
+	if (!output->Init())
+		throw runtime_error("Failed to init AudioOutput");
+
+	start();
 }
 
 Audio::~Audio()
 {
-	if (m_initialized)
-	{
-		impl.Stop();
-		delete impl.output;
-		impl.output = nullptr;
-	}
-
-	assert(g_audio == this);
-	g_audio = nullptr;
-}
-
-bool Audio::Init()
-{
-	audioLatency = 0;
-
-	impl.output = new AudioOutput();
-	if (!impl.output->Init())
-	{
-		delete impl.output;
-		impl.output = nullptr;
-		return false;
-	}
-
-	impl.Start();
-
-	return m_initialized = true;
+	stop();
 }
 
 void Audio::SetGlobalVolume(float vol)
 {
-	impl.globalVolume = vol;
+	globalVolume = vol;
 }
 
 uint32 Audio::GetSampleRate() const
 {
-	return impl.output->GetSampleRate();
+	return output->GetSampleRate();
 }
 
-class Audio_Impl* Audio::GetImpl()
+double Audio::get_seconds_per_sample() const
 {
-	return &impl;
+	return 1.0 / static_cast<double>(GetSampleRate());
+}
+
+int64 Audio::get_audio_latency() const
+{
+	return audioLatency;
 }
 
 AudioStream Audio::CreateStream(const String& path, bool preload)

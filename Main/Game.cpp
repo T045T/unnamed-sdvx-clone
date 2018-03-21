@@ -27,6 +27,7 @@
 #include "GUI/SettingsBar.hpp"
 #include "GUI/PlayingSongInfo.hpp"
 #include "Global.hpp"
+#include "Audio/Global.hpp"
 
 // Try load map helper
 std::shared_ptr<Beatmap> TryLoadMap(const String& path)
@@ -1055,7 +1056,7 @@ public:
 		textPos.y += RenderText(bms.title, textPos).y;
 		textPos.y += RenderText(bms.artist, textPos).y;
 		textPos.y += RenderText(Utility::Sprintf("%.2f FPS", g_application->GetRenderFPS()), textPos).y;
-		textPos.y += RenderText(Utility::Sprintf("Audio Offset: %d ms", g_audio->audioLatency), textPos).y;
+		textPos.y += RenderText(Utility::Sprintf("Audio Offset: %d ms", g_audio->get_audio_latency()), textPos).y;
 
 		float currentBPM = (float)(60000.0 / tp.beatDuration);
 		textPos.y += RenderText(Utility::Sprintf("BPM: %.1f", currentBPM), textPos).y;
@@ -1262,7 +1263,7 @@ public:
 		}
 		else if (key == EventKey::SlamVolume)
 		{
-			m_slamSample->SetVolume(data.floatVal);
+			m_slamSample->set_volume(data.floatVal);
 		}
 	}
 
