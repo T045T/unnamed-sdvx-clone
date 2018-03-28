@@ -45,8 +45,7 @@ namespace Graphics
 		friend class ShaderRes;
 		friend class TextureRes;
 		friend class MeshRes;
-		friend class Shader_Impl;
-		friend class Framebuffer_Impl;
+		friend class ShaderRes;
 		friend class RenderQueue;
 	};
 }

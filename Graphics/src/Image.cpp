@@ -12,6 +12,23 @@ namespace Graphics
 		jmp_buf jmpBuf;
 	};
 
+	static void jpegErrorExit(jpeg_common_struct* cinfo)
+	{
+		longjmp(static_cast<jpegErrorMgr*>(cinfo->err)->jmpBuf, 1);
+	}
+
+	static void jpegErrorReset(jpeg_common_struct* cinfo)
+	{}
+
+	static void jpegEmitMessage(jpeg_common_struct* cinfo, int msgLvl)
+	{}
+
+	static void jpegOutputMessage(jpeg_common_struct* cinfo)
+	{}
+
+	static void jpegFormatMessage(jpeg_common_struct* cinfo, char * buffer)
+	{}
+
 	void ImageRes::SetSize(Vector2i size)
 	{
 		m_size = size;
@@ -64,7 +81,7 @@ namespace Graphics
 	 */
 	ImageRes::ImageRes(const String& assetPath)
 	{
-		if(!Load(assetPath))
+		if (!Load(assetPath))
 		{
 			Logf("Failed to load image %s", Logger::Severity::Error, assetPath);
 			throw std::runtime_error("Failed to load image");
@@ -106,11 +123,11 @@ namespace Graphics
 			*/
 		jpeg_decompress_struct cinfo;
 		jpegErrorMgr jerr = {};
-		//jerr.reset_error_mgr = &jpegErrorReset;
-		//jerr.error_exit = &jpegErrorExit;
-		//jerr.emit_message = &jpegEmitMessage;
-		//jerr.format_message = &jpegFormatMessage;
-		//jerr.output_message = &jpegOutputMessage;
+		jerr.reset_error_mgr = &jpegErrorReset;
+		jerr.error_exit = &jpegErrorExit;
+		jerr.emit_message = &jpegEmitMessage;
+		jerr.format_message = &jpegFormatMessage;
+		jerr.output_message = &jpegOutputMessage;
 		cinfo.err = &jerr;
 
 		// Return point for long jump
