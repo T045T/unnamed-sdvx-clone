@@ -27,7 +27,7 @@ GUIRenderer::GUIRenderer(shared_ptr<OpenGL> gl, class Graphics::Window* window, 
 	m_time = 0.0f;
 
 	// Font
-	CheckedLoad(font = FontRes::create(m_gl, "skins/" + skin + "/fonts/segoeui.ttf"));
+	CheckedLoad(font = make_shared<FontRes>(m_gl, "skins/" + skin + "/fonts/segoeui.ttf"));
 
 	const auto LoadMaterial = [&](const String& name)
 	{
@@ -35,10 +35,10 @@ GUIRenderer::GUIRenderer(shared_ptr<OpenGL> gl, class Graphics::Window* window, 
 		String vs = Path::Normalize(basePath + name + ".vs");
 		String fs = Path::Normalize(basePath + name + ".fs");
 		String gs = Path::Normalize(basePath + name + ".gs");
-		Material ret = MaterialRes::Create(m_gl, vs, fs);
+		Material ret = make_shared<MaterialRes>(m_gl, vs, fs);
 
 		if (ret && Path::FileExists(gs))
-			ret->AssignShader(ShaderType::Geometry, Graphics::ShaderRes::Create(m_gl, ShaderType::Geometry, gs));
+			ret->AssignShader(ShaderType::Geometry, make_shared<ShaderRes>(m_gl, ShaderType::Geometry, gs));
 
 		return ret;
 	};
@@ -57,7 +57,7 @@ GUIRenderer::GUIRenderer(shared_ptr<OpenGL> gl, class Graphics::Window* window, 
 
 	guiQuad = MeshGenerators::Quad(m_gl, Vector2(0, 0), Vector2(1, 1));
 
-	pointMesh = MeshRes::Create();
+	pointMesh = make_shared<MeshRes>();
 	const Vector<MeshGenerators::SimpleVertex> points = {MeshGenerators::SimpleVertex(Vector3(0, 0, 0), Vector2(0, 0))};
 	pointMesh->SetData(points);
 	pointMesh->SetPrimitiveType(PrimitiveType::PointList);

@@ -25,9 +25,12 @@ struct AsyncTextureLoadOperation : public AsyncLoadOperation
 		return image != nullptr;
 	}
 
+	/**
+	 * \throws std::runtime_error if failed to create TextureRes
+	 */
 	bool AsyncFinalize()
 	{
-		target = TextureRes::Create(image);
+		target = make_shared<TextureRes>(image);
 		return target != nullptr;
 	}
 };

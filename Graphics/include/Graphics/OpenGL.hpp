@@ -1,6 +1,7 @@
 #pragma once
 #include <Graphics/GL.hpp>
 #include <Graphics/Window.hpp>
+#include <Graphics/Framebuffer.hpp>
 
 namespace Graphics
 {
@@ -16,6 +17,25 @@ namespace Graphics
 	*/
 	class OpenGL
 	{
+	public:
+		OpenGL();
+		~OpenGL();
+		bool Init(Window& window);
+		void UnbindFramebuffer();
+
+		Recti GetViewport() const;
+		void SetViewport(Vector2i size);
+		void SetViewport(Recti vp);
+
+		// Check if the calling thread is the thread that runs this OpenGL context
+		bool IsOpenGLThread() const;
+
+		FramebufferRes* get_framebuffer() const;
+		void set_framebuffer(FramebufferRes* buffer);
+
+		virtual void SwapBuffers();
+
+	private:
 		class ShaderRes* m_activeShaders[3] = {0};
 		uint32 m_mainProgramPipeline;
 		class OpenGL_Impl* m_impl;
@@ -28,21 +48,5 @@ namespace Graphics
 		friend class Shader_Impl;
 		friend class Framebuffer_Impl;
 		friend class RenderQueue;
-
-	public:
-		OpenGL();
-		~OpenGL();
-		void InitResourceManagers();
-		bool Init(Window& window);
-		void UnbindFramebuffer();
-
-		Recti GetViewport() const;
-		void SetViewport(Vector2i size);
-		void SetViewport(Recti vp);
-
-		// Check if the calling thread is the thread that runs this OpenGL context
-		bool IsOpenGLThread() const;
-
-		virtual void SwapBuffers();
 	};
 }

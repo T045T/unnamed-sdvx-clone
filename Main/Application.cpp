@@ -6,7 +6,6 @@
 #include "TitleScreen.hpp"
 #include <Audio/Audio.hpp>
 #include <Graphics/Window.hpp>
-#include <Graphics/ResourceManagers.hpp>
 #include "Shared/Jobs.hpp"
 #include <Shared/Profiling.hpp>
 #include "Scoring.hpp"
@@ -220,8 +219,15 @@ bool Application::m_Init()
 	m_skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 
 	// Window cursor
-	const Image cursorImg = ImageRes::Create("skins/" + m_skin + "/textures/cursor.png");
-	g_gameWindow->SetCursor(cursorImg, Vector2i(5, 5));
+	try
+	{
+		const Image cursorImg = make_shared<ImageRes>("skins/" + m_skin + "/textures/cursor.png");
+		g_gameWindow->SetCursor(cursorImg, Vector2i(5, 5));
+	}
+	catch (std::runtime_error& err)
+	{
+		Log("Failed to create cursor", Logger::Error);
+	}
 
 	if (startFullscreen)
 		g_gameWindow->SwitchFullscreen(fullscreenMonitor);
@@ -390,9 +396,6 @@ void Application::m_MainLoop()
 
 			m_Tick();
 			timeSinceRender = 0.0f;
-
-			// Garbage collect resources
-			ResourceManagers::TickAll();
 		}
 
 		// Tick job sheduler
@@ -483,44 +486,60 @@ RenderState Application::GetRenderStateBase() const
 	return m_renderStateBase;
 }
 
-Image Application::LoadImage(const String& name)
+/**
+ * \throws std::runtime_error if failed to create Image
+ */
+Image Application::LoadImage(const String& name) const
 {
 	String path = String("skins/") + m_skin + String("/textures/") + name;
-	return ImageRes::Create(path);
+	return make_shared<ImageRes>(path);
 }
 
-Image Application::LoadImageExternal(const String& name)
+/**
+ * \throws std::runtime_error if failed to create Image
+ */
+Image Application::LoadImageExternal(const String& name) const
 {
-	return ImageRes::Create(name);
+	return make_shared<ImageRes>(name);
 }
 
-Texture Application::LoadTexture(const String& name)
+/**
+ * \throws std::runtime_error if failed to create Texture
+ */
+Texture Application::LoadTexture(const String& name) const
 {
-	Texture ret = TextureRes::Create(LoadImage(name));
+	Texture ret = make_shared<TextureRes>(LoadImage(name));
 	return ret;
 }
 
-Texture Application::LoadTexture(const String& name, const bool& external)
+/**
+ * \throws std::runtime_error if failed to create Texture
+ */
+Texture Application::LoadTexture(const String& name, const bool& external) const
 {
 	if (external)
 	{
-		Texture ret = TextureRes::Create(LoadImageExternal(name));
+		Texture ret = make_shared<TextureRes>(LoadImageExternal(name));
 		return ret;
 	}
-	Texture ret = TextureRes::Create(LoadImage(name));
+	Texture ret = make_shared<TextureRes>(LoadImage(name));
 	return ret;
 }
 
-Material Application::LoadMaterial(const String& name)
+/**
+ * \throws std::runtime_error if failed to create Material
+ * \throws std::runtime_error if failed to create shader
+ */
+Material Application::LoadMaterial(const String& name) const
 {
 	String pathV = String("skins/") + m_skin + String("/shaders/") + name + ".vs";
 	String pathF = String("skins/") + m_skin + String("/shaders/") + name + ".fs";
 	String pathG = String("skins/") + m_skin + String("/shaders/") + name + ".gs";
-	Material ret = MaterialRes::Create(g_gl, pathV, pathF);
+	Material ret = make_shared<MaterialRes>(g_gl, pathV, pathF);
 	// Additionally load geometry shader
 	if (Path::FileExists(pathG))
 	{
-		Shader gshader = ShaderRes::Create(g_gl, ShaderType::Geometry, pathG);
+		Shader gshader = make_shared<ShaderRes>(g_gl, ShaderType::Geometry, pathG);
 		assert(gshader);
 		ret->AssignShader(ShaderType::Geometry, gshader);
 	}
@@ -528,7 +547,7 @@ Material Application::LoadMaterial(const String& name)
 	return ret;
 }
 
-Sample Application::LoadSample(const String& name, const bool& external)
+Sample Application::LoadSample(const String& name, const bool& external) const
 {
 	String path;
 	if (external)

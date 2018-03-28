@@ -1,14 +1,17 @@
 #include "stdafx.h"
 #include "CommonGUIStyle.hpp"
 
+/**
+ * \throws std::runtime_error if failed to create ImageRes/TextureRes
+ */
 CommonGUIStyle::CommonGUIStyle(String skin)
 {
 	const auto LoadTexture = [&](const String& path) {
 		String fullPath = Path::Normalize(String("skins/") + skin + String("/textures/ui/") + path);
-		Image img = ImageRes::Create(fullPath);
+		Image img = make_shared<ImageRes>(fullPath);
 		if (!img)
 			return Texture();
-		return TextureRes::Create(img);
+		return make_shared<TextureRes>(img);
 	};
 
 	buttonTexture = LoadTexture("button.png");

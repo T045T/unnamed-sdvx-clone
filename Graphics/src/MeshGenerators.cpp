@@ -3,6 +3,9 @@
 
 namespace Graphics
 {
+	/**
+	 * \throws std::runtime_error If failed to create Mesh
+	 */
 	Mesh MeshGenerators::Quad(shared_ptr<OpenGL> gl, Vector2 pos, Vector2 size /*= Vector2(1,1)*/)
 	{
 		Vector<SimpleVertex> verts =
@@ -21,7 +24,7 @@ namespace Graphics
 			v.pos += pos;
 		}
 
-		Mesh mesh = MeshRes::Create();
+		auto mesh = make_shared<MeshRes>();
 		mesh->SetData(verts);
 		mesh->SetPrimitiveType(PrimitiveType::TriangleList);
 		return mesh;

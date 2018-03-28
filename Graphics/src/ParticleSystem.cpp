@@ -4,7 +4,6 @@
 #include "ParticleSystem.hpp"
 #include "Mesh.hpp"
 #include "VertexFormat.hpp"
-#include <Graphics/ResourceManagers.hpp>
 
 namespace Graphics
 {
@@ -13,6 +12,7 @@ namespace Graphics
 		ParticleVertex(Vector3 pos, Color color, Vector4 params)
 			: pos(pos), color(color), params(params)
 		{};
+
 		Vector3 pos;
 		Color color;
 		// X = scale
@@ -25,15 +25,9 @@ namespace Graphics
 		: m_gl(std::move(gl))
 	{}
 
-	shared_ptr<ParticleSystemRes> ParticleSystemRes::Create(shared_ptr<OpenGL> gl)
+	shared_ptr<ParticleEmitter> ParticleSystemRes::add_emitter()
 	{
-		const auto impl = make_shared<ParticleSystemRes>(gl);
-		return GetResourceManager<ResourceType::ParticleSystem>().Register(impl);
-	}
-
-	std::shared_ptr<ParticleEmitter> ParticleSystemRes::add_emitter()
-	{
-		auto newEmitter = std::shared_ptr<ParticleEmitter>(new ParticleEmitter(this));
+		auto newEmitter = shared_ptr<ParticleEmitter>(new ParticleEmitter(this));
 		m_emitters.Add(newEmitter);
 		return newEmitter;
 	}
@@ -108,18 +102,17 @@ namespace Graphics
 			memset(m_particles, 0, m_poolSize * sizeof(Particle));
 		}
 		else
-		{
 			m_particles = nullptr;
-		}
 
 		if (oldParticles && m_particles)
-		{
 			memcpy(m_particles, oldParticles, Math::Min(oldSize, m_poolSize) * sizeof(Particle));
-		}
 
 		delete[] oldParticles;
 	}
 
+	/**
+	 * \throws std::runtime_error if failed to create mesh
+	 */
 	void ParticleEmitter::Render(const class RenderState& rs, float deltaTime)
 	{
 		if (m_finished)
@@ -217,13 +210,13 @@ namespace Graphics
 		}
 
 		// Create vertex buffer
-		Mesh mesh = MeshRes::Create();
+		auto mesh = new MeshRes();
 
 		mesh->SetData(verts);
 		mesh->SetPrimitiveType(PrimitiveType::PointList);
 
 		mesh->Draw();
-		mesh.reset();
+		delete mesh;
 	}
 
 	void ParticleEmitter::Reset()

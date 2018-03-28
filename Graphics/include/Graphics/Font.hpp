@@ -2,7 +2,6 @@
 #include <Graphics/ResourceTypes.hpp>
 #include "stdafx.h"
 #include "Font.hpp"
-#include "ResourceManagers.hpp"
 #include "Image.hpp"
 #include "Texture.hpp"
 #include "Mesh.hpp"
@@ -21,15 +20,15 @@ namespace Graphics
 	class TextRes
 	{
 	public:
-		std::shared_ptr<TextureRes> get_texture() const;
-		std::shared_ptr<MeshRes> get_mesh() const;
+		shared_ptr<TextureRes> get_texture() const;
+		shared_ptr<MeshRes> get_mesh() const;
 		void draw() const;
 		Vector2 size;
 
 	private:
 		friend class FontRes;
 		FontSize* fontSize;
-		std::shared_ptr<MeshRes> mesh;
+		shared_ptr<MeshRes> mesh;
 	};
 
 	// Font class, can create Text objects
@@ -47,8 +46,6 @@ namespace Graphics
 
 		FontSize* get_size(uint32 nSize);
 
-		static shared_ptr<FontRes> create(shared_ptr<OpenGL> gl, const String& assetPath);
-
 		// Renders the input string into a drawable text object
 		shared_ptr<TextRes> create_text(const WString& str, uint32 nFontSize, TextOptions options = TextOptions::None);
 
@@ -62,8 +59,8 @@ namespace Graphics
 		shared_ptr<OpenGL> m_gl;
 	};
 
-	typedef std::shared_ptr<FontRes> Font;
-	typedef std::shared_ptr<TextRes> Text;
+	typedef shared_ptr<FontRes> Font;
+	typedef shared_ptr<TextRes> Text;
 
 	struct CachedText
 	{
@@ -124,6 +121,4 @@ namespace Graphics
 
 		shared_ptr<OpenGL> m_gl;
 	};
-
-	DEFINE_RESOURCE_TYPE(Font, FontRes);
 }

@@ -1,7 +1,5 @@
 #pragma once
-#include <Graphics/ResourceTypes.hpp>
 #include <Graphics/VertexFormat.hpp>
-#include <Graphics/OpenGL.hpp>
 
 namespace Graphics
 {
@@ -22,10 +20,9 @@ namespace Graphics
 	class MeshRes
 	{
 	public:
-		virtual ~MeshRes() = default;
-		static shared_ptr<MeshRes> Create();
+		MeshRes();
+		~MeshRes();
 
-	public:
 		// Sets the vertex point data for this mesh
 		// must be set before drawing
 		// the vertex type must inherit from VertexFormat to automatically detect the correct format
@@ -37,18 +34,25 @@ namespace Graphics
 
 		// Sets how the point data is interpreted and drawn
 		// must be set before drawing
-		virtual void SetPrimitiveType(PrimitiveType pt) = 0;
-		virtual PrimitiveType GetPrimitiveType() const = 0;
+		void SetPrimitiveType(PrimitiveType pt);
+		PrimitiveType get_primitive_type() const;
+
 		// Draws the mesh
-		virtual void Draw() = 0;
+		void Draw() const;
+
 		// Draws the mesh after if has already been drawn once, reuse of bound objects
-		virtual void Redraw() = 0;
+		void Redraw() const;
 
 	private:
-		virtual void SetData(const void* pData, size_t vertexCount, const VertexFormatList& desc) = 0;
+		uint32 m_buffer = 0;
+		uint32 m_vao = 0;
+		PrimitiveType m_type;
+		uint32 m_glType;
+		size_t m_vertexCount;
+		bool m_bDynamic = true;
+
+		void SetData(const void* pData, size_t vertexCount, const VertexFormatList& desc);
 	};
 
-	typedef std::shared_ptr<MeshRes> Mesh;
-
-	DEFINE_RESOURCE_TYPE(Mesh, MeshRes);
+	typedef shared_ptr<MeshRes> Mesh;
 }

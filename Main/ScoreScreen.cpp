@@ -56,6 +56,9 @@ private:
 
 
 public:
+	/**
+	 * \throws std::runtime_error if failed to create performance graph texture
+	 */
 	ScoreScreen_Impl(class Game* game)
 	{
 		Scoring& scoring = game->GetScoring();
@@ -86,15 +89,15 @@ public:
 		m_jacketImage = game->GetJacketImage();
 
 		// Make texture for performance graph samples
-		m_graphTex = TextureRes::Create();
-		m_graphTex->Init(Vector2i(256, 1), Graphics::TextureFormat::RGBA8);
+		m_graphTex = make_shared<TextureRes>();
+		m_graphTex->Init(Vector2i(256, 1), TextureFormat::RGBA8);
 		Colori graphPixels[256];
 		for (uint32 i = 0; i < 256; i++)
 		{
 			graphPixels[i].x = 255.0f * Math::Clamp(m_gaugeSamples[i], 0.0f, 1.0f);
 		}
 		m_graphTex->SetData(Vector2i(256, 1), graphPixels);
-		m_graphTex->SetWrap(Graphics::TextureWrap::Clamp, Graphics::TextureWrap::Clamp);
+		m_graphTex->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 	}
 
 	~ScoreScreen_Impl()
@@ -104,14 +107,17 @@ public:
 
 	AsyncAssetLoader loader;
 
-	virtual bool AsyncLoad() override
+	/**
+	 * \throws std::runtime_error if failed to create Font
+	 */
+	bool AsyncLoad() override
 	{
 		m_guiStyle = g_commonGUIStyle;
 
 		m_canvas = std::make_shared<Canvas>();
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 		// Font
-		CheckedLoad(m_specialFont = FontRes::create(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
+		CheckedLoad(m_specialFont = make_shared<FontRes>(g_gl,"skins/" + skin + "/fonts/divlit_custom.ttf"));
 		CheckedLoad(m_applause = g_audio->CreateSample("skins/" + skin + "/audio/applause.wav"));
 
 		// Background

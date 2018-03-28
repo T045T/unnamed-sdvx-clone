@@ -202,7 +202,10 @@ public:
 
 	AsyncAssetLoader loader;
 
-	virtual bool AsyncLoad() override
+	/**
+	 * \throws std::runtime_error if failed to load jacket image
+	 */
+	bool AsyncLoad() override
 	{
 		ProfilerScope $("AsyncLoad Game");
 
@@ -231,7 +234,7 @@ public:
 
 		// Try to load beatmap jacket image
 		String jacketPath = m_mapRootPath + "/" + mapSettings.jacketPath;
-		m_jacketImage = ImageRes::Create(jacketPath);
+		m_jacketImage = make_shared<ImageRes>(jacketPath);
 
 		m_gaugeSamples[256] = {0.0f};
 		MapTime firstObjectTime = m_beatmap->GetLinearObjects().front()->time;
@@ -343,11 +346,15 @@ public:
 		return true;
 	}
 
-	virtual bool AsyncFinalize() override
+	/**
+	 * \throws std::runtime_error if failed to create jacket texture
+	 * \throws std::runtime_error if failed to create ParticleSystem
+	 */
+	bool AsyncFinalize() override
 	{
 		if (m_jacketImage)
 		{
-			m_jacketTexture = TextureRes::Create(m_jacketImage);
+			m_jacketTexture = make_shared<TextureRes>(m_jacketImage);
 			m_psi->SetJacket(m_jacketTexture);
 		}
 
@@ -357,7 +364,7 @@ public:
 		m_scoringGauge->fillMaterial->opaque = false;
 
 		// Load particle material
-		m_particleSystem = ParticleSystemRes::Create(g_gl);
+		m_particleSystem = make_shared<ParticleSystemRes>(g_gl);
 		CheckedLoad(particleMaterial = g_application->LoadMaterial("particle"));
 		particleMaterial->blendMode = MaterialBlendMode::Additive;
 		particleMaterial->opaque = false;
@@ -377,7 +384,7 @@ public:
 		return true;
 	}
 
-	virtual bool Init() override
+	bool Init() override
 	{
 		// Add to root canvas to be rendered (this makes the HUD visible)
 		Canvas::Slot* rootSlot = g_rootCanvas->Add(std::dynamic_pointer_cast<GUIElementBase>(m_canvas));
@@ -610,10 +617,13 @@ public:
 	}
 
 	// Initialize HUD elements/layout
+	/**
+	 * \throws std::runtime_error if failed to create font
+	 */
 	bool InitHUD()
 	{
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
-		CheckedLoad(m_fontDivlit = FontRes::create(g_gl, "skins/" + skin + "/fonts/divlit_custom.ttf"));
+		CheckedLoad(m_fontDivlit = make_shared<FontRes>(g_gl, "skins/" + skin + "/fonts/divlit_custom.ttf"));
 		m_guiStyle = g_commonGUIStyle;
 
 		// Game GUI canvas

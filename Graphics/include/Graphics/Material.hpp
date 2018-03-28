@@ -1,5 +1,4 @@
 #pragma once
-#include <Graphics/ResourceTypes.hpp>
 #include <Graphics/Shader.hpp>
 #include <Graphics/RenderState.hpp>
 
@@ -70,33 +69,107 @@ namespace Graphics
 		Multiply,
 	};
 
+	// Defines build in shader variables
+	enum BuiltInShaderVariable
+	{
+		SV_World = 0,
+		SV_Proj,
+		SV_Camera,
+		SV_BillboardMatrix,
+		SV_Viewport,
+		SV_AspectRatio,
+		SV_Time,
+		SV__BuiltInEnd,
+		SV_User = 0x100,
+		// Start defining user variables here
+	};
+
+	struct BoundParameterInfo
+	{
+		BoundParameterInfo(ShaderType shaderType, uint32 paramType, uint32 location)
+			: shaderType(shaderType), paramType(paramType), location(location)
+		{ }
+
+		ShaderType shaderType;
+		uint32 location;
+		uint32 paramType;
+	};
+
 	/*
 		Abstracts the use of shaders/uniforms/pipelines into a single interface class
 	*/
 	class MaterialRes
 	{
 	public:
-		virtual ~MaterialRes() = default;
-		// Create a default material
-		static shared_ptr<MaterialRes> Create(shared_ptr<OpenGL> gl);
-		// Create a material that has both a vertex and fragment shader
-		static shared_ptr<MaterialRes> Create(shared_ptr<OpenGL> gl, const String& vsPath, const String& fsPath);
+		MaterialRes(shared_ptr<OpenGL> gl);
+		MaterialRes(shared_ptr<OpenGL> gl, const String& vsPath, const String& fsPath);
+		~MaterialRes();
 
 		bool opaque = true;
 		MaterialBlendMode blendMode = MaterialBlendMode::Normal;
 
-	public:
-		virtual void AssignShader(ShaderType t, Shader shader) = 0;
-		virtual void Bind(const RenderState& rs, const MaterialParameterSet& params = MaterialParameterSet()) = 0;
+		void AssignShader(ShaderType t, Shader _shader);
+		void Bind(const RenderState& rs, const MaterialParameterSet& params = MaterialParameterSet());
 
 		// Only binds parameters to the current shader
-		virtual void BindParameters(const MaterialParameterSet& params, const Transform& worldTransform) = 0;
+		void BindParameters(const MaterialParameterSet& params, const Transform& worldTransform);
 
 		// Bind only shaders/pipeline to context
-		virtual void BindToContext() = 0;
+		void BindToContext() const;
+
+		template <typename T>
+		void BindAll(const String& name, const T& obj);
+
+		template <typename T>
+		void BindAll(BuiltInShaderVariable bsv, const T& obj);
+
+		template <typename T>
+		void BindShaderVar(uint32 shader, uint32 loc, const T& obj);
+
+	private:
+		shared_ptr<OpenGL> m_gl;
+		Shader m_shaders[3];
+#if _DEBUG
+		String m_debugNames[3];
+#endif
+		uint32 m_pipeline;
+		Map<uint32, Vector<BoundParameterInfo>> m_boundParameters;
+		Map<String, uint32> m_mappedParameters;
+		Map<String, uint32> m_textureIDs;
+		uint32 m_userID = SV_User;
+		uint32 m_textureID = 0;
+
+		BoundParameterInfo* GetBoundParameters(const String& name, uint32& count);
+		BoundParameterInfo* GetBoundParameters(BuiltInShaderVariable bsv, uint32& count);
 	};
 
-	typedef std::shared_ptr<MaterialRes> Material;
+	template <typename T>
+	void MaterialRes::BindAll(const String& name, const T& obj)
+	{
+		uint32 num = 0;
+		BoundParameterInfo* bp = GetBoundParameters(name, num);
+		for (uint32 i = 0; bp && i < num; i++)
+		{
+			BindShaderVar<T>(m_shaders[(size_t)bp[i].shaderType]->Handle(), bp[i].location, obj);
+		}
+	}
 
-	DEFINE_RESOURCE_TYPE(Material, MaterialRes);
+	template <typename T>
+	void MaterialRes::BindAll(BuiltInShaderVariable bsv, const T& obj)
+	{
+		uint32 num = 0;
+		BoundParameterInfo* bp = GetBoundParameters(bsv, num);
+		for (uint32 i = 0; bp && i < num; i++)
+		{
+			BindShaderVar<T>(m_shaders[(size_t)bp[i].shaderType]->Handle(), bp[i].location, obj);
+		}
+	}
+
+	template <typename T>
+	void MaterialRes::BindShaderVar(uint32 shader, uint32 loc, const T& obj)
+	{
+		static_assert(sizeof(T) != 0, "Incompatible shader uniform type");
+	}
+
+	typedef shared_ptr<MaterialRes> Material;
 }

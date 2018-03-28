@@ -160,7 +160,7 @@ namespace Graphics
 				PointDrawCall* pdc = (PointDrawCall*)item;
 				m_renderState.worldTransform = Transform();
 				SetupMaterial(pdc->mat, pdc->params);
-				PrimitiveType pt = pdc->mesh->GetPrimitiveType();
+				PrimitiveType pt = pdc->mesh->get_primitive_type();
 				if (pt >= PrimitiveType::LineList && pt <= PrimitiveType::LineStrip)
 				{
 					glLineWidth(pdc->size);

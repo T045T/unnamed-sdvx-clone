@@ -6,7 +6,6 @@
 // Graphics components
 #include <Graphics/OpenGL.hpp>
 #include <Graphics/Image.hpp>
-#include <Graphics/ImageLoader.hpp>
 #include <Graphics/Texture.hpp>
 #include <Graphics/Material.hpp>
 #include <Graphics/Mesh.hpp>

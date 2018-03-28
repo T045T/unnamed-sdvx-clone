@@ -96,10 +96,13 @@ Texture SongSelectStyle::GetJacketThumnail(const String& path)
 	return ret;
 }
 
+/**
+ * \throws std::runtime_error if failed to create loaded image
+ */
 bool JacketLoadingJob::Run()
 {
 	// Create loading task
-	loadedImage = ImageRes::Create(imagePath);
+	loadedImage = make_shared<ImageRes>(imagePath);
 	if (loadedImage != nullptr)
 	{
 		if (loadedImage->GetSize().x > 150 || loadedImage->GetSize().y > 150)
@@ -110,11 +113,14 @@ bool JacketLoadingJob::Run()
 	return loadedImage != nullptr;
 }
 
+/**
+ * \throws std::runtime_error if failed to create loaded texture
+ */
 void JacketLoadingJob::Finalize()
 {
 	if (IsSuccessfull())
 	{
-		target->texture = TextureRes::Create(loadedImage);
+		target->texture = make_shared<TextureRes>(loadedImage);
 		target->texture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 	}
 }

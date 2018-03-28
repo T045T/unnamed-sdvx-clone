@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "OpenGL.hpp"
-#include <Graphics/ResourceManagers.hpp>
 #ifdef _MSC_VER
 #pragma comment(lib, "opengl32.lib")
 #endif
@@ -33,15 +32,6 @@ namespace Graphics
 	{
 		if (m_impl->context)
 		{
-			// Cleanup resource managers
-			ResourceManagers::DestroyResourceManager<ResourceType::Mesh>();
-			ResourceManagers::DestroyResourceManager<ResourceType::Texture>();
-			ResourceManagers::DestroyResourceManager<ResourceType::Shader>();
-			ResourceManagers::DestroyResourceManager<ResourceType::Font>();
-			ResourceManagers::DestroyResourceManager<ResourceType::Material>();
-			ResourceManagers::DestroyResourceManager<ResourceType::Framebuffer>();
-			ResourceManagers::DestroyResourceManager<ResourceType::ParticleSystem>();
-
 			if (glBindProgramPipeline)
 			{
 				glDeleteProgramPipelines(1, &m_mainProgramPipeline);
@@ -51,17 +41,6 @@ namespace Graphics
 			m_impl->context = nullptr;
 		}
 		delete m_impl;
-	}
-
-	void OpenGL::InitResourceManagers()
-	{
-		ResourceManagers::CreateResourceManager<ResourceType::Mesh>();
-		ResourceManagers::CreateResourceManager<ResourceType::Texture>();
-		ResourceManagers::CreateResourceManager<ResourceType::Shader>();
-		ResourceManagers::CreateResourceManager<ResourceType::Font>();
-		ResourceManagers::CreateResourceManager<ResourceType::Material>();
-		ResourceManagers::CreateResourceManager<ResourceType::Framebuffer>();
-		ResourceManagers::CreateResourceManager<ResourceType::ParticleSystem>();
 	}
 
 	bool OpenGL::Init(Window& window)
@@ -119,8 +98,6 @@ namespace Graphics
 		Logf("OpenGL Renderer: %s", Logger::Info, glGetString(GL_RENDERER));
 		Logf("OpenGL Vendor: %s", Logger::Info, glGetString(GL_VENDOR));
 
-		InitResourceManagers();
-
 		// Create pipeline for the program
 		glGenProgramPipelines(1, &m_mainProgramPipeline);
 		glBindProgramPipeline(m_mainProgramPipeline);
@@ -161,6 +138,16 @@ namespace Graphics
 	bool OpenGL::IsOpenGLThread() const
 	{
 		return m_impl->threadId == std::this_thread::get_id();
+	}
+
+	FramebufferRes* OpenGL::get_framebuffer() const
+	{
+		return m_boundFramebuffer;
+	}
+
+	void OpenGL::set_framebuffer(FramebufferRes* buffer)
+	{
+		m_boundFramebuffer = buffer;
 	}
 
 	void OpenGL::SwapBuffers()

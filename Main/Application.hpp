@@ -32,12 +32,12 @@ public:
 #ifdef LoadImage
 #undef LoadImage
 #endif
-	Image LoadImage(const String& name);
-	Image LoadImageExternal(const String& name);
-	Texture LoadTexture(const String& name);
-	Texture LoadTexture(const String& name, const bool& external);
-	Material LoadMaterial(const String& name);
-	Sample LoadSample(const String& name, const bool& external = false);
+	Image LoadImage(const String& name) const;
+	Image LoadImageExternal(const String& name) const;
+	Texture LoadTexture(const String& name) const;
+	Texture LoadTexture(const String& name, const bool& external) const;
+	Material LoadMaterial(const String& name) const;
+	Sample LoadSample(const String& name, const bool& external = false) const;
 
 	float GetAppTime() const
 	{

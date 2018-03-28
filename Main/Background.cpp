@@ -131,17 +131,20 @@ class TestBackground : public FullscreenBackground
 	}
 
 
+	/**
+	 * \throws std::runtime_error if failed to create shader/material/texture
+	 */
 	Material LoadBackgroundMaterial(const String& path)
 	{
 		String skin = g_gameConfig.GetString(GameConfigKeys::Skin);
 		String pathV = String("skins/" + skin + "/shaders/") + "background" + ".vs";
 		String pathF = path;
 		String pathG = String("skins/" + skin + "/shaders/") + "background" + ".gs";
-		Material ret = MaterialRes::Create(g_gl, pathV, pathF);
+		Material ret = make_shared<MaterialRes>(g_gl, pathV, pathF);
 		// Additionally load geometry shader
 		if (Path::FileExists(pathG))
 		{
-			Shader gshader = ShaderRes::Create(g_gl, ShaderType::Geometry, pathG);
+			Shader gshader = make_shared<ShaderRes>(g_gl, ShaderType::Geometry, pathG);
 			assert(gshader);
 			ret->AssignShader(ShaderType::Geometry, gshader);
 		}
@@ -149,10 +152,12 @@ class TestBackground : public FullscreenBackground
 		return ret;
 	}
 
+	/**
+	 * \throws std::runtime_error if failed to create Texture/Image
+	 */
 	Texture LoadBackgroundTexture(const String& path)
 	{
-		Texture ret = TextureRes::Create(ImageRes::Create(path));
-		return ret;
+		return make_shared<TextureRes>(make_shared<ImageRes>(path));
 	}
 };
 

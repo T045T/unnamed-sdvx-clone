@@ -230,6 +230,9 @@ private:
 public:
 
 	//TODO: Controller support and the rest of the options and better layout
+	/**
+	 * \throws std::runtime_error if failed to create white square texture
+	 */
 	bool Init()
 	{
 		m_guiStyle = g_commonGUIStyle;
@@ -458,8 +461,8 @@ public:
 			box->Add(laserColorLabel);
 
 			// Make white square texture
-			m_whiteTex = TextureRes::Create();
-			m_whiteTex->Init(Vector2i(50, 50), Graphics::TextureFormat::RGBA8);
+			m_whiteTex = make_shared<TextureRes>();
+			m_whiteTex->Init(Vector2i(50, 50), TextureFormat::RGBA8);
 
 			Colori pixels[2500];
 

@@ -39,6 +39,9 @@ Track::~Track()
 	delete timedHitEffect;
 }
 
+/**
+ * \throws std::runtime_error if failed to create hitColorPalette Image
+ */
 bool Track::AsyncLoad()
 {
 	loader = new AsyncAssetLoader();
@@ -63,7 +66,7 @@ bool Track::AsyncLoad()
 
 	// Load hit effect colors
 	Image hitColorPalette;
-	CheckedLoad(hitColorPalette = ImageRes::Create("skins/" + skin + "/textures/hitcolors.png"));
+	CheckedLoad(hitColorPalette = make_shared<ImageRes>("skins/" + skin + "/textures/hitcolors.png"));
 	assert(hitColorPalette->GetSize().x >= 4);
 	for (uint32 i = 0; i < 4; i++)
 		hitColors[i] = hitColorPalette->GetBits()[i];
@@ -120,6 +123,9 @@ bool Track::AsyncLoad()
 	return loader->Load();
 }
 
+/**
+ * \throws std::runtime_error if failed to create comboSpriteMeshes mesh
+ */
 bool Track::AsyncFinalize()
 {
 	// Finalizer loading textures/material/etc.
@@ -158,11 +164,11 @@ bool Track::AsyncFinalize()
 	laserTexture->SetFilter(true, true, 16.0f);
 	laserTexture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 
-	for (uint32 i = 0; i < 2; i++)
+	for (auto& laserTailTexture : laserTailTextures)
 	{
-		laserTailTextures[i]->SetMipmaps(true);
-		laserTailTextures[i]->SetFilter(true, true, 16.0f);
-		laserTailTextures[i]->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
+		laserTailTexture->SetMipmaps(true);
+		laserTailTexture->SetFilter(true, true, 16.0f);
+		laserTailTexture->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
 	}
 
 	// Track and sprite material (all transparent)
@@ -186,7 +192,7 @@ bool Track::AsyncFinalize()
 		Vector<MeshGenerators::SimpleVertex> verts;
 		MeshGenerators::GenerateSimpleXYQuad(Rect3D(Vector2(-0.5f), Vector2(1.0f)), Rect(texStart, comboFontTexCoordSize),
 											verts);
-		Mesh m = comboSpriteMeshes[i] = MeshRes::Create();
+		Mesh m = comboSpriteMeshes[i] = make_shared<MeshRes>();
 		m->SetData(verts);
 		m->SetPrimitiveType(PrimitiveType::TriangleList);
 	}

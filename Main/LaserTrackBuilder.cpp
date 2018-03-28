@@ -16,12 +16,15 @@ LaserTrackBuilder::LaserTrackBuilder(shared_ptr<OpenGL> gl, class Track* track, 
 	laserExitTextureSize = track->laserTailTextures[1]->GetSize();
 }
 
+/**
+ * \throws std::runtime_error if failed to create Mesh
+ */
 Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
 	if (m_objectCache.Contains(laser))
 		return m_objectCache[laser];
 
-	Mesh newMesh = MeshRes::Create();
+	Mesh newMesh = make_shared<MeshRes>();
 
 	float length = playback.DurationToViewDistanceAtTime(laser->time, laser->duration);
 
@@ -214,13 +217,16 @@ Mesh LaserTrackBuilder::GenerateTrackMesh(class BeatmapPlayback& playback, Laser
 	return newMesh;
 }
 
+/**
+ * \throws std::runtime_error if failed to create mesh
+ */
 Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
 	assert(laser->prev == nullptr);
 	if (m_cachedEntries.Contains(laser))
 		return m_cachedEntries[laser];
 
-	Mesh newMesh = MeshRes::Create();
+	Mesh newMesh = make_shared<MeshRes>();
 
 	// Starting point of laser
 	float startingX = laser->points[0] * effectiveWidth - effectiveWidth * 0.5f;
@@ -244,13 +250,16 @@ Mesh LaserTrackBuilder::GenerateTrackEntry(class BeatmapPlayback& playback, Lase
 	return newMesh;
 }
 
+/**
+ * \throws std::runtime_error if failed to create mesh
+ */
 Mesh LaserTrackBuilder::GenerateTrackExit(class BeatmapPlayback& playback, LaserObjectState* laser)
 {
 	assert(laser->next == nullptr);
 	if (m_cachedExits.Contains(laser))
 		return m_cachedExits[laser];
 
-	Mesh newMesh = MeshRes::Create();
+	Mesh newMesh = make_shared<MeshRes>();
 
 	// Ending point of laser 
 	float startingX = laser->points[1] * effectiveWidth - effectiveWidth * 0.5f;

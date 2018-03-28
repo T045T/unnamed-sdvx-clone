@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Image.hpp"
 #include "Texture.hpp"
-#include <Graphics/ResourceManagers.hpp>
 #include <set>
 
 namespace Graphics
@@ -9,201 +8,145 @@ namespace Graphics
 	static uint32 maxHeight = 1024;
 	static uint32 border = 2;
 
-	struct Category
+	SpriteMapRes::SpriteMapRes()
 	{
-		uint32 width = 0;
-		Vector2i offset;
-		Vector<uint32> segments;
-	};
+		m_image = make_shared<ImageRes>();
+	}
 
-	struct Segment
+	SpriteMapRes::~SpriteMapRes()
 	{
-		Recti coords;
-	};
+		clear();
+	}
 
-	class SpriteMap_Impl : public SpriteMapRes
+	uint32 SpriteMapRes::AddSegment(shared_ptr<ImageRes> image)
 	{
-		friend class ImageRes;
+		// Create a new segment
+		uint32 nI = (uint32)m_segments.size();
+		Segment* pCurrentSegment = m_segments.Add(new Segment());
+		pCurrentSegment->coords.size = image->GetSize();
 
-		// The image that contains the current data
-		Image m_image;
+		// Get a category that has space
+		Category& cat = AssignCategory(image->GetSize());
 
-		// Used size over the X axis
-		int32 m_usedSize = 0;
+		// Set offset for current segment
+		pCurrentSegment->coords.pos = cat.offset;
+		// Add size offset in category
+		cat.offset.y += pCurrentSegment->coords.size.y + 1;
 
-		// Linear index of al segements
-		Vector<Segment*> m_segments;
-		Vector<Category> m_widths;
-		std::multimap<uint32, uint32> m_categoryByWidth;
-	public:
-		SpriteMap_Impl()
+		// Copy image data
+		CopySubImage(m_image.get(), image.get(), pCurrentSegment->coords.pos);
+
+		// Add segment to this category
+		cat.segments.push_back(nI);
+		return nI;
+	}
+
+	void SpriteMapRes::clear()
+	{
+		for (auto s : m_segments)
+			delete s;
+
+		m_segments.clear();
+		m_widths.clear();
+		m_categoryByWidth.clear();
+		m_usedSize = 0;
+		m_image->SetSize(Vector2i(0));
+	}
+
+	shared_ptr<TextureRes> SpriteMapRes::GenerateTexture()
+	{
+		auto tex = make_shared<TextureRes>(m_image);
+		tex->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
+		return tex;
+	}
+
+	Recti SpriteMapRes::GetCoords(uint32 nIndex)
+	{
+		assert(nIndex < m_segments.size());
+		return m_segments[nIndex]->coords;
+	}
+
+	Category& SpriteMapRes::AssignCategory(Vector2i requestedSize)
+	{
+		int32 mostSpace = 0;
+		Category* dstCat = nullptr;
+
+		while (true)
 		{
-			m_image = ImageRes::Create();
-		}
-
-		~SpriteMap_Impl()
-		{
-			Clear();
-		}
-
-		virtual void Clear()
-		{
-			for (auto s : m_segments)
+			auto range = m_categoryByWidth.equal_range(requestedSize.x);
+			// Find a suitable category first
+			for (auto it = range.first; it != range.second; it++)
 			{
-				delete s;
-			}
-			m_segments.clear();
-			m_widths.clear();
-			m_categoryByWidth.clear();
-			m_usedSize = 0;
-			m_image->SetSize(Vector2i(0));
-		}
-
-		virtual Vector2i GetSize() const
-		{
-			return m_image->GetSize();
-		}
-
-		virtual Colori* GetBits()
-		{
-			return m_image->GetBits();
-		}
-
-		virtual const Colori* GetBits() const
-		{
-			return m_image->GetBits();
-		}
-
-		// Returns the category that has space for the requested size
-		Category& AssignCategory(Vector2i requestedSize)
-		{
-			int32 mostSpace = 0;
-			Category* dstCat = nullptr;
-
-			while (true)
-			{
-				auto range = m_categoryByWidth.equal_range(requestedSize.x);
-				// Find a suitable category first
-				for (auto it = range.first; it != range.second; it++)
+				Category& cat = m_widths[it->second];
+				int32 remainingY = m_image->GetSize().y - cat.offset.y;
+				if (remainingY > requestedSize.y)
 				{
-					Category& cat = m_widths[it->second];
-					int32 remainingY = m_image->GetSize().y - cat.offset.y;
-					if (remainingY > requestedSize.y)
-					{
-						// This category is OK
-						mostSpace = remainingY;
-						dstCat = &cat;
-						break;
-					}
-				}
-
-				// Create a new category if required
-				if (!dstCat)
-				{
-					int32 remainingX = m_image->GetSize().x - m_usedSize;
-					// Use horizontal space to add another collumn
-					//	if height of image is big enough
-					if (m_image->GetSize().y >= requestedSize.y && remainingX >= requestedSize.x)
-					{
-						Category& cat = m_widths.Add();
-						cat.width = requestedSize.x;
-						cat.offset = Vector2i(m_usedSize, 0);
-						m_categoryByWidth.insert(std::make_pair(cat.width, (uint32)m_widths.size() - 1));
-						m_usedSize += cat.width + 1;
-					}
-					else
-					{
-						int32 remainingX = (m_image->GetSize().x - m_usedSize);
-
-						// Resize image
-						int32 largestDim = Math::Max(m_usedSize + requestedSize.x,
-													Math::Max(m_image->GetSize().y, requestedSize.y));
-						int32 targetSize = (int32)pow(2, ceil(log(largestDim) / log(2)));
-						if (m_image->GetSize().x != targetSize)
-						{
-							// Resize image
-							Image newImage = ImageRes::Create(Vector2i(targetSize));
-							// Copy old image into new image
-							if (m_image->GetSize().x > 0)
-								CopySubImage(newImage, m_image, Vector2i());
-							m_image = newImage;
-						}
-					}
-				}
-				else
-				{
+					// This category is OK
+					mostSpace = remainingY;
+					dstCat = &cat;
 					break;
 				}
 			}
 
-			return *dstCat;
-		}
-
-		virtual uint32 AddSegment(Image image)
-		{
-			// Create a new segment
-			uint32 nI = (uint32)m_segments.size();
-			Segment* pCurrentSegment = m_segments.Add(new Segment());
-			pCurrentSegment->coords.size = image->GetSize();
-
-			// Get a category that has space
-			Category& cat = AssignCategory(image->GetSize());
-
-			// Set offset for current segment
-			pCurrentSegment->coords.pos = cat.offset;
-			// Add size offset in category
-			cat.offset.y += pCurrentSegment->coords.size.y + 1;
-
-			// Copy image data
-			CopySubImage(m_image, image, pCurrentSegment->coords.pos);
-
-			// Add segment to this category
-			cat.segments.push_back(nI);
-			return nI;
-		}
-
-		void CopySubImage(Image dst, Image src, Vector2i dstPos)
-		{
-			Vector2i dstSize = dst->GetSize();
-			Vector2i srcSize = src->GetSize();
-
-			Colori* pSrc = src->GetBits();
-			uint32 nDstPitch = dst->GetSize().x;
-			Colori* pDst = dst->GetBits() + dstPos.x + dstPos.y * nDstPitch;
-			for (uint32 y = 0; y < (uint32)srcSize.y; y++)
+			// Create a new category if required
+			if (!dstCat)
 			{
-				for (uint32 x = 0; x < (uint32)srcSize.x; x++)
+				int32 remainingX = m_image->GetSize().x - m_usedSize;
+				// Use horizontal space to add another collumn
+				//	if height of image is big enough
+				if (m_image->GetSize().y >= requestedSize.y && remainingX >= requestedSize.x)
 				{
-					*pDst = *pSrc;
-					pSrc++;
-					pDst++;
+					Category& cat = m_widths.Add();
+					cat.width = requestedSize.x;
+					cat.offset = Vector2i(m_usedSize, 0);
+					m_categoryByWidth.insert(std::make_pair(cat.width, (uint32)m_widths.size() - 1));
+					m_usedSize += cat.width + 1;
 				}
-				pDst += (nDstPitch - srcSize.x);
+				else
+				{
+					int32 remainingX = (m_image->GetSize().x - m_usedSize);
+
+					// Resize image
+					int32 largestDim = Math::Max(m_usedSize + requestedSize.x,
+						Math::Max(m_image->GetSize().y, requestedSize.y));
+					int32 targetSize = (int32)pow(2, ceil(log(largestDim) / log(2)));
+					if (m_image->GetSize().x != targetSize)
+					{
+						// Resize image
+						auto newImage = make_shared<ImageRes>(Vector2i(targetSize));
+						// Copy old image into new image
+						if (m_image->GetSize().x > 0)
+							CopySubImage(newImage.get(), m_image.get(), Vector2i());
+						m_image = std::move(newImage);
+					}
+				}
+			}
+			else
+			{
+				break;
 			}
 		}
 
-		Recti GetCoords(uint32 nIndex) override
-		{
-			assert(nIndex < m_segments.size());
-			return m_segments[nIndex]->coords;
-		}
+		return *dstCat;
+	}
 
-		std::shared_ptr<ImageRes> GetImage() override
-		{
-			return m_image;
-		}
-
-		Texture GenerateTexture() override
-		{
-			Texture tex = TextureRes::Create(m_image);
-			tex->SetWrap(TextureWrap::Clamp, TextureWrap::Clamp);
-			return tex;
-		}
-	};
-
-	SpriteMap SpriteMapRes::Create()
+	void SpriteMapRes::CopySubImage(ImageRes* dst, ImageRes* src, Vector2i dstPos)
 	{
-		auto pImpl = make_shared<SpriteMap_Impl>();
-		return GetResourceManager<ResourceType::SpriteMap>().Register(pImpl);
+		Vector2i dstSize = dst->GetSize();
+		Vector2i srcSize = src->GetSize();
+
+		Colori* pSrc = src->GetBits();
+		uint32 nDstPitch = dst->GetSize().x;
+		Colori* pDst = dst->GetBits() + dstPos.x + dstPos.y * nDstPitch;
+		for (uint32 y = 0; y < (uint32)srcSize.y; y++)
+		{
+			for (uint32 x = 0; x < (uint32)srcSize.x; x++)
+			{
+				*pDst = *pSrc;
+				pSrc++;
+				pDst++;
+			}
+			pDst += (nDstPitch - srcSize.x);
+		}
 	}
 }

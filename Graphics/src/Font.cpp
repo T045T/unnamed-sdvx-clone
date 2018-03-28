@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Font.hpp"
-#include "ResourceManagers.hpp"
 #include "Image.hpp"
 #include "Texture.hpp"
 #include "Mesh.hpp"
@@ -33,6 +32,9 @@ namespace Graphics
 		mesh->Draw();
 	}
 
+	/**
+	 * \throws std::runtime_error if failed to create font
+	 */
 	FontRes::FontRes(shared_ptr<OpenGL> gl, const String& assetPath)
 		: m_gl(std::move(gl))
 	{
@@ -83,21 +85,10 @@ namespace Graphics
 		return pMap;
 	}
 
-	Font FontRes::create(shared_ptr<OpenGL> gl, const String& assetPath)
-	{
-		try
-		{
-			const auto pImpl = make_shared<FontRes>(gl, assetPath);
-			return GetResourceManager<ResourceType::Font>().Register(pImpl);
-		}
-		catch (std::runtime_error& e)
-		{
-			Logf("%s", Logger::Severity::Warning, e.what());
-			return Font();
-		}
-	}
-
-	std::shared_ptr<TextRes> FontRes::create_text(const WString& str, uint32 nFontSize, TextOptions options)
+	/**
+	 * \throws std::runtime_error if failed to create MeshRes
+	 */
+	shared_ptr<TextRes> FontRes::create_text(const WString& str, uint32 nFontSize, TextOptions options)
 	{
 		FontSize* size = get_size(nFontSize);
 
@@ -116,7 +107,7 @@ namespace Graphics
 		};
 
 		auto ret = new TextRes();
-		ret->mesh = MeshRes::Create();
+		ret->mesh = make_shared<MeshRes>();
 
 		const float monospaceWidth = size->get_char_info(L'_').advance;
 
@@ -186,7 +177,7 @@ namespace Graphics
 		ret->mesh->SetData(vertices);
 		ret->mesh->SetPrimitiveType(PrimitiveType::TriangleList);
 
-		Text textObj = std::shared_ptr<TextRes>(ret);
+		Text textObj = shared_ptr<TextRes>(ret);
 		// Insert into cache
 		size->cache.add_text(str, textObj);
 		return textObj;
@@ -243,11 +234,15 @@ namespace Graphics
 		Add(key, {obj, timer.SecondsAsFloat()});
 	}
 
+
+	/**
+	 * \throws std::runtime_error if failed to create SpriteMapRes or TextureRes
+	 */
 	FontSize::FontSize(shared_ptr<OpenGL> gl, FT_Face& face)
 		: face(face), m_gl(std::move(gl))
 	{
-		spriteMap = SpriteMapRes::Create();
-		textureMap = TextureRes::Create();
+		spriteMap = make_shared<SpriteMapRes>();
+		textureMap = make_shared<TextureRes>();
 		lineHeight = static_cast<float>(face->size->metrics.height) / 64.0f;
 	}
 
@@ -269,6 +264,9 @@ namespace Graphics
 		return textureMap;
 	}
 
+	/**
+	 * \throws std::runtime_error if failed to create ImageRes
+	 */
 	const CharInfo& FontSize::add_char_info(wchar_t t)
 	{
 		bUpdated = true;
@@ -295,7 +293,7 @@ namespace Graphics
 		ci.leftOffset = (*pFace)->glyph->bitmap_left;
 		ci.advance = static_cast<float>((*pFace)->glyph->advance.x) / 64.0f;
 
-		Image img = ImageRes::Create(Vector2i((*pFace)->glyph->bitmap.width, (*pFace)->glyph->bitmap.rows));
+		auto img = make_shared<ImageRes>(Vector2i((*pFace)->glyph->bitmap.width, (*pFace)->glyph->bitmap.rows));
 		Colori* pDst = img->GetBits();
 		uint8* pSrc = (*pFace)->glyph->bitmap.buffer;
 		uint32 nLen = (*pFace)->glyph->bitmap.width * (*pFace)->glyph->bitmap.rows;
