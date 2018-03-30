@@ -117,8 +117,8 @@ private:
 	MouseLockHandle m_lockMouse;
 
 	// Current background visualization
-	Background* m_background = nullptr;
-	Background* m_foreground = nullptr;
+	unique_ptr<Background> m_background;
+	unique_ptr<Background> m_foreground;
 
 	// Currently active timing point
 	const TimingPoint* m_currentTiming;
@@ -183,12 +183,7 @@ public:
 
 	~Game_Impl()
 	{
-		if (m_track)
-			delete m_track;
-		if (m_background)
-			delete m_background;
-		if (m_foreground)
-			delete m_foreground;
+		delete m_track;
 
 		// Save hispeed
 		g_gameConfig.Set(GameConfigKeys::HiSpeed, m_hispeed);
@@ -371,8 +366,8 @@ public:
 
 		// Background 
 		/// TODO: Load this async
-		CheckedLoad(m_background = CreateBackground(this));
-		CheckedLoad(m_foreground = CreateBackground(this, true));
+		CheckedLoad(m_background = make_unique<Background>(this));
+		CheckedLoad(m_foreground = make_unique<Background>(this, true));
 
 		// Do this here so we don't get input events while still loading
 		m_scoring.SetPlayback(m_playback);

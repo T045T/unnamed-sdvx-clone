@@ -6,12 +6,21 @@
 class Background
 {
 public:
-	virtual ~Background() = default;
-	virtual bool Init(bool foreground) = 0;
-	virtual void Render(float deltaTime) = 0;
+	Background(class Game* game, bool foreground = false);
+	~Background() = default;
 
-	class Game* game;
+	void Render(float deltaTime);
+
+private:
+	Game* game;
+	RenderState renderState;
+	Mesh fullscreenMesh;
+	Material fullscreenMaterial;
+	Texture backgroundTexture;
+	MaterialParameterSet fullscreenMaterialParams;
+	float clearTransition = 0.0f;
+
+	Material LoadBackgroundMaterial(const String& path) const;
+	Texture LoadBackgroundTexture(const String& path) const;
+	void UpdateRenderState(float deltaTime);
 };
-
-// Creates the default game background
-Background* CreateBackground(class Game* game, bool foreground = false);
