@@ -105,7 +105,7 @@ bool Application::Run()
 			if (m_commandLine.Contains("-notitle"))
 				AddTickable(SongSelect::Create());
 			else // Start regular game, goto title screen
-				AddTickable(TitleScreen::Create());
+				AddTickable(new TitleScreen());
 		}
 	}
 
