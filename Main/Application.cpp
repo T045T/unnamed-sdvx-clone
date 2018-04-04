@@ -142,6 +142,7 @@ bool Application::m_LoadConfig()
 		if (g_gameConfig.Load(reader))
 			return true;
 	}
+	else g_gameConfig.Save("Main.cfg");
 	return false;
 }
 
