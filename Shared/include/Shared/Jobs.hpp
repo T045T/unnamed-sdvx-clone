@@ -5,6 +5,10 @@
 #include <memory>
 #include "Shared/Unique.hpp"
 #include "Shared/Delegate.hpp"
+#include "Thread.hpp"
+#include "Timer.hpp"
+#include "Vector.hpp"
+#include "List.hpp"
 
 /*
 	Additional job flags,
@@ -47,17 +51,17 @@ public:
 
 	// Called when finished
 	//	called from main thread when JobSheduler::Update is called
-	Delegate<std::shared_ptr<JobBase>> OnFinished;
+	Delegate<shared_ptr<JobBase>> OnFinished;
 
 	// Create job from lambda function
 	template <typename Lambda, typename... Args>
-	static std::shared_ptr<JobBase> CreateLambda(Lambda&& obj, Args ...);
+	static shared_ptr<JobBase> CreateLambda(Lambda&& obj, Args ...);
 
 private:
 	bool m_ret = false;
 	bool m_finished = false;
-	class JobSheduler_Impl* m_sheduler = nullptr;
-	friend class JobSheduler_Impl;
+	class JobSheduler* m_sheduler = nullptr;
+	friend class JobSheduler;
 };
 
 /*
@@ -94,8 +98,36 @@ typedef std::shared_ptr<JobBase> Job;
 template <typename Lambda, typename... Args>
 Job JobBase::CreateLambda(Lambda&& obj, Args ... args)
 {
-	return std::shared_ptr<JobBase>(new LambdaJob<Lambda, Args...>(obj, args...));
+	return shared_ptr<JobBase>(new LambdaJob<Lambda, Args...>(obj, args...));
 }
+
+struct JobThread
+{
+	// Thread index
+	uint32 index = 0;
+	bool terminate = false;
+	Thread thread;
+
+	// Job currently being processed
+	Job activeJob;
+
+	Timer idleDuration;
+
+	// Terminate this thread
+	void Terminate()
+	{
+		if (terminate)
+			return; // Already terminated
+		terminate = true;
+		if (thread.joinable())
+			thread.join();
+	}
+
+	bool IsActive() const
+	{
+		return activeJob != nullptr;
+	}
+};
 
 /*
 	The manager for performing asynchronous tasks
@@ -106,14 +138,22 @@ class JobSheduler : public Unique
 public:
 	JobSheduler();
 	~JobSheduler();
-
-	// Runs callbacks on finished tasks on the main thread
-	// should thus be called from the main thread only
 	void Update();
 
 	// Queue job
 	bool Queue(Job job);
 
 private:
-	class JobSheduler_Impl* m_impl;
+	// Contains tasks to be done
+	List<Job> m_jobQueue;
+	// Contains tasks that are done
+	List<Job> m_finishedJobs;
+
+	friend class JobBase;
+
+	Mutex m_lock;
+	Vector<JobThread*> m_threadPool;
+
+	void m_JobThread(JobThread* myThread);
+	bool QueueUnchecked(Job job);
 };
