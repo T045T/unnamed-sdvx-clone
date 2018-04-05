@@ -31,55 +31,45 @@ namespace Graphics
 		Window(Vector2i size = Vector2i(800, 600));
 		~Window();
 
-		void Show();
-		void Hide();
+		void Show() const;
+		void Hide() const;
 
-		// Call every frame to update the window message loop
-		// returns false if the window received a close message
 		bool Update();
-		// On windows: returns the HWND
-		void* Handle();
-		// Set the window title (caption)
+		void* Handle() const;
 		void SetCaption(const WString& cap);
-		// Closes the window
 		void Close();
 
-		Vector2i GetMousePos();
-		void SetMousePos(const Vector2i& pos);
-		void SetRelativeMouseMode(bool enabled);
-		bool GetRelativeMouseMode();
+		Vector2i GetMousePos() const;
+		void set_mouse_pos(const Vector2i& pos) const;
+		void SetRelativeMouseMode(bool enabled) const;
+		bool GetRelativeMouseMode() const;
 
 		// Sets cursor to use
 		void SetCursor(shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
-		void SetCursorVisible(bool visible);
+		void SetCursorVisible(bool visible) const;
 
-		// Switches between borderless and windowed
-		void SetWindowStyle(WindowStyle style);
+		void SetWindowStyle(WindowStyle style) const;
 
-		// Get full window position
-		Vector2i GetWindowPos() const;
-		// Set full window position
-		void SetWindowPos(const Vector2i& pos);
+		Vector2i get_window_pos() const;
+		void set_window_pos(const Vector2i& pos) const;
 
-		// Window Client area size
 		Vector2i GetWindowSize() const;
 
-		// Set vsync setting
-		void SetVSync(int8 setting);
+		void SetVSync(int8 setting) const;
 
 		// Window is active
 		bool IsActive() const;
 		// Set window client area size
-		void SetWindowSize(const Vector2i& size);
+		void SetWindowSize(const Vector2i& size) const;
 		void SwitchFullscreen(uint32 monitorID = -1);
 		bool IsFullscreen() const;
 
 		ModifierKeys GetModifierKeys() const;
 
 		// Start allowing text input
-		void StartTextInput();
+		void StartTextInput() const;
 		// Stop allowing text input
-		void StopTextInput();
+		void StopTextInput() const;
 		// Used to get current IME working data
 		const TextComposition& GetTextComposition() const;
 
@@ -88,8 +78,10 @@ namespace Graphics
 
 		// The number of available gamepad devices
 		int32 GetNumGamepads() const;
+
 		// List of gamepad device names
 		Vector<String> GetGamepadDeviceNames() const;
+
 		// Open a gamepad within the range of the number of gamepads
 		shared_ptr<Gamepad> OpenGamepad(int32 deviceIndex);
 
@@ -119,8 +111,8 @@ namespace Graphics
 		ModifierKeys m_modKeys = ModifierKeys::None;
 
 		// Gamepad input
-		Map<int32, shared_ptr<class Gamepad_Impl>> m_gamepads;
-		Map<SDL_JoystickID, class Gamepad_Impl*> m_joystickMap;
+		Map<int32, shared_ptr<Gamepad>> m_gamepads;
+		Map<SDL_JoystickID, shared_ptr<Gamepad>> m_joystickMap;
 
 		// Text input / IME stuff
 		TextComposition m_textComposition;

@@ -2,7 +2,6 @@
 #include "Window.hpp"
 #include "KeyMap.hpp"
 #include "Image.hpp"
-#include "Gamepad_Impl.hpp"
 
 namespace Graphics
 {
@@ -103,22 +102,32 @@ namespace Graphics
 		SDL_DestroyWindow(m_window);
 	}
 
-	void Window::Show()
+	/**
+	 * \brief Show window
+	 */
+	void Window::Show() const
 	{
 		SDL_ShowWindow(m_window);
 	}
 
-	void Window::Hide()
+	/**
+	 * \brief Hide window
+	 */
+	void Window::Hide() const
 	{
 		SDL_HideWindow(m_window);
 	}
 
+	/**
+	 * \brief Call every frame to update the window message loop
+	 * \return false if the window received a close message
+	 */
 	bool Window::Update()
 	{
 		SDL_Event evt;
 		while (SDL_PollEvent(&evt))
 		{
-			if (evt.type ==  SDL_KEYDOWN)
+			if (evt.type == SDL_KEYDOWN)
 			{
 				if (m_textComposition.composition.empty())
 				{
@@ -132,25 +141,25 @@ namespace Graphics
 			}
 			else if (evt.type == SDL_JOYBUTTONDOWN)
 			{
-				Gamepad_Impl** gp = m_joystickMap.Find(evt.jbutton.which);
+				const auto gp = m_joystickMap.Find(evt.jbutton.which);
 				if (gp)
 					gp[0]->HandleInputEvent(evt.jbutton.button, true);
 			}
 			else if (evt.type == SDL_JOYBUTTONUP)
 			{
-				Gamepad_Impl** gp = m_joystickMap.Find(evt.jbutton.which);
+				const auto gp = m_joystickMap.Find(evt.jbutton.which);
 				if (gp)
 					gp[0]->HandleInputEvent(evt.jbutton.button, false);
 			}
 			else if (evt.type == SDL_JOYAXISMOTION)
 			{
-				Gamepad_Impl** gp = m_joystickMap.Find(evt.jaxis.which);
+				const auto gp = m_joystickMap.Find(evt.jaxis.which);
 				if (gp)
 					gp[0]->HandleAxisEvent(evt.jaxis.axis, evt.jaxis.value);
 			}
 			else if (evt.type == SDL_JOYHATMOTION)
 			{
-				Gamepad_Impl** gp = m_joystickMap.Find(evt.jhat.which);
+				const auto gp = m_joystickMap.Find(evt.jhat.which);
 				if (gp)
 					gp[0]->HandleHatEvent(evt.jhat.hat, evt.jhat.value);
 			}
@@ -235,11 +244,17 @@ namespace Graphics
 		return !m_closed;
 	}
 
-	void* Window::Handle()
+	/**
+	 * \return native handle to the window
+	 */
+	void* Window::Handle() const
 	{
 		return m_window;
 	}
 
+	/**
+	 * \brief Set window title
+	 */
 	void Window::SetCaption(const WString& cap)
 	{
 		m_caption = cap;
@@ -247,12 +262,15 @@ namespace Graphics
 		SDL_SetWindowTitle(m_window, *titleUtf8);
 	}
 
+	/**
+	 * \brief Close the window
+	 */
 	void Window::Close()
 	{
 		m_closed = true;
 	}
 
-	Vector2i Window::GetMousePos()
+	Vector2i Window::GetMousePos() const
 	{
 		Vector2i res;
 		SDL_GetMouseState(&res.x, &res.y);
@@ -282,28 +300,40 @@ namespace Graphics
 		/// NOTE: Cursor transparency is broken on linux
 	}
 
-	void Window::SetCursorVisible(bool visible)
+	void Window::SetCursorVisible(bool visible) const
 	{
 		SDL_ShowCursor(visible);
 	}
 
-	void Window::SetWindowStyle(WindowStyle style)
+	/**
+	 * \brief Switches between borderless and windowed
+	 */
+	void Window::SetWindowStyle(WindowStyle style) const
 	{
 		SetWindowStyle(style);
 	}
 
-	Vector2i Window::GetWindowPos() const
+	/**
+	 * \brief Get full window position
+	 */
+	Vector2i Window::get_window_pos() const
 	{
 		Vector2i res;
 		SDL_GetWindowPosition(m_window, &res.x, &res.y);
 		return res;
 	}
 
-	void Window::SetWindowPos(const Vector2i& pos)
+	/**
+	 * \brief Set full window position
+	 */
+	void Window::set_window_pos(const Vector2i& pos) const
 	{
 		SDL_SetWindowPosition(m_window, pos.x, pos.y);
 	}
 
+	/**
+	 * \brief Window Client area size
+	 */
 	Vector2i Window::GetWindowSize() const
 	{
 		Vector2i res;
@@ -311,13 +341,13 @@ namespace Graphics
 		return res;
 	}
 
-	void Window::SetVSync(int8 setting)
+	void Window::SetVSync(int8 setting) const
 	{
 		if (SDL_GL_SetSwapInterval(setting) == -1)
 			Logf("Failed to set VSync: %s", Logger::Error, SDL_GetError());
 	}
 
-	void Window::SetWindowSize(const Vector2i& size)
+	void Window::SetWindowSize(const Vector2i& size) const
 	{
 		SDL_SetWindowSize(m_window, size.x, size.y);
 	}
@@ -355,12 +385,12 @@ namespace Graphics
 		return SDL_GetWindowFlags(m_window) & SDL_WindowFlags::SDL_WINDOW_INPUT_FOCUS;
 	}
 
-	void Window::StartTextInput()
+	void Window::StartTextInput() const
 	{
 		SDL_StartTextInput();
 	}
 
-	void Window::StopTextInput()
+	void Window::StopTextInput() const
 	{
 		SDL_StopTextInput();
 	}
@@ -405,32 +435,23 @@ namespace Graphics
 
 	shared_ptr<Gamepad> Window::OpenGamepad(int32 deviceIndex)
 	{
-		shared_ptr<Gamepad_Impl> openGamepad = *(m_gamepads.Find(deviceIndex)); // HACK: should fix this
-		if (openGamepad)
-			return std::dynamic_pointer_cast<Gamepad>(openGamepad);
+		auto gamepad = *m_gamepads.Find(deviceIndex);
+		if (gamepad)
+			return gamepad;
 
-		shared_ptr<Gamepad_Impl> newGamepad;
-
-		Gamepad_Impl* gamepadImpl = new Gamepad_Impl();
-		// Try to initialize new device
-		if (gamepadImpl->Init(this, deviceIndex))
+		try
 		{
-			newGamepad = shared_ptr<Gamepad_Impl>(gamepadImpl);
-
-			// Receive joystick events
+			gamepad = make_shared<Gamepad>(deviceIndex);
 			SDL_JoystickEventState(SDL_ENABLE);
+			m_gamepads.Add(deviceIndex, gamepad);
+			m_joystickMap.Add(SDL_JoystickInstanceID(gamepad->get_joystick()), gamepad);
 		}
-		else
+		catch (std::runtime_error &err)
 		{
-			delete gamepadImpl;
+			Logf("Failed to create gamepad %i (%s)", Logger::Warning, deviceIndex, err.what());
 		}
-
-		if (newGamepad)
-		{
-			m_gamepads.Add(deviceIndex, newGamepad);
-			m_joystickMap.Add(SDL_JoystickInstanceID(gamepadImpl->m_joystick), gamepadImpl);
-		}
-		return std::dynamic_pointer_cast<Gamepad>(newGamepad);
+		
+		return gamepad;
 	}
 
 	/**
@@ -467,18 +488,18 @@ namespace Graphics
 			OnKeyRepeat.Call(code);
 	}
 
-	void Window::SetMousePos(const Vector2i& pos)
+	void Window::set_mouse_pos(const Vector2i& pos) const
 	{
 		SDL_WarpMouseInWindow(m_window, pos.x, pos.y);
 	}
 
-	void Window::SetRelativeMouseMode(bool enabled)
+	void Window::SetRelativeMouseMode(bool enabled) const
 	{
 		if (SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE) != 0)
 			Logf("SetRelativeMouseMode failed: %s", Logger::Severity::Warning, SDL_GetError());
 	}
 
-	bool Window::GetRelativeMouseMode()
+	bool Window::GetRelativeMouseMode() const
 	{
 		return SDL_GetRelativeMouseMode() == SDL_TRUE;
 	}
