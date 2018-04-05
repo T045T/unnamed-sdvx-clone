@@ -1,6 +1,8 @@
 #pragma once
 #include <Graphics/Keys.hpp>
 #include <Graphics/Gamepad.hpp>
+#include <Graphics/KeyMap.hpp>
+#include <SDL.h>
 
 namespace Graphics
 {
@@ -28,10 +30,10 @@ namespace Graphics
 	public:
 		Window(Vector2i size = Vector2i(800, 600));
 		~Window();
-		// Show the window
+
 		void Show();
-		// Hide the window
 		void Hide();
+
 		// Call every frame to update the window message loop
 		// returns false if the window received a close message
 		bool Update();
@@ -48,7 +50,7 @@ namespace Graphics
 		bool GetRelativeMouseMode();
 
 		// Sets cursor to use
-		void SetCursor(std::shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
+		void SetCursor(shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
 		void SetCursorVisible(bool visible);
 
 		// Switches between borderless and windowed
@@ -72,9 +74,6 @@ namespace Graphics
 		void SwitchFullscreen(uint32 monitorID = -1);
 		bool IsFullscreen() const;
 
-		// Checks if a key is pressed
-		bool IsKeyPressed(int32 key) const;
-
 		ModifierKeys GetModifierKeys() const;
 
 		// Start allowing text input
@@ -92,7 +91,7 @@ namespace Graphics
 		// List of gamepad device names
 		Vector<String> GetGamepadDeviceNames() const;
 		// Open a gamepad within the range of the number of gamepads
-		std::shared_ptr<Gamepad> OpenGamepad(int32 deviceIndex);
+		shared_ptr<Gamepad> OpenGamepad(int32 deviceIndex);
 
 		Delegate<int32> OnKeyPressed;
 		Delegate<int32> OnKeyReleased;
@@ -110,6 +109,30 @@ namespace Graphics
 		Delegate<const Vector2i&> OnResized;
 
 	private:
-		class Window_Impl* m_impl;
+		SDL_Window* m_window;
+
+		SDL_Cursor* currentCursor = nullptr;
+
+		// Window Input State
+		Map<SDL_Keycode, uint8> m_keyStates;
+		KeyMap m_keyMapping;
+		ModifierKeys m_modKeys = ModifierKeys::None;
+
+		// Gamepad input
+		Map<int32, shared_ptr<class Gamepad_Impl>> m_gamepads;
+		Map<SDL_JoystickID, class Gamepad_Impl*> m_joystickMap;
+
+		// Text input / IME stuff
+		TextComposition m_textComposition;
+
+		// Various window state
+		bool m_active = true;
+		bool m_closed = false;
+		bool m_fullscreen = false;
+		uint32 m_style;
+		Vector2i m_clntSize;
+		WString m_caption = L"Window";
+
+		void HandleKeyEvent(SDL_Keycode code, uint8 newState, int32 repeat);
 	};
 }
