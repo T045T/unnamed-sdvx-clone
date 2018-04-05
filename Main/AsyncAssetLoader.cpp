@@ -3,12 +3,7 @@
 #include "Application.hpp"
 #include "Global.hpp"
 
-struct AsyncLoadOperation : public IAsyncLoadable
-{
-	String name;
-};
-
-struct AsyncTextureLoadOperation : public AsyncLoadOperation
+struct AsyncTextureLoadOperation : AsyncLoadOperation
 {
 	Texture& target;
 	Image image;
@@ -19,7 +14,7 @@ struct AsyncTextureLoadOperation : public AsyncLoadOperation
 		name = path;
 	}
 
-	bool AsyncLoad()
+	bool AsyncLoad() override
 	{
 		image = g_application->LoadImage(name);
 		return image != nullptr;
@@ -28,35 +23,35 @@ struct AsyncTextureLoadOperation : public AsyncLoadOperation
 	/**
 	 * \throws std::runtime_error if failed to create TextureRes
 	 */
-	bool AsyncFinalize()
+	bool AsyncFinalize() override
 	{
 		target = make_shared<TextureRes>(image);
 		return target != nullptr;
 	}
 };
 
-struct AsyncMeshLoadOperation : public AsyncLoadOperation
+struct AsyncMeshLoadOperation : AsyncLoadOperation
 {
 	Mesh& target;
 
 	AsyncMeshLoadOperation(Mesh& target, const String& path)
 		: target(target)
-	{ }
+	{}
 
-	bool AsyncLoad()
+	bool AsyncLoad() override
 	{
 		/// TODO: No mesh loading yet
 		return false;
 	}
 
-	bool AsyncFinalize()
+	bool AsyncFinalize() override
 	{
 		/// TODO: No mesh loading yet
 		return false;
 	}
 };
 
-struct AsyncMaterialLoadOperation : public AsyncLoadOperation
+struct AsyncMaterialLoadOperation : AsyncLoadOperation
 {
 	Material& target;
 
@@ -66,18 +61,18 @@ struct AsyncMaterialLoadOperation : public AsyncLoadOperation
 		name = path;
 	}
 
-	bool AsyncLoad()
+	bool AsyncLoad() override
 	{
 		return true;
 	}
 
-	bool AsyncFinalize()
+	bool AsyncFinalize() override
 	{
 		return (target = g_application->LoadMaterial(name)) != nullptr;
 	}
 };
 
-struct AsyncWrapperOperation : public AsyncLoadOperation
+struct AsyncWrapperOperation : AsyncLoadOperation
 {
 	IAsyncLoadable& target;
 
@@ -87,65 +82,41 @@ struct AsyncWrapperOperation : public AsyncLoadOperation
 		this->name = name;
 	}
 
-	bool AsyncLoad()
+	bool AsyncLoad() override
 	{
 		return target.AsyncLoad();
 	}
 
-	bool AsyncFinalize()
+	bool AsyncFinalize() override
 	{
 		return target.AsyncFinalize();
 	}
 };
 
-class AsyncAssetLoader_Impl
-{
-public:
-	Vector<AsyncLoadOperation*> loadables;
-
-	~AsyncAssetLoader_Impl()
-	{
-		for (auto& loadable : loadables)
-		{
-			delete loadable;
-		}
-	}
-};
-
-AsyncAssetLoader::AsyncAssetLoader()
-{
-	m_impl = new AsyncAssetLoader_Impl();
-}
-
-AsyncAssetLoader::~AsyncAssetLoader()
-{
-	delete m_impl;
-}
-
 void AsyncAssetLoader::AddTexture(Texture& out, const String& path)
 {
-	m_impl->loadables.Add(new AsyncTextureLoadOperation(out, path));
+	loadables.push_back(make_unique<AsyncTextureLoadOperation>(out, path));
 }
 
 void AsyncAssetLoader::AddMesh(Mesh& out, const String& path)
 {
-	m_impl->loadables.Add(new AsyncMeshLoadOperation(out, path));
+	loadables.push_back(make_unique<AsyncMeshLoadOperation>(out, path));
 }
 
 void AsyncAssetLoader::AddMaterial(Material& out, const String& path)
 {
-	m_impl->loadables.Add(new AsyncMaterialLoadOperation(out, path));
+	loadables.push_back(make_unique<AsyncMaterialLoadOperation>(out, path));
 }
 
 void AsyncAssetLoader::AddLoadable(IAsyncLoadable& loadable, const String& id /*= "unknown"*/)
 {
-	m_impl->loadables.Add(new AsyncWrapperOperation(loadable, id));
+	loadables.push_back(make_unique<AsyncWrapperOperation>(loadable, id));
 }
 
 bool AsyncAssetLoader::Load()
 {
 	bool success = true;
-	for (auto& ld : m_impl->loadables)
+	for (auto& ld : loadables)
 	{
 		if (!ld->AsyncLoad())
 		{
@@ -159,7 +130,7 @@ bool AsyncAssetLoader::Load()
 bool AsyncAssetLoader::Finalize()
 {
 	bool success = true;
-	for (auto& ld : m_impl->loadables)
+	for (auto& ld : loadables)
 	{
 		if (!ld->AsyncFinalize())
 		{
@@ -169,8 +140,7 @@ bool AsyncAssetLoader::Finalize()
 	}
 
 	// Clear state
-	delete m_impl;
-	m_impl = new AsyncAssetLoader_Impl();
+	loadables.clear();
 
 	return success;
 }

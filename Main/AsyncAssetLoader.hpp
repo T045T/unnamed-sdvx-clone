@@ -1,5 +1,11 @@
 #pragma once
 #include "AsyncLoadable.hpp"
+#include <vector>
+
+struct AsyncLoadOperation : IAsyncLoadable
+{
+	String name;
+};
 
 /*
 	Loads assets and IAsyncLoadables 
@@ -8,9 +14,6 @@
 class AsyncAssetLoader : public Unique
 {
 public:
-	AsyncAssetLoader();
-	~AsyncAssetLoader();
-
 	/// NOTE: the caller is responsible for keeping the passed in variable valid the this object is destroyed or finished with the loading
 	// Add a texture to be loaded
 	void AddTexture(Texture& out, const String& path);
@@ -25,5 +28,5 @@ public:
 	bool Finalize();
 
 private:
-	class AsyncAssetLoader_Impl* m_impl;
+	std::vector<unique_ptr<AsyncLoadOperation>> loadables;
 };
