@@ -47,9 +47,9 @@ void SettingsBar::Render(GUIRenderData rd)
 	}
 }
 
-SettingBarSetting* SettingsBar::AddSetting(float* target, float min, float max, const String& name)
+shared_ptr<SettingBarSetting> SettingsBar::AddSetting(float* target, float min, float max, const String& name)
 {
-	SettingBarSetting* setting = new SettingBarSetting();
+	auto setting = make_shared<SettingBarSetting>();
 	setting->name = Utility::ConvertToWString(name);
 	const wchar_t* nw = *setting->name;
 	const char* na = *name;
@@ -71,8 +71,8 @@ SettingBarSetting* SettingsBar::AddSetting(float* target, float min, float max, 
 		// The slider
 		auto slider = std::make_shared<Slider>(m_style);
 		slider->SetValue(v);
-		slider->OnSliding.Add(setting, &SettingBarSetting::m_SliderUpdate);
-		slider->OnValueSet.Add(setting, &SettingBarSetting::m_SliderUpdate);
+		slider->OnSliding.Add(setting.get(), &SettingBarSetting::m_SliderUpdate);
+		slider->OnValueSet.Add(setting.get(), &SettingBarSetting::m_SliderUpdate);
 		LayoutBox::Slot* sliderSlot = box->Add(slider);
 		sliderSlot->fillX = true;
 		m_sliders.Add(setting, slider);
@@ -83,9 +83,9 @@ SettingBarSetting* SettingsBar::AddSetting(float* target, float min, float max, 
 	return setting;
 }
 
-SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, int optionsCount, const String& name)
+shared_ptr<SettingBarSetting> SettingsBar::AddSetting(int* target, Vector<String> options, int optionsCount, const String& name)
 {
-	SettingBarSetting* setting = new SettingBarSetting();
+	auto setting = make_shared<SettingBarSetting>();
 	setting->name = Utility::ConvertToWString(name);
 	const wchar_t* nw = *setting->name;
 	const char* na = *name;
@@ -112,7 +112,7 @@ SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, 
 		// Prev Button
 		auto prevButton = std::make_shared<Button>(m_style);
 		prevButton->SetText(L"<");
-		prevButton->OnPressed.Add(setting, &SettingBarSetting::m_PrevTextSetting);
+		prevButton->OnPressed.Add(setting.get(), &SettingBarSetting::m_PrevTextSetting);
 		LayoutBox::Slot* prevButtonSlot = buttonBox->Add(prevButton);
 		prevButtonSlot->fillX = true;
 
@@ -125,7 +125,7 @@ SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, 
 		// Next Button
 		auto nextButton = std::make_shared<Button>(m_style);
 		nextButton->SetText(L">");
-		nextButton->OnPressed.Add(setting, &SettingBarSetting::m_NextTextSetting);
+		nextButton->OnPressed.Add(setting.get(), &SettingBarSetting::m_NextTextSetting);
 		LayoutBox::Slot* nextButtonSlot = buttonBox->Add(nextButton);
 		nextButtonSlot->fillX = true;
 	}
@@ -137,13 +137,13 @@ SettingBarSetting* SettingsBar::AddSetting(int* target, Vector<String> options, 
 	return setting;
 }
 
-void SettingsBar::SetValue(SettingBarSetting* setting, float value)
+void SettingsBar::SetValue(shared_ptr<SettingBarSetting> setting, float value)
 {
 	float v = (value - setting->floatSetting.min) / (setting->floatSetting.max - setting->floatSetting.min);
 	m_sliders[setting]->SetValue(v);
 }
 
-void SettingsBar::SetValue(SettingBarSetting* setting, int value)
+void SettingsBar::SetValue(shared_ptr<SettingBarSetting> setting, int value)
 {
 	int offset = value - (*setting->textSetting.target);
 	setting->m_UpdateTextSetting(offset);
@@ -152,10 +152,8 @@ void SettingsBar::SetValue(SettingBarSetting* setting, int value)
 void SettingsBar::ClearSettings()
 {
 	for (auto& s : m_settings)
-	{
-		delete s.first;
 		m_container->Remove(s.second);
-	}
+	
 	m_settings.clear();
 }
 

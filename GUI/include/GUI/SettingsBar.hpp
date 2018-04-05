@@ -53,10 +53,10 @@ public:
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
 
-	SettingBarSetting* AddSetting(float* target, float min, float max, const String& name);
-	SettingBarSetting* AddSetting(int* target, Vector<String> options, int optionsCount, const String& name);
-	void SetValue(SettingBarSetting* setting, float value);
-	void SetValue(SettingBarSetting* setting, int value);
+	shared_ptr<SettingBarSetting> AddSetting(float* target, float min, float max, const String& name);
+	shared_ptr<SettingBarSetting> AddSetting(int* target, Vector<String> options, int optionsCount, const String& name);
+	void SetValue(shared_ptr<SettingBarSetting> setting, float value);
+	void SetValue(shared_ptr<SettingBarSetting> setting, int value);
 	void ClearSettings();
 
 	void SetShow(bool shown);
@@ -70,8 +70,8 @@ public:
 
 private:
 	bool m_shown = true;
-	std::shared_ptr<LayoutBox> m_container;
-	std::shared_ptr<CommonGUIStyle> m_style;
-	Map<SettingBarSetting*, GUIElement> m_settings;
-	Map<SettingBarSetting*, std::shared_ptr<Slider>> m_sliders;
+	shared_ptr<LayoutBox> m_container;
+	shared_ptr<CommonGUIStyle> m_style;
+	Map<shared_ptr<SettingBarSetting>, GUIElement> m_settings;
+	Map<shared_ptr<SettingBarSetting>, shared_ptr<Slider>> m_sliders;
 };

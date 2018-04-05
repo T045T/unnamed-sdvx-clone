@@ -75,7 +75,7 @@ void TitleScreen::Start()
 
 void TitleScreen::Settings()
 {
-	g_application->AddTickable(SettingsScreen::Create());
+	g_application->AddTickable(new SettingsScreen());
 }
 
 void TitleScreen::Exit()
