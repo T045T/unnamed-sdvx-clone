@@ -469,8 +469,7 @@ void SongSelect::m_OnButtonPressed(Input::Button buttonCode)
 				game->GetScoring().autoplay = autoplay;
 
 				// Transition to game
-				TransitionScreen* transistion = TransitionScreen::Create(game);
-				g_application->AddTickable(transistion);
+				g_application->AddTickable(new TransitionScreen(game));
 			}
 		}
 	}
