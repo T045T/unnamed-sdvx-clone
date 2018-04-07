@@ -1,6 +1,11 @@
 #pragma once
 #include "Beatmap.hpp"
+#include <thread>
+#include <mutex>
+#include "Database.hpp"
 
+using std::mutex;
+using std::thread;
 
 struct ScoreIndex
 {
@@ -13,21 +18,25 @@ struct ScoreIndex
 	float gauge;
 };
 
-
 // Single difficulty of a map
 // a single map may contain multiple difficulties
 struct DifficultyIndex
 {
 	// Id of this difficulty
 	int32 id;
+
 	// Id of the map that contains this difficulty
 	int32 mapId;
+
 	// Full path to the difficulty
 	String path;
+
 	// Last time the difficulty changed
 	uint64 lwt;
+
 	// Map metadata
 	BeatmapSettings settings;
+
 	// Map scores
 	Vector<ScoreIndex*> scores;
 };
@@ -38,8 +47,10 @@ struct MapIndex
 {
 	// Id of this map
 	int32 id;
+
 	// Full path to the map root folder
 	String path;
+
 	// List of difficulties contained within the map
 	Vector<DifficultyIndex*> difficulties;
 };
@@ -59,9 +70,10 @@ public:
 
 	// Grab all the maps, with their id's
 	Map<int32, MapIndex*> GetMaps();
+
 	// Finds maps using the search query provided
 	// search artist/title/tags for maps for any space separated terms
-	Map<int32, MapIndex*> FindMaps(const String& search);
+	Map<int32, MapIndex*> FindMaps(const String& searchString);
 	Map<int32, MapIndex*> FindMapsByFolder(const String& folder);
 	MapIndex* GetMap(int32 idx);
 
@@ -71,14 +83,77 @@ public:
 
 	// (mapId, mapIndex)
 	Delegate<Vector<MapIndex*>> OnMapsRemoved;
+
 	// (mapId, mapIndex)
 	Delegate<Vector<MapIndex*>> OnMapsAdded;
+
 	// (mapId, mapIndex)
 	Delegate<Vector<MapIndex*>> OnMapsUpdated;
-	// Called when all maps are cleared
-	// (newMapList)
+
+	// Called when all maps are cleared (newMapList)
 	Delegate<Map<int32, MapIndex*>> OnMapsCleared;
 
 private:
-	class MapDatabase_Impl* m_impl;
+	thread m_thread;
+	bool m_searching = false;
+	bool m_interruptSearch = false;
+	Set<String> m_searchPaths;
+	Database m_database;
+
+	Map<int32, MapIndex*> m_maps;
+	Map<int32, DifficultyIndex*> m_difficulties;
+	Map<String, MapIndex*> m_mapsByPath;
+	int32 m_nextMapId = 1;
+	int32 m_nextDiffId = 1;
+
+	struct SearchState
+	{
+		struct ExistingDifficulty
+		{
+			int32 id;
+			uint64 lwt;
+		};
+
+		// Maps file paths to the id's and last write time's for difficulties already in the database
+		Map<String, ExistingDifficulty> difficulties;
+	} m_searchState;
+
+	// Represents an event produced from a scan
+	//	a difficulty can be removed/added/updated
+	//	a BeatmapSettings structure will be provided for added/updated events
+	struct Event
+	{
+		enum Action
+		{
+			Added,
+			Removed,
+			Updated
+		};
+
+		Action action;
+		String path;
+
+		// Current lwt of file
+		uint64 lwt;
+
+		// Id of the map
+		int32 id;
+
+		// Scanned map data, for added/updated maps
+		BeatmapSettings* mapData = nullptr;
+	};
+
+	List<Event> m_pendingChanges;
+	mutex m_pendingChangesLock;
+
+	static const int32 m_version = 8;
+
+	void m_CleanupMapIndex();
+	void m_CreateTables();
+	void m_LoadInitialData();
+	static void m_SortDifficulties(MapIndex* mapIndex);
+	static void m_SortScores(DifficultyIndex* diffIndex);
+	void m_SearchThread();
+	void AddChange(Event change);
+	List<Event> FlushChanges(size_t maxChanges = -1);
 };
