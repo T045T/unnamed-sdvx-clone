@@ -927,7 +927,7 @@ public:
 			return;
 
 		// Transition to score screen
-		TransitionScreen* transition = TransitionScreen::Create(ScoreScreen::Create(this));
+		TransitionScreen* transition = TransitionScreen::Create(new ScoreScreen(this));
 		transition->OnLoadingComplete.Add(this, &Game_Impl::OnScoreScreenLoaded);
 		g_application->AddTickable(transition);
 
