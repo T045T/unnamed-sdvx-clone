@@ -446,7 +446,7 @@ void Application::m_Tick()
 
 class Game* Application::LaunchMap(const String& mapPath)
 {
-	Game* game = Game::Create(mapPath);
+	const auto game = new Game(mapPath);
 	AddTickable(new TransitionScreen(game));
 	return game;
 }

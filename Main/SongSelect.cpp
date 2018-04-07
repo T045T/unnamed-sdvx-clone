@@ -460,12 +460,7 @@ void SongSelect::m_OnButtonPressed(Input::Button buttonCode)
 			{
 				DifficultyIndex* diff = m_selectionWheel->GetSelectedDifficulty();
 
-				Game* game = Game::Create(*diff);
-				if (!game)
-				{
-					Logf("Failed to start game", Logger::Error);
-					return;
-				}
+				const auto game = new Game(*diff);
 				game->GetScoring().autoplay = autoplay;
 
 				// Transition to game

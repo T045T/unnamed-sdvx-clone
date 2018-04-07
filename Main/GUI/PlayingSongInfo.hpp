@@ -4,10 +4,9 @@
 #include <GUI/Panel.hpp>
 #include <GUI/LayoutBox.hpp>
 #include <GUI/Canvas.hpp>
-#include <GUI/Label.hpp>
-#include <Beatmap/BeatmapPlayback.hpp>
-#include "Game.hpp"
+#include "Beatmap/Beatmap.hpp"
 
+class Game;
 
 class SongTitleArtist : public Panel
 {

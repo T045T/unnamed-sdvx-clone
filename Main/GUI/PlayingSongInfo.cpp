@@ -5,6 +5,7 @@
 
 #include <Beatmap/Beatmap.hpp>
 #include "Global.hpp"
+#include "../Game.hpp"
 
 PlayingSongInfo::PlayingSongInfo(Game& game)
 {
