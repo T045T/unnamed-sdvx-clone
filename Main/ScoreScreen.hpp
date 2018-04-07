@@ -4,12 +4,11 @@
 #include "Beatmap/MapDatabase.hpp"
 #include "SongSelectStyle.hpp"
 #include "AsyncAssetLoader.hpp"
-
-class CommonGUIStyle;
-class Canvas;
-class HealthGauge;
-class Panel;
-class LayoutBox;
+#include "GUI/CommonGUIStyle.hpp"
+#include "GUI/Canvas.hpp"
+#include "GUI/Panel.hpp"
+#include "GUI/LayoutBox.hpp"
+#include "HealthGauge.hpp"
 
 class ScoreScreen : public IAsyncLoadableApplicationTickable
 {

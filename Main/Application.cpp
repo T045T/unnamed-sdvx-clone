@@ -103,7 +103,7 @@ bool Application::Run()
 		if (!mapLaunched)
 		{
 			if (m_commandLine.Contains("-notitle"))
-				AddTickable(SongSelect::Create());
+				AddTickable(new SongSelect());
 			else // Start regular game, goto title screen
 				AddTickable(new TitleScreen());
 		}

@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
-#include "SongSelect.hpp"
 #include <Beatmap/MapDatabase.hpp>
+#include "SongSelectItem.hpp"
 
 enum FilterType
 {
@@ -47,11 +47,11 @@ public:
 		: m_level(level)
 	{}
 
-	virtual Map<int32, SongSelectIndex> GetFiltered(const Map<int32, SongSelectIndex>& source) override;
-	virtual String GetName() override;
-	virtual bool IsAll() override;
+	Map<int32, SongSelectIndex> GetFiltered(const Map<int32, SongSelectIndex>& source) override;
+	String GetName() override;
+	bool IsAll() override;
 
-	virtual FilterType GetType()
+	FilterType GetType() override
 	{
 		return FilterType::Level;
 	}
@@ -68,11 +68,11 @@ public:
 		: m_folder(folder), m_mapDatabase(database)
 	{}
 
-	virtual Map<int32, SongSelectIndex> GetFiltered(const Map<int32, SongSelectIndex>& source);
-	virtual String GetName() override;
-	virtual bool IsAll() override;
+	Map<int32, SongSelectIndex> GetFiltered(const Map<int32, SongSelectIndex>& source) override;
+	String GetName() override;
+	bool IsAll() override;
 
-	virtual FilterType GetType()
+	FilterType GetType() override
 	{
 		return FilterType::Folder;
 	}

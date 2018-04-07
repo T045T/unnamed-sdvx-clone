@@ -70,7 +70,7 @@ void TitleScreen::OnRestore()
 
 void TitleScreen::Start()
 {
-	g_application->AddTickable(SongSelect::Create());
+	g_application->AddTickable(new SongSelect());
 }
 
 void TitleScreen::Settings()
