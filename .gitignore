@@ -40,8 +40,10 @@ CPackSourceConfig.cmake
 CMakeCache.txt
 CMakeFiles
 Makefile
+/build
 
 # Not adding photoshop source files for textures
 *.psd
-/third_party/rapidjson-1.1.0
-/cmake-build-debug
+
+# Ignore CMakeSettings.json (as everyone must change it locally)
+CMakeSettings.json

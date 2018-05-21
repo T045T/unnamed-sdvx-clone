@@ -65,14 +65,14 @@ Just run 'Main_Release' or 'Main_Debug' from within the 'bin' folder. Or, to pla
 ### Windows:
 It is not required to build from source. A download link to a pre-built copy of the game is located at the beginning of this README. But, if you must:
 1. Install [CMake](https://cmake.org/download/)
-2. Run `cmake .` from the root of the project
-3. Build the generated Visual Studio project 'FX.sln'
-4. Run the executable made in the 'bin' folder
-
-To run from Visual Studio, go to Properties for Main > Debugging > Working Directory and set it to '$(OutDir)' or '..\\bin'
+2. Install [vcpkg](https://github.com/Microsoft/vcpkg)
+3. Run `vcpkg install curl:x64-windows discord-rpc:x64-windows freetype:x64-windows libjpeg-turbo:x64-windows libogg:x64-windows libpng:x64-windows libvorbis:x64-windows rapidjson:x64-windows sdl2:x64-windows zlib:x64-windows`
+4. Set `CMAKE_TOOLCHAIN_FILE` in `CMakeSettings.json` value to your's toolchain file path (refer to [vcpkg git readme](https://github.com/Microsoft/vcpkg#quick-start)).
+5. Open `CMakeLists.txt` as a CMake project in Visual Studio 2017.
 
 ### Linux:
 1. Install [CMake](https://cmake.org/download/)
-2. Check 'build.linux' for libraries to install
-3. Run `cmake .` and then `make` from the root of the project
-4. Run the executable made in the 'bin' folder
+2. Install [vcpkg](https://github.com/Microsoft/vcpkg)
+3. Run `vcpkg install curl:x64-windows discord-rpc:x64-windows freetype:x64-windows libjpeg-turbo:x64-windows libogg:x64-windows libpng:x64-windows libvorbis:x64-windows rapidjson:x64-windows sdl2:x64-windows zlib:x64-windows`
+4. Run `cmake . -DCMAKE_TOOLCHAIN_FILE=` + your's toolchain file path (refer to [vcpkg git readme](https://github.com/Microsoft/vcpkg#quick-start)).
+5. Run `make`
