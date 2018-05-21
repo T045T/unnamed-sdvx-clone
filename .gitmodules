@@ -1,9 +1,0 @@
-[submodule "third_party/discord_rpc"]
-	path = third_party/discord_rpc
-	url = https://github.com/discordapp/discord-rpc.git
-[submodule "third_party/curl"]
-	path = third_party/curl
-	url = https://github.com/curl/curl.git
-[submodule "third_party/rapidjson"]
-	path = third_party/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
