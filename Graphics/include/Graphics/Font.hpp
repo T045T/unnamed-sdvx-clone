@@ -6,7 +6,7 @@
 #include "Texture.hpp"
 #include "Mesh.hpp"
 #include "OpenGL.hpp"
-#include "ftcache.h"
+#include <freetype/ftcache.h>
 
 #ifdef None
 #undef None

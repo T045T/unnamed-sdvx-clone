@@ -4,6 +4,7 @@
 #include "Beatmap.hpp"
 #include "Shared/Profiling.hpp"
 #include "Shared/Files.hpp"
+#include "Online/Global.hpp"
 
 String databasePath = "maps.db";
 
@@ -626,4 +627,6 @@ void MapDatabase::AddScore(const DifficultyIndex& diff, int score, int crit, int
 	addScore.Rewind();
 
 	m_database.Exec("END");
+
+	g_online->submit_score(score, crit, almost, miss, gauge, diff.id);
 }

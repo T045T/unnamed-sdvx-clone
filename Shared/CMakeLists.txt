@@ -1,4 +1,5 @@
 # Shared Library
+message("> Configuring Shared")
 
 # Find files used for project
 file(GLOB Shared_src "src/*.cpp")

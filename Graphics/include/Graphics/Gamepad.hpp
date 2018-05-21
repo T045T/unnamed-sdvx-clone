@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL_joystick.h>
+#include <SDL2/SDL_joystick.h>
 
 /*
 	Gamepad Abstraction

@@ -1,4 +1,5 @@
 # Audio library
+message("> Configuring Audio")
 
 # Find files used for project
 file(GLOB Audio_src "src/*.cpp" "include/Audio/*.hpp" "src/minimp3.c" "src/minimp3.h" "src/libc.h")
@@ -32,16 +33,18 @@ add_library(Audio ${Audio_src} ${minimp3_src} ${soundtouch_src})
 # Public include paths for library
 target_include_directories(Audio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+find_package(sdl2 REQUIRED)
+
 # Dependencies
 target_link_libraries(Audio Shared)
-if(WIN32)
-	target_link_libraries(Audio SDL2)
-	target_link_libraries(Audio vorbis)
-	target_link_libraries(Audio ogg)
-	target_include_directories(Audio PUBLIC ${SDL2_SOURCE_DIR}/include/)
-else(WIN32)
-	set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third_party)
-	include(FindLibraries)
-	target_link_libraries(Audio ${OGG_LIBRARIES})
-	target_link_libraries(Audio ${VORBIS_LIBRARIES})
-endif(WIN32)
+target_link_libraries(Audio SDL2::SDL2 SDL2::SDL2main)	
+
+find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
+find_library(VORBIS_LIBRARY vorbis)
+target_include_directories(Audio PUBLIC ${VORBIS_INCLUDE_DIR})
+target_link_libraries(Audio ${VORBIS_LIBRARY})
+
+find_path(OGG_INCLUDE_DIR ogg/ogg.h)
+find_library(OGG_LIBRARY ogg)
+target_include_directories(Audio PUBLIC ${OGG_INCLUDE_DIR})
+target_link_libraries(Audio ${OGG_LIBRARY})

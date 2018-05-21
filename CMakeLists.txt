@@ -6,6 +6,7 @@ project(FX)
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 set(CMAKE_DEBUG_POSTFIX _Debug)
 set(CMAKE_RELEASE_POSTFIX _Release)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/third_party")
 
 # Set output folders
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -28,7 +29,7 @@ add_definitions(-DUNICODE -D_UNICODE)
 macro(enable_precompiled_headers src pchSrc)
 	if(MSVC)
 		message("Enabling precompiled header generated from source file ${pchSrc}")
-		message("Files using precompiled headers => ${src}")
+		#message("Files using precompiled headers => ${src}")
 		# Set precompiled header usage
 		set_source_files_properties(${src} PROPERTIES COMPILE_FLAGS "/Yu")
 		# Set precompiled header
@@ -62,19 +63,29 @@ macro(set_output_postfixes projectName)
 		OUTPUT_NAME_RELEASE ${projectName}_Release)
 endmacro(set_output_postfixes)
 
+# Third Party options
+#SET(RAPIDJSON_BUILD_DOC OFF)
+#SET(RAPIDJSON_BUILD_EXAMPLES OFF)
+#SET(RAPIDJSON_BUILD_TESTS OFF)
+#SET(BUILD_EXAMPLES OFF)
+#SET(BUILD_CURL_EXE OFF)
+#SET(CURL_STATICLIB ON)
+
 # Sub-Project directories
-add_subdirectory(third_party)
+#add_subdirectory(third_party)
 add_subdirectory(Shared)
 add_subdirectory(Graphics)
 add_subdirectory(Main)
 add_subdirectory(Audio)
 add_subdirectory(Beatmap)
 add_subdirectory(GUI)
+add_subdirectory(Online)
 # Unit test projects
-add_subdirectory(Tests)
-add_subdirectory(Tests.Shared)
-add_subdirectory(Tests.Game)
+#add_subdirectory(Tests)
+#add_subdirectory(Tests.Shared)
+#add_subdirectory(Tests.Game)
 
+#[[
 # Enabled project filters on windows
 if(MSVC)
 	# Use filters in VS projects
@@ -89,6 +100,8 @@ if(MSVC)
 	set_target_properties(freetype PROPERTIES FOLDER "Third Party")
 	set_target_properties(SDL2 PROPERTIES FOLDER "Third Party")
 	set_target_properties(discord-rpc PROPERTIES FOLDER "Third Party")
+	#set_target_properties(curl PROPERTIES FOLDER "Third Party")
+	#set_target_properties(libcurl PROPERTIES FOLDER "Third Party")
 	
 	# My libraries in the libraries folder
 	set_target_properties(Shared PROPERTIES FOLDER Libraries)
@@ -96,9 +109,11 @@ if(MSVC)
 	set_target_properties(Audio PROPERTIES FOLDER Libraries)
 	set_target_properties(Beatmap PROPERTIES FOLDER Libraries)
 	set_target_properties(GUI PROPERTIES FOLDER Libraries)
+	set_target_properties(Online PROPERTIES FOLDER Libraries)
 	
 	# Unit tests
 	set_target_properties(Tests PROPERTIES FOLDER "Tests")
 	set_target_properties(Tests.Shared PROPERTIES FOLDER "Tests")
 	set_target_properties(Tests.Game PROPERTIES FOLDER "Tests")
 endif(MSVC)
+]]
