@@ -73,6 +73,6 @@ It is not required to build from source. A download link to a pre-built copy of 
 ### Linux:
 1. Install [CMake](https://cmake.org/download/)
 2. Install [vcpkg](https://github.com/Microsoft/vcpkg)
-3. Run `vcpkg install curl:x64-windows discord-rpc:x64-windows freetype:x64-windows libjpeg-turbo:x64-windows libogg:x64-windows libpng:x64-windows libvorbis:x64-windows rapidjson:x64-windows sdl2:x64-windows zlib:x64-windows`
+3. Run `vcpkg install curl:x64-linux discord-rpc:x64-linux freetype:x64-linux libjpeg-turbo:x64-linux libogg:x64-linux libpng:x64-linux libvorbis:x64-linux rapidjson:x64-linux sdl2:x64-linux zlib:x64-linux`
 4. Run `cmake . -DCMAKE_TOOLCHAIN_FILE=` + your's toolchain file path (refer to [vcpkg git readme](https://github.com/Microsoft/vcpkg#quick-start)).
 5. Run `make`
