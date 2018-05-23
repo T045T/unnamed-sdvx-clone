@@ -3,7 +3,6 @@
 #include <Graphics/Window.hpp>
 #include <Graphics/Framebuffer.hpp>
 #include <thread>
-#include <SDL_video.h>
 
 namespace Graphics
 {

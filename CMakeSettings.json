@@ -1,0 +1,12 @@
+{
+	"configurations": [{
+		"name": "my-config",
+		"generator": "Visual Studio 15 2017 Win64",
+		"cmakeCommandArgs": "",
+		"buildRoot": "${projectDir}\\build",
+		"variables": [{
+			"name": "CMAKE_TOOLCHAIN_FILE",
+			"value": YOUR_TOOLCHAIN_PATH_HERE
+		}]
+	}]
+}

@@ -1,4 +1,5 @@
 # GUI library
+message("> Configuring GUI")
 
 # Find files used for project
 file(GLOB GUI_src "src/*.cpp" "include/GUI/*.hpp")

@@ -2,11 +2,7 @@
 #include "GUIRenderer.hpp"
 #include "GUIRenderData.hpp"
 #include "GUI.hpp"
-#ifdef _WIN32
-#include "SDL_keycode.h"
-#else
-#include "SDL2/SDL_keycode.h"
-#endif
+#include <SDL2/SDL_keycode.h>
 
 // Asset loading macro
 #define CheckedLoad(__stmt)\

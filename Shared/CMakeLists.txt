@@ -1,4 +1,5 @@
 # Shared Library
+message("> Configuring Shared")
 
 # Find files used for project
 file(GLOB Shared_src "src/*.cpp")
@@ -18,7 +19,7 @@ endif(WIN32)
 enable_cpp17()
 enable_precompiled_headers("${Shared_src}" src/stdafx.cpp)
 
-include_directories(include include/Shared src)
+include_directories(include/Shared src)
 add_library(Shared ${Shared_src} ${Shared_include} ${Platform_src})
 
 # Public include paths for library

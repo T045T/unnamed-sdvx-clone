@@ -2,7 +2,7 @@
 #include <Graphics/Keys.hpp>
 #include <Graphics/Gamepad.hpp>
 #include <Graphics/KeyMap.hpp>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace Graphics
 {

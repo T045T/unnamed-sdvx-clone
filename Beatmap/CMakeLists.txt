@@ -1,9 +1,9 @@
 # Beatmap library
+message("> Configuring Beatmap")
 
 # Find files used for project
 file(GLOB Beatmap_src "src/*.cpp" "include/Beatmap/*.hpp")
 file(GLOB C_src "src/*.c")
-
 
 # Compiler stuff
 enable_cpp17()
@@ -18,3 +18,4 @@ target_include_directories(Beatmap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Dependencies
 target_link_libraries(Beatmap Shared)
+target_link_libraries(Beatmap Online)
