@@ -39,17 +39,12 @@ endmacro(enable_precompiled_headers)
 # Excludes a file from precompiled header usage
 macro(precompiled_header_exclude exclude)
 	if(MSVC)
-		# Excluded files
 		set_source_files_properties(${exclude} PROPERTIES COMPILE_FLAGS "")
 	endif(MSVC)
 endmacro(precompiled_header_exclude)
 
 # Function to enable c++17 compilation on linux
 macro(enable_cpp17)
-	#if(UNIX)
-	#	# C++11 support enabled for linux compilers
-	#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-	#endif(UNIX)
 	set(CMAKE_CXX_STANDARD 17)
 	set(CMAKE_CXX_STANDARD_REQUIRED ON)
 	set(CMAKE_CXX_EXTENSIONS OFF)
@@ -62,16 +57,21 @@ macro(set_output_postfixes projectName)
 		OUTPUT_NAME_RELEASE ${projectName}_Release)
 endmacro(set_output_postfixes)
 
-# Third Party options
-#SET(RAPIDJSON_BUILD_DOC OFF)
-#SET(RAPIDJSON_BUILD_EXAMPLES OFF)
-#SET(RAPIDJSON_BUILD_TESTS OFF)
-#SET(BUILD_EXAMPLES OFF)
-#SET(BUILD_CURL_EXE OFF)
-#SET(CURL_STATICLIB ON)
+# Find all libraries
+find_package(sdl2 REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(JPEG REQUIRED)
+find_package(PNG REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(CURL REQUIRED)
+find_package(RapidJSON REQUIRED)
+find_library(VORBIS_LIBRARY vorbis)
+find_library(VORBIS_FILE_LIBRARY vorbisfile)
+find_library(VORBIS_ENC_LIBRARY vorbisenc)
+find_library(OGG_LIBRARY ogg)
+find_library(DISCORD_RPC_LIBRARY discord-rpc)
 
 # Sub-Project directories
-#add_subdirectory(third_party)
 add_subdirectory(Shared)
 add_subdirectory(Graphics)
 add_subdirectory(Main)
@@ -79,40 +79,8 @@ add_subdirectory(Audio)
 add_subdirectory(Beatmap)
 add_subdirectory(GUI)
 add_subdirectory(Online)
+
 # Unit test projects
 #add_subdirectory(Tests)
 #add_subdirectory(Tests.Shared)
 #add_subdirectory(Tests.Game)
-
-#[[
-# Enabled project filters on windows
-if(MSVC)
-	# Use filters in VS projects
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	
-	# Put all third party libraries in a seperate folder in the VS solution
-	set_target_properties(jpeg PROPERTIES FOLDER "Third Party")
-	set_target_properties(png PROPERTIES FOLDER "Third Party")
-	set_target_properties(zlib PROPERTIES FOLDER "Third Party")
-	set_target_properties(ogg PROPERTIES FOLDER "Third Party")
-	set_target_properties(vorbis PROPERTIES FOLDER "Third Party")
-	set_target_properties(freetype PROPERTIES FOLDER "Third Party")
-	set_target_properties(SDL2 PROPERTIES FOLDER "Third Party")
-	set_target_properties(discord-rpc PROPERTIES FOLDER "Third Party")
-	#set_target_properties(curl PROPERTIES FOLDER "Third Party")
-	#set_target_properties(libcurl PROPERTIES FOLDER "Third Party")
-	
-	# My libraries in the libraries folder
-	set_target_properties(Shared PROPERTIES FOLDER Libraries)
-	set_target_properties(Graphics PROPERTIES FOLDER Libraries)
-	set_target_properties(Audio PROPERTIES FOLDER Libraries)
-	set_target_properties(Beatmap PROPERTIES FOLDER Libraries)
-	set_target_properties(GUI PROPERTIES FOLDER Libraries)
-	set_target_properties(Online PROPERTIES FOLDER Libraries)
-	
-	# Unit tests
-	set_target_properties(Tests PROPERTIES FOLDER "Tests")
-	set_target_properties(Tests.Shared PROPERTIES FOLDER "Tests")
-	set_target_properties(Tests.Game PROPERTIES FOLDER "Tests")
-endif(MSVC)
-]]

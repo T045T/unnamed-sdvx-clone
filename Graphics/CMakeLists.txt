@@ -32,12 +32,6 @@ target_include_directories(Graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include $
 add_definitions(-DGLEW_NO_GLU -DGLEW_STATIC)
 
 # Dependencies
-find_package(sdl2 REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(PNG REQUIRED)
-find_package(Freetype REQUIRED)
-
 target_link_libraries(Graphics PUBLIC Shared)
 target_link_libraries(Graphics PUBLIC SDL2::SDL2 SDL2::SDL2main)
 target_link_libraries(Graphics PUBLIC ZLIB::ZLIB)

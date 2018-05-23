@@ -33,18 +33,8 @@ add_library(Audio ${Audio_src} ${minimp3_src} ${soundtouch_src})
 # Public include paths for library
 target_include_directories(Audio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-find_package(sdl2 REQUIRED)
-
 # Dependencies
 target_link_libraries(Audio Shared)
-target_link_libraries(Audio SDL2::SDL2 SDL2::SDL2main)	
-
-find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
-find_library(VORBIS_LIBRARY vorbis)
-target_include_directories(Audio PUBLIC ${VORBIS_INCLUDE_DIR})
-target_link_libraries(Audio ${VORBIS_LIBRARY})
-
-find_path(OGG_INCLUDE_DIR ogg/ogg.h)
-find_library(OGG_LIBRARY ogg)
-target_include_directories(Audio PUBLIC ${OGG_INCLUDE_DIR})
+target_link_libraries(Audio SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(Audio ${VORBIS_LIBRARY} ${VORBIS_FILE_LIBRARY} ${VORBIS_ENC_LIBRARY})
 target_link_libraries(Audio ${OGG_LIBRARY})
