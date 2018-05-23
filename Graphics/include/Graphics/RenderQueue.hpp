@@ -26,7 +26,7 @@ namespace Graphics
 		Material mat;
 		MaterialParameterSet params;
 		// The world transform
-		Transform worldTransform; 
+		Transform worldTransform;
 		// Scissor rectangle
 		Rect scissorRect;
 	};
@@ -52,7 +52,7 @@ namespace Graphics
 	{
 	public:
 		RenderQueue() = default;
-		RenderQueue(OpenGL* ogl, const RenderState& rs);
+		RenderQueue(shared_ptr<OpenGL> gl, RenderState rs);
 		RenderQueue(RenderQueue&& other);
 		RenderQueue& operator=(RenderQueue&& other);
 		~RenderQueue();
@@ -60,10 +60,14 @@ namespace Graphics
 		void Process(bool clearQueue = true);
 		// Clears all the render commands in the queue
 		void Clear();
-		void Draw(Transform worldTransform, Mesh m, Material mat, const MaterialParameterSet& params = MaterialParameterSet());
-		void Draw(Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params = MaterialParameterSet());
-		void DrawScissored(Rect scissor, Transform worldTransform, Mesh m, Material mat, const MaterialParameterSet& params = MaterialParameterSet());
-		void DrawScissored(Rect scissor, Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params = MaterialParameterSet());
+		void Draw(Transform worldTransform, Mesh m, Material mat,
+				const MaterialParameterSet& params = MaterialParameterSet());
+		void Draw(Transform worldTransform, std::shared_ptr<class TextRes> text, Material mat,
+				const MaterialParameterSet& params = MaterialParameterSet());
+		void DrawScissored(Rect scissor, Transform worldTransform, Mesh m, Material mat,
+							const MaterialParameterSet& params = MaterialParameterSet());
+		void DrawScissored(Rect scissor, Transform worldTransform, std::shared_ptr<class TextRes> text, Material mat,
+							const MaterialParameterSet& params = MaterialParameterSet());
 
 		// Draw for lines/points with point size parameter
 		void DrawPoints(Mesh m, Material mat, const MaterialParameterSet& params, float pointSize);
@@ -71,6 +75,6 @@ namespace Graphics
 	private:
 		RenderState m_renderState;
 		Vector<RenderQueueItem*> m_orderedCommands;
-		class OpenGL* m_ogl = nullptr;
+		shared_ptr<OpenGL> m_gl;
 	};
 }

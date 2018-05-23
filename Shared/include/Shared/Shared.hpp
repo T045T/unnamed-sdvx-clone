@@ -1,7 +1,10 @@
 /* Shared library main include file */
+#pragma once
 
 // Types
 #include "Types.hpp"
+#include <string>
+using std::string;
 
 // Random Utility classes
 #include "Unique.hpp"
@@ -10,7 +13,14 @@
 #include "Timer.hpp"
 
 // Reference counting
-#include "Ref.hpp"
+#include <memory>
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+
+// Errors
+using std::runtime_error;
 
 // Filsystem headers
 #include "FileSystem.hpp"

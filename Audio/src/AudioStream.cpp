@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "AudioStream.hpp"
 #include "Audio.hpp"
-#include "Audio_Impl.hpp"
 
 class AudioStreamRes* CreateAudioStream_ogg(class Audio* audio, const String& path, bool preload);
 class AudioStreamRes* CreateAudioStream_mp3(class Audio* audio, const String& path, bool preload);
 class AudioStreamRes* CreateAudioStream_wav(class Audio* audio, const String& path, bool preload);
 
-Ref<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const String& path, bool preload)
+std::shared_ptr<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const String& path, bool preload)
 {
 	AudioStreamRes* impl = nullptr;
 
@@ -30,17 +29,17 @@ Ref<AudioStreamRes> AudioStreamRes::Create(class Audio* audio, const String& pat
 	else if (ext == "wav")
 		pref = 3;
 
-	for(uint32 i = 0; i < 3; i++)
+	for (uint32 i = 0; i < 3; i++)
 	{
 		impl = TryCreateType(pref);
-		if(impl)
+		if (impl)
 			break;
 		pref = (pref + 1) % 2;
 	}
 
-	if(!impl)
+	if (!impl)
 		return AudioStream();
 
-	audio->GetImpl()->Register(impl);
+	audio->Register(impl);
 	return AudioStream(impl);
 }

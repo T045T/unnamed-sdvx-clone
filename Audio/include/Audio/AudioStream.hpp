@@ -8,9 +8,9 @@
 class AudioStreamRes : public AudioBase
 {
 public:
-	static Ref<AudioStreamRes> Create(class Audio* audio, const String& path, bool preload);
+	static shared_ptr<AudioStreamRes> Create(class Audio* audio, const String& path, bool preload);
 	virtual ~AudioStreamRes() = default;
-public:
+
 	// Starts playback of the stream or continues a paused stream
 	virtual void Play() = 0;
 	virtual void Pause() = 0;
@@ -24,4 +24,4 @@ public:
 	virtual void SetPosition(int32 pos) = 0;
 };
 
-typedef Ref<AudioStreamRes> AudioStream;
+typedef shared_ptr<AudioStreamRes> AudioStream;

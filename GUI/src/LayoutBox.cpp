@@ -6,7 +6,7 @@
 
 LayoutBox::~LayoutBox()
 {
-	for(auto s : m_children)
+	for (auto s : m_children)
 	{
 		delete s;
 	}
@@ -20,12 +20,12 @@ void LayoutBox::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	Vector<float> elementSizes = CalculateSizes(rd);
 
 	float offset = 0.0f;
-	for(size_t i = 0; i < m_children.size(); i++)
+	for (size_t i = 0; i < m_children.size(); i++)
 	{
 		float mySize = elementSizes[i];
 
 		rd.area = sourceRect;
-		if(layoutDirection == Vertical)
+		if (layoutDirection == Vertical)
 		{
 			rd.area.pos.y += offset;
 			rd.area.size.y = mySize;
@@ -43,24 +43,25 @@ void LayoutBox::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 
 void LayoutBox::Render(GUIRenderData rd)
 {
-	if(visibility != Visibility::Visible)
+	if (visibility != Visibility::Visible)
 		return;
 
-	for(size_t i = 0; i < m_children.size(); i++)
+	for (size_t i = 0; i < m_children.size(); i++)
 	{
 		m_children[i]->Render(rd);
 	}
 }
+
 Vector2 LayoutBox::GetDesiredSize(GUIRenderData rd)
 {
-	if(visibility == Visibility::Collapsed)
+	if (visibility == Visibility::Collapsed)
 		return Vector2();
 
 	Vector2 sizeOut;
-	for(auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
 		Vector2 elemSize = (*it)->GetDesiredSize(rd);
-		if(layoutDirection == Vertical)
+		if (layoutDirection == Vertical)
 		{
 			sizeOut.y += elemSize.y;
 			sizeOut.x = Math::Max(sizeOut.x, elemSize.x);
@@ -73,12 +74,13 @@ Vector2 LayoutBox::GetDesiredSize(GUIRenderData rd)
 	}
 	return sizeOut;
 }
+
 LayoutBox::Slot* LayoutBox::Add(GUIElement element)
 {
 	bool found = false;
-	for(auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
-		if((*it)->element == element)
+		if ((*it)->element == element)
 		{
 			return *it; // Already exists
 		}
@@ -88,11 +90,12 @@ LayoutBox::Slot* LayoutBox::Add(GUIElement element)
 	m_children.AddUnique(slot);
 	return slot;
 }
+
 void LayoutBox::Remove(GUIElement element)
 {
-	for(auto it = m_children.begin(); it != m_children.end();)
+	for (auto it = m_children.begin(); it != m_children.end();)
 	{
-		if((*it)->element == element)
+		if ((*it)->element == element)
 		{
 			m_children.erase(it);
 			break;
@@ -110,13 +113,13 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 	float minSize = 0.0f;
 	float fixedSize = 0.0f;
 	float fillCount = 0;
-	for(auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
 		Vector2 size = (*it)->GetDesiredSize(rd);
 		float currentSize = (layoutDirection == Horizontal) ? size.x : size.y;
 		bool currentFill = (layoutDirection == Horizontal) ? (*it)->fillX : (*it)->fillY;
 		minSize += currentSize;
-		if(currentFill)
+		if (currentFill)
 		{
 			fillCount += (*it)->fillAmount;
 		}
@@ -132,7 +135,7 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 	// TODO: Maybe allow clipping with additional flag instead of scaling down
 	float fillSpace = Math::Max(0.0f, maxSize - fixedSize);
 	float fixedScale = 1.0f;
-	if(fixedSize > maxSize) 
+	if (fixedSize > maxSize)
 	{
 		assert(fillSpace == 0.0f);
 		fixedScale = maxSize / fixedSize;
@@ -141,13 +144,13 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 
 	float offset = 0.0f;
 	Vector<float> ret;
-	for(auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
 		Vector2 size = (*it)->GetDesiredSize(rd);
 		float currentSize = (layoutDirection == Horizontal) ? size.x : size.y;
 		bool currentFill = (layoutDirection == Horizontal) ? (*it)->fillX : (*it)->fillY;
 		float mySize;
-		if(currentFill)
+		if (currentFill)
 		{
 			float fillMult = (*it)->fillAmount / fillCount;
 			mySize = fillSpace * fillMult;
@@ -166,9 +169,10 @@ const Vector<LayoutBox::Slot*>& LayoutBox::GetChildren()
 {
 	return m_children;
 }
+
 void LayoutBox::Clear()
 {
-	for(auto s : m_children)
+	for (auto s : m_children)
 	{
 		delete s;
 	}
@@ -183,14 +187,14 @@ void LayoutBox::Slot::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 	rd.area = padding.Apply(rd.area);
 
 	// Filling
-	if(!fillX || !fillY)
+	if (!fillX || !fillY)
 	{
 		Rect rect = rd.area;
-		if(!fillX && size.x < rd.area.size.x)
+		if (!fillX && size.x < rd.area.size.x)
 		{
 			rect.size.x = size.x;
 		}
-		if(!fillY && size.y < rd.area.size.y)
+		if (!fillY && size.y < rd.area.size.y)
 		{
 			rect.size.y = size.y;
 		}
@@ -200,12 +204,13 @@ void LayoutBox::Slot::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 
 	element->PreRender(rd, inputElement);
 }
+
 void LayoutBox::Slot::Render(GUIRenderData rd)
 {
 	rd.area = m_cachedArea;
-	if(!allowOverflow)
+	if (!allowOverflow)
 		rd.guiRenderer->PushScissorRect(rd.area);
 	element->Render(rd);
-	if(!allowOverflow)
+	if (!allowOverflow)
 		rd.guiRenderer->PopScissorRect();
 }

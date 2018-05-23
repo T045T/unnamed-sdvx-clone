@@ -5,6 +5,9 @@
 
 namespace Graphics
 {
+	class Particle;
+	class ParticleSystemRes;
+
 	/*
 		Particle Emitter, which is a component of a particle system that handles the emission of particles together with the properties of the emitter particles
 	*/
@@ -41,8 +44,11 @@ namespace Graphics
 	}
 #include <Graphics/ParticleParameters.hpp>
 
-	// True after all loops are done playing
-		bool HasFinished() const { return m_finished; }
+		// True after all loops are done playing
+		bool HasFinished() const
+		{
+			return m_finished;
+		}
 
 		// Restarts a particle emitter
 		void Reset();
@@ -51,9 +57,12 @@ namespace Graphics
 		void Deactivate();
 
 	private:
+		friend ParticleSystemRes;
+		friend Particle;
+
 		// Constructed by particle system
-		ParticleEmitter(class ParticleSystem_Impl* sys);
-		void Render(const class RenderState& rs, float deltaTime);
+		ParticleEmitter(ParticleSystemRes* sys);
+		void Render(const RenderState& rs, float deltaTime);
 		void m_ReallocatePool(uint32 newCapacity);
 
 		float m_spawnCounter = 0;
@@ -63,11 +72,9 @@ namespace Graphics
 		bool m_finished = false;
 		uint32 m_emitterLoopIndex = 0;
 
-		friend class ParticleSystem_Impl;
-		friend class Particle;
-		ParticleSystem_Impl* m_system;
+		ParticleSystemRes* m_system;
 
-		class Particle* m_particles = nullptr;
+		Particle* m_particles = nullptr;
 		uint32 m_poolSize = 0;
 
 		// Particle parameters private

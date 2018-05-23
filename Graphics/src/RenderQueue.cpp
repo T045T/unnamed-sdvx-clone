@@ -1,38 +1,42 @@
 #include "stdafx.h"
 #include "RenderQueue.hpp"
+#include <utility>
 #include "OpenGL.hpp"
-using Utility::Cast;
+using Utility::DynCast;
 
 namespace Graphics
 {
-	RenderQueue::RenderQueue(OpenGL* ogl, const RenderState& rs)
-	{
-		m_ogl = ogl;
-		m_renderState = rs;
-	}
+	RenderQueue::RenderQueue(shared_ptr<OpenGL> gl, RenderState rs)
+		: m_renderState(std::move(rs)),
+		  m_gl(std::move(gl))
+	{}
+
 	RenderQueue::RenderQueue(RenderQueue&& other)
 	{
-		m_ogl = other.m_ogl;
-		other.m_ogl = nullptr;
+		m_gl = other.m_gl;
+		other.m_gl = nullptr;
 		m_orderedCommands = move(other.m_orderedCommands);
 		m_renderState = other.m_renderState;
 	}
+
 	RenderQueue& RenderQueue::operator=(RenderQueue&& other)
 	{
 		Clear();
-		m_ogl = other.m_ogl;
-		other.m_ogl = nullptr;
+		m_gl = other.m_gl;
+		other.m_gl = nullptr;
 		m_orderedCommands = move(other.m_orderedCommands);
 		m_renderState = other.m_renderState;
 		return *this;
 	}
+
 	RenderQueue::~RenderQueue()
 	{
 		Clear();
 	}
+
 	void RenderQueue::Process(bool clearQueue)
 	{
-		assert(m_ogl);
+		assert(m_gl);
 
 		bool scissorEnabled = false;
 		bool blendEnabled = false;
@@ -43,16 +47,16 @@ namespace Graphics
 		Material currentMaterial;
 
 		// Create a new list of items
-		for(RenderQueueItem* item : m_orderedCommands)
+		for (RenderQueueItem* item : m_orderedCommands)
 		{
 			auto SetupMaterial = [&](Material& mat, MaterialParameterSet& params)
 			{
 				// Only bind params if material is already bound to context
-				if(currentMaterial == mat)
+				if (currentMaterial == mat)
 					mat->BindParameters(params, m_renderState.worldTransform);
 				else
 				{
-					if(initializedShaders.Contains(mat))
+					if (initializedShaders.Contains(mat))
 					{
 						// Only bind params and rebind
 						mat->BindParameters(params, m_renderState.worldTransform);
@@ -68,9 +72,9 @@ namespace Graphics
 				}
 
 				// Setup Render state for transparent object
-				if(mat->opaque)
+				if (mat->opaque)
 				{
-					if(blendEnabled)
+					if (blendEnabled)
 					{
 						glDisable(GL_BLEND);
 						blendEnabled = false;
@@ -78,14 +82,14 @@ namespace Graphics
 				}
 				else
 				{
-					if(!blendEnabled)
+					if (!blendEnabled)
 					{
 						glEnable(GL_BLEND);
 						blendEnabled = true;
 					}
-					if(activeBlendMode != mat->blendMode)
+					if (activeBlendMode != mat->blendMode)
 					{
-						switch(mat->blendMode)
+						switch (mat->blendMode)
 						{
 						case MaterialBlendMode::Normal:
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -104,7 +108,7 @@ namespace Graphics
 			// Draw mesh helper
 			auto DrawOrRedrawMesh = [&](Mesh& mesh)
 			{
-				if(currentMesh == mesh)
+				if (currentMesh == mesh)
 					mesh->Redraw();
 				else
 				{
@@ -113,7 +117,7 @@ namespace Graphics
 				}
 			};
 
-			if(Cast<SimpleDrawCall>(item))
+			if (DynCast<SimpleDrawCall>(item))
 			{
 				SimpleDrawCall* sdc = (SimpleDrawCall*)item;
 				m_renderState.worldTransform = sdc->worldTransform;
@@ -121,21 +125,21 @@ namespace Graphics
 
 				// Check if scissor is enabled
 				bool useScissor = (sdc->scissorRect.size.x >= 0);
-				if(useScissor)
+				if (useScissor)
 				{
 					// Apply scissor
-					if(!scissorEnabled)
+					if (!scissorEnabled)
 					{
 						glEnable(GL_SCISSOR_TEST);
 						scissorEnabled = true;
 					}
 					float scissorY = m_renderState.viewportSize.y - sdc->scissorRect.Bottom();
 					glScissor((int32)sdc->scissorRect.Left(), (int32)scissorY,
-						(int32)sdc->scissorRect.size.x, (int32)sdc->scissorRect.size.y);
+							(int32)sdc->scissorRect.size.x, (int32)sdc->scissorRect.size.y);
 				}
 				else
 				{
-					if(scissorEnabled)
+					if (scissorEnabled)
 					{
 						glDisable(GL_SCISSOR_TEST);
 						scissorEnabled = false;
@@ -144,9 +148,9 @@ namespace Graphics
 
 				DrawOrRedrawMesh(sdc->mesh);
 			}
-			else if(Cast<PointDrawCall>(item))
+			else if (DynCast<PointDrawCall>(item))
 			{
-				if(scissorEnabled)
+				if (scissorEnabled)
 				{
 					// Disable scissor
 					glDisable(GL_SCISSOR_TEST);
@@ -156,8 +160,8 @@ namespace Graphics
 				PointDrawCall* pdc = (PointDrawCall*)item;
 				m_renderState.worldTransform = Transform();
 				SetupMaterial(pdc->mat, pdc->params);
-				PrimitiveType pt = pdc->mesh->GetPrimitiveType();
-				if(pt >= PrimitiveType::LineList && pt <= PrimitiveType::LineStrip)
+				PrimitiveType pt = pdc->mesh->get_primitive_type();
+				if (pt >= PrimitiveType::LineList && pt <= PrimitiveType::LineStrip)
 				{
 					glLineWidth(pdc->size);
 				}
@@ -165,7 +169,7 @@ namespace Graphics
 				{
 					glPointSize(pdc->size);
 				}
-				
+
 				DrawOrRedrawMesh(pdc->mesh);
 			}
 		}
@@ -174,7 +178,7 @@ namespace Graphics
 		glDisable(GL_BLEND);
 		glDisable(GL_SCISSOR_TEST);
 
-		if(clearQueue)
+		if (clearQueue)
 		{
 			Clear();
 		}
@@ -183,7 +187,7 @@ namespace Graphics
 	void RenderQueue::Clear()
 	{
 		// Cleanup the list of items
-		for(RenderQueueItem* item : m_orderedCommands)
+		for (RenderQueueItem* item : m_orderedCommands)
 		{
 			delete item;
 		}
@@ -199,19 +203,22 @@ namespace Graphics
 		sdc->worldTransform = worldTransform;
 		m_orderedCommands.push_back(sdc);
 	}
-	void RenderQueue::Draw(Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params)
+
+	void RenderQueue::Draw(Transform worldTransform, std::shared_ptr<class TextRes> text, Material mat,
+							const MaterialParameterSet& params)
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
-		sdc->mesh = text->GetMesh();
+		sdc->mesh = text->get_mesh();
 		sdc->params = params;
 		// Set Font texture map
-		sdc->params.SetParameter("mainTex", text->GetTexture());
+		sdc->params.SetParameter("mainTex", text->get_texture());
 		sdc->worldTransform = worldTransform;
 		m_orderedCommands.push_back(sdc);
 	}
 
-	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, Mesh m, Material mat, const MaterialParameterSet& params /*= MaterialParameterSet()*/)
+	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, Mesh m, Material mat,
+									const MaterialParameterSet& params /*= MaterialParameterSet()*/)
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
@@ -221,14 +228,16 @@ namespace Graphics
 		sdc->scissorRect = scissor;
 		m_orderedCommands.push_back(sdc);
 	}
-	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, Ref<class TextRes> text, Material mat, const MaterialParameterSet& params /*= MaterialParameterSet()*/)
+
+	void RenderQueue::DrawScissored(Rect scissor, Transform worldTransform, std::shared_ptr<class TextRes> text,
+									Material mat, const MaterialParameterSet& params /*= MaterialParameterSet()*/)
 	{
 		SimpleDrawCall* sdc = new SimpleDrawCall();
 		sdc->mat = mat;
-		sdc->mesh = text->GetMesh();
+		sdc->mesh = text->get_mesh();
 		sdc->params = params;
 		// Set Font texture map
-		sdc->params.SetParameter("mainTex", text->GetTexture());
+		sdc->params.SetParameter("mainTex", text->get_texture());
 		sdc->worldTransform = worldTransform;
 		sdc->scissorRect = scissor;
 		m_orderedCommands.push_back(sdc);
@@ -247,7 +256,5 @@ namespace Graphics
 	// Initializes the simple draw call structure
 	SimpleDrawCall::SimpleDrawCall()
 		: scissorRect(Vector2(), Vector2(-1))
-	{
-	}
-
+	{ }
 }

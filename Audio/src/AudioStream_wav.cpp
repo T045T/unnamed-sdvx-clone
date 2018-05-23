@@ -10,12 +10,12 @@ struct WavHeader
 	{
 		return strncmp(id, rhs, 4) == 0;
 	}
+
 	bool operator !=(const char* rhs) const
 	{
 		return !(*this == rhs);
 	}
 };
-
 
 struct WavFormat
 {
@@ -31,7 +31,7 @@ class AudioStreamWAV_Impl : public AudioStreamBase
 {
 private:
 	Buffer m_Internaldata;
-	WavFormat m_format = { 0 };
+	WavFormat m_format = {0};
 
 
 	uint64 m_playbackPointer = 0;
@@ -41,10 +41,10 @@ private:
 		int16* pcm = (int16*)decoded->data();
 
 		int8* src = ((int8*)encoded.data()) + pos;
-		int8 blockPredictors[] = { 0, 0 };
-		int32 ideltas[] = { 0, 0 };
-		int32 sample1[] = { 0, 0 };
-		int32 sample2[] = { 0, 0 };
+		int8 blockPredictors[] = {0, 0};
+		int32 ideltas[] = {0, 0};
+		int32 sample1[] = {0, 0};
+		int32 sample2[] = {0, 0};
 
 		blockPredictors[0] = *src++;
 		blockPredictors[1] = *src++;
@@ -66,7 +66,6 @@ private:
 		*pcm++ = sample1[0];
 		*pcm++ = sample1[1];
 
-
 		src = (int8*)src_16;
 		uint32 decodedCount = 2;
 
@@ -74,8 +73,8 @@ private:
 			230, 230, 230, 230, 307, 409, 512, 614,
 			768, 614, 512, 409, 307, 230, 230, 230
 		};
-		int AdaptCoeff1[] = { 256, 512, 0, 192, 240, 460, 392 };
-		int AdaptCoeff2[] = { 0, -256, 0, 64, 0, -208, -232 };
+		int AdaptCoeff1[] = {256, 512, 0, 192, 240, 460, 392};
+		int AdaptCoeff2[] = {0, -256, 0, 64, 0, -208, -232};
 
 		// Decode the rest of the data in the block
 		int remainingInBlock = m_format.nBlockAlign - 14;
@@ -83,17 +82,16 @@ private:
 		{
 			int8 nibbleData = *src++;
 
-			int8 nibbles[] = { 0, 0 };
+			int8 nibbles[] = {0, 0};
 			nibbles[0] = nibbleData >> 4;
 			nibbles[0] &= 0x0F;
 			nibbles[1] = nibbleData & 0x0F;
 
-			int16 predictors[] = { 0, 0 };
+			int16 predictors[] = {0, 0};
 			for (size_t i = 0; i < 2; i++)
 			{
-
-
-				predictors[i] = ((sample1[i] * AdaptCoeff1[blockPredictors[i]]) + (sample2[i] * AdaptCoeff2[blockPredictors[i]])) / 256;
+				predictors[i] = ((sample1[i] * AdaptCoeff1[blockPredictors[i]]) + (sample2[i] * AdaptCoeff2[blockPredictors[i]])) /
+					256;
 				if (nibbles[i] & 0x08)
 					predictors[i] += (nibbles[i] - 0x10) * ideltas[i];
 				else
@@ -197,10 +195,12 @@ public:
 		m_playbackPointer = 0;
 		return true;
 	}
+
 	virtual int32 GetStreamPosition_Internal()
 	{
 		return m_playbackPointer;
 	}
+
 	virtual int32 GetStreamRate_Internal()
 	{
 		if (m_format.nFormat == 2)
@@ -208,9 +208,10 @@ public:
 		else
 			return m_format.nSampleRate * m_format.nChannels;
 	}
+
 	virtual void SetPosition_Internal(int32 pos)
 	{
-		if(pos > 0)
+		if (pos > 0)
 			m_playbackPointer = pos;
 		else
 			m_playbackPointer = 0;
@@ -236,8 +237,7 @@ public:
 					int16* src = ((int16*)m_Internaldata.data()) + m_playbackPointer;
 					m_readBuffer[0][i] = (float)src[0] / (float)0x7FFF;
 					m_readBuffer[1][i] = (float)src[1] / (float)0x7FFF;
-					m_playbackPointer+=2;
-
+					m_playbackPointer += 2;
 				}
 			}
 			else
@@ -276,17 +276,15 @@ public:
 				m_readBuffer[0][i] = (float)src[0] / (float)0x7FFF;
 				m_readBuffer[1][i] = (float)src[1] / (float)0x7FFF;
 			}
-			
+
 			m_playbackPointer += m_format.nBlockAlign;
 
 			m_currentBufferSize = decodedCount;
 			m_remainingBufferData = decodedCount;
 			return decodedCount;
-
 		}
 		return 0;
 	}
-
 };
 
 class AudioStreamRes* CreateAudioStream_wav(class Audio* audio, const String& path, bool preload)

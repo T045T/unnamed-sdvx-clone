@@ -10,9 +10,10 @@ DefineEnum(TestEnum,
 	OO);
 
 DefineBitflagEnum(TestFlags,
-    Color = 0x1,
-    Float = 0x2,
-    Transparent = 0x4);
+	Color = 0x1,
+	Float = 0x2,
+	Transparent = 0x4);
+
 ImplementBitflagEnum(TestFlags);
 
 Test("Enum.String.Regular")
@@ -21,6 +22,7 @@ Test("Enum.String.Regular")
 	TestEnsure(Enum_TestEnum::FromString("A") == TestEnum::A);
 	TestEnsure(Enum_TestEnum::FromString("C") == TestEnum::C);
 }
+
 Test("Enum.String.Bitflags")
 {
 	TestEnsure(Enum_TestFlags::ToString(TestFlags::Color | TestFlags::Float) == "Color | Float");

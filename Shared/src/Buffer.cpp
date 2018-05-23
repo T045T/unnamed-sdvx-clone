@@ -5,29 +5,34 @@ Buffer::Buffer(size_t initialSize)
 {
 	resize(initialSize);
 }
+
 Buffer::Buffer(const char* string)
 {
-	uint32 l = (uint32)strlen(string);
-	for(uint32 i = 0; i < l; i++)
-	{
-		push_back((uint8)string[i]);
-	}
+	const uint32 l = static_cast<uint32>(strlen(string));
+
+	for (uint32 i = 0; i < l; i++)
+		push_back(static_cast<uint8>(string[i]));
 }
-Buffer::Buffer(Buffer&& rhs)
+
+Buffer::Buffer(Buffer&& rhs) noexcept
 {
-	((vector<uint8>*)this)->operator=((Buffer&&)rhs);
+	static_cast<vector<uint8>*>(this)->operator=(static_cast<Buffer&&>(rhs));
 }
+
 Buffer Buffer::Copy() const
 {
 	Buffer newBuffer;
-	if(!empty())
+
+	if (!empty())
 	{
 		newBuffer.resize(size());
 		memcpy(newBuffer.data(), data(), size());
 	}
-	return (Buffer&&)newBuffer;
+
+	return static_cast<Buffer&&>(newBuffer);
 }
-Buffer& Buffer::operator=(Buffer&& rhs)
+
+Buffer& Buffer::operator=(Buffer&& rhs) noexcept
 {
 	Vector<uint8>::operator=(rhs);
 	return *this;
@@ -35,10 +40,11 @@ Buffer& Buffer::operator=(Buffer&& rhs)
 
 CopyableBuffer& CopyableBuffer::operator=(const CopyableBuffer& rhs)
 {
-	(Vector<uint8>&)*this = rhs;
+	static_cast<Vector<uint8>&>(*this) = rhs;
 	return *this;
 }
+
 CopyableBuffer::CopyableBuffer(const CopyableBuffer& rhs)
 {
-	(Vector<uint8>&)*this = rhs;
+	static_cast<Vector<uint8>&>(*this) = rhs;
 }

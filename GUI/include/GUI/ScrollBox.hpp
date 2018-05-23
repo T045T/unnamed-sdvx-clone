@@ -5,7 +5,7 @@
 class ScrollBox : public GUIElementBase
 {
 public:
-	ScrollBox(Ref<CommonGUIStyle> style);
+	ScrollBox(std::shared_ptr<CommonGUIStyle> style);
 	~ScrollBox();
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
@@ -22,7 +22,12 @@ public:
 		void SetScrollPercent(float percent);
 		void SetScroll(int32 pixels);
 		int32 ConvertFromPercent(float percent);
-		int32 GetScroll() const { return m_scroll; }
+
+		int32 GetScroll() const
+		{
+			return m_scroll;
+		}
+
 		float GetScrollPercent() const;
 
 	private:
@@ -50,7 +55,7 @@ private:
 	Rect m_cachedContentRect;
 	Rect m_cachedSliderRect;
 
-	Ref<CommonGUIStyle> m_style;
+	std::shared_ptr<CommonGUIStyle> m_style;
 	Slot* m_content = nullptr;
 
 	friend class Slot;

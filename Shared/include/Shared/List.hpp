@@ -5,7 +5,7 @@
 	Doubly linked list
 	wrapper around std::list
 */
-template<typename I>
+template <typename I>
 class List : public std::list<I>
 {
 public:
@@ -24,6 +24,7 @@ public:
 		auto it = insert(end(), item);
 		return *it;
 	}
+
 	I& AddFront(const I& item = I())
 	{
 		auto it = insert(begin(), item);
@@ -37,6 +38,7 @@ public:
 		pop_back();
 		return std::move(r);
 	}
+
 	// Pop and return
 	I PopFront()
 	{
@@ -46,7 +48,7 @@ public:
 	}
 
 	// Sort function with uppercase for consistency
-	template<typename Predicate>
+	template <typename Predicate>
 	void Sort(Predicate& pred)
 	{
 		sort(pred);

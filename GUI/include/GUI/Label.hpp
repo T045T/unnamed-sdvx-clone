@@ -13,7 +13,7 @@ public:
 
 	// Sets font to use, overriding the default font
 	void SetFont(Graphics::Font font);
-	
+
 	void SetTextOptions(FontRes::TextOptions options);
 	FontRes::TextOptions GetTextOptions() const;
 

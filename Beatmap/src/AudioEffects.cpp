@@ -6,6 +6,7 @@ EffectDuration::EffectDuration(int32 duration /*= 0*/)
 	this->duration = duration;
 	type = Time;
 }
+
 EffectDuration::EffectDuration(float rate)
 {
 	this->rate = rate;
@@ -15,14 +16,15 @@ EffectDuration::EffectDuration(float rate)
 EffectDuration EffectDuration::Lerp(const EffectDuration& lhs, const EffectDuration& rhs, float time)
 {
 	assert(rhs.type == lhs.type);
-	if(lhs.type == Type::Rate)
+	if (lhs.type == Type::Rate)
 		return lhs.rate + (lhs.rate - rhs.rate) * time;
 	else
 		return (int32)(lhs.duration + (float)(lhs.duration - rhs.duration) * time);
 }
+
 uint32 EffectDuration::Absolute(double noteDuration)
 {
-	if(type == Time)
+	if (type == Time)
 		return duration;
 	else
 		return (uint32)(rate * noteDuration);
@@ -49,7 +51,7 @@ static AudioEffect CreateDefault(EffectType type)
 	Interpolation::CubicBezier lpfEasingCurve = Interpolation::EaseOutCubic;
 
 	// Set defaults based on effect type
-	switch(type)
+	switch (type)
 	{
 		// These are assumed to mostly be laser effect types (at least when used with the defaults)
 	case EffectType::PeakingFilter:
@@ -110,15 +112,17 @@ static AudioEffect CreateDefault(EffectType type)
 
 	return ret;
 }
+
 class DefaultEffectSettings
 {
 public:
 	Vector<AudioEffect> effects;
+
 	DefaultEffectSettings()
 	{
 		// Preload all default effect settings
 		effects.resize((size_t)EffectType::_Length);
-		for(auto e : Enum_EffectType::GetMap())
+		for (auto e : Enum_EffectType::GetMap())
 		{
 			effects[(size_t)e.first] = CreateDefault(e.first);
 		}

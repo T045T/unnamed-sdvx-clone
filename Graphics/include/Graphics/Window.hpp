@@ -1,13 +1,16 @@
 #pragma once
 #include <Graphics/Keys.hpp>
 #include <Graphics/Gamepad.hpp>
+#include <Graphics/KeyMap.hpp>
+#include <SDL2/SDL.h>
 
 namespace Graphics
 {
 	// Windowed or bordered window style
 	enum class WindowStyle
 	{
-		Windowed, Borderless
+		Windowed,
+		Borderless
 	};
 
 	// Text input data
@@ -27,59 +30,46 @@ namespace Graphics
 	public:
 		Window(Vector2i size = Vector2i(800, 600));
 		~Window();
-		// Show the window
-		void Show();
-		// Hide the window
-		void Hide();
-		// Call every frame to update the window message loop
-		// returns false if the window received a close message
+
+		void Show() const;
+		void Hide() const;
+
 		bool Update();
-		// On windows: returns the HWND
-		void* Handle();
-		// Set the window title (caption)
+		void* Handle() const;
 		void SetCaption(const WString& cap);
-		// Closes the window
 		void Close();
 
-		Vector2i GetMousePos();
-		void SetMousePos(const Vector2i& pos);
-		void SetRelativeMouseMode(bool enabled);
-		bool GetRelativeMouseMode();
+		Vector2i GetMousePos() const;
+		void set_mouse_pos(const Vector2i& pos) const;
+		void SetRelativeMouseMode(bool enabled) const;
+		bool GetRelativeMouseMode() const;
 
 		// Sets cursor to use
-		void SetCursor(Ref<class ImageRes> image, Vector2i hotspot = Vector2i(0,0));
-		void SetCursorVisible(bool visible);
+		void SetCursor(shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
+		void SetCursorVisible(bool visible) const;
 
-		// Switches between borderless and windowed
-		void SetWindowStyle(WindowStyle style);
+		void SetWindowStyle(WindowStyle style) const;
 
-		// Get full window position
-		Vector2i GetWindowPos() const;
-		// Set full window position
-		void SetWindowPos(const Vector2i& pos);
+		Vector2i get_window_pos() const;
+		void set_window_pos(const Vector2i& pos) const;
 
-		// Window Client area size
 		Vector2i GetWindowSize() const;
 
-		// Set vsync setting
-		void SetVSync(int8 setting);
+		void SetVSync(int8 setting) const;
 
 		// Window is active
 		bool IsActive() const;
 		// Set window client area size
-		void SetWindowSize(const Vector2i& size);
-		void SwitchFullscreen(uint32 monitorID = -1); 
+		void SetWindowSize(const Vector2i& size) const;
+		void SwitchFullscreen(uint32 monitorID = -1);
 		bool IsFullscreen() const;
-		
-		// Checks if a key is pressed
-		bool IsKeyPressed(int32 key) const;
 
 		ModifierKeys GetModifierKeys() const;
 
 		// Start allowing text input
-		void StartTextInput();
+		void StartTextInput() const;
 		// Stop allowing text input
-		void StopTextInput();
+		void StopTextInput() const;
 		// Used to get current IME working data
 		const TextComposition& GetTextComposition() const;
 
@@ -88,10 +78,12 @@ namespace Graphics
 
 		// The number of available gamepad devices
 		int32 GetNumGamepads() const;
+
 		// List of gamepad device names
 		Vector<String> GetGamepadDeviceNames() const;
+
 		// Open a gamepad within the range of the number of gamepads
-		Ref<Gamepad> OpenGamepad(int32 deviceIndex);
+		shared_ptr<Gamepad> OpenGamepad(int32 deviceIndex);
 
 		Delegate<int32> OnKeyPressed;
 		Delegate<int32> OnKeyReleased;
@@ -109,6 +101,30 @@ namespace Graphics
 		Delegate<const Vector2i&> OnResized;
 
 	private:
-		class Window_Impl* m_impl;
+		SDL_Window* m_window;
+
+		SDL_Cursor* currentCursor = nullptr;
+
+		// Window Input State
+		Map<SDL_Keycode, uint8> m_keyStates;
+		KeyMap m_keyMapping;
+		ModifierKeys m_modKeys = ModifierKeys::None;
+
+		// Gamepad input
+		Map<int32, shared_ptr<Gamepad>> m_gamepads;
+		Map<SDL_JoystickID, shared_ptr<Gamepad>> m_joystickMap;
+
+		// Text input / IME stuff
+		TextComposition m_textComposition;
+
+		// Various window state
+		bool m_active = true;
+		bool m_closed = false;
+		bool m_fullscreen = false;
+		uint32 m_style;
+		Vector2i m_clntSize;
+		WString m_caption = L"Window";
+
+		void HandleKeyEvent(SDL_Keycode code, uint8 newState, int32 repeat);
 	};
 }

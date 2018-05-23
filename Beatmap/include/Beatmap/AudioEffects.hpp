@@ -23,7 +23,8 @@ DefineEnum(EffectType,
 	HighPassFilter,
 	PeakingFilter,
 	UserDefined0 = 0x40, // This ID or higher is user for user defined effects inside map objects
-	UserDefined1,	// Keep this ID at least a few ID's away from the normal effect so more native effects can be added later
+	UserDefined1,
+	// Keep this ID at least a few ID's away from the normal effect so more native effects can be added later
 	UserDefined2,
 	UserDefined3,
 	UserDefined4,
@@ -32,7 +33,7 @@ DefineEnum(EffectType,
 	UserDefined7,
 	UserDefined8,
 	UserDefined9 // etc...
-	);
+);
 
 /*
 	Effect parameter that is used to define a certain time range/period/speed
@@ -62,31 +63,38 @@ public:
 	// The type of timing that the value represents
 	enum Type : uint8
 	{
-		Rate, // Relative (1/4, 1/2, 0.5, etc), all relative to whole notes
-		Time, // Absolute, in milliseconds
+		Rate,
+		// Relative (1/4, 1/2, 0.5, etc), all relative to whole notes
+		Time,
+		// Absolute, in milliseconds
 	};
+
 	Type type;
 };
 
-template<typename T> T InterpolateEffectParamValue(T a, T b, float t)
+template <typename T>
+T InterpolateEffectParamValue(T a, T b, float t)
 {
 	return T(a + (b - a) * t);
 }
+
 EffectDuration InterpolateEffectParamValue(EffectDuration a, EffectDuration b, float t);
 
 /*
 	Effect parameter that allows all the values which can be set for effects
 */
-template<typename T>
+template <typename T>
 class EffectParam
 {
 public:
 	EffectParam() = default;
+
 	EffectParam(T value)
 	{
 		values[0] = value;
 		isRange = false;
 	}
+
 	EffectParam(T valueA, T valueB, Interpolation::TimeFunction timeFunction = Interpolation::Linear)
 	{
 		values[0] = valueA;
@@ -96,7 +104,7 @@ public:
 	}
 
 	// Sample based on laser input, or without parameters for just the actual value
-	T Sample(float t = 0.0f) const 
+	T Sample(float t = 0.0f) const
 	{
 		t = Math::Clamp(timeFunction(t), 0.0f, 1.0f);
 		return isRange ? InterpolateEffectParamValue(values[0], values[1], t) : values[0];
@@ -143,11 +151,13 @@ struct AudioEffect
 			// TODO: This parameter allows this effect to be merged with gate
 			EffectParam<EffectDuration> reset;
 		} retrigger;
+
 		struct
 		{
 			// Amount of gating on this effect (0-1)
 			EffectParam<float> gate;
 		} gate;
+
 		struct
 		{
 			// Number of samples that is offset from the source audio to create the flanging effect (Samples)
@@ -155,6 +165,7 @@ struct AudioEffect
 			// Depth of the effect (samples)
 			EffectParam<int32> depth;
 		} flanger;
+
 		struct
 		{
 			// Minimum frequency (Hz)
@@ -166,11 +177,13 @@ struct AudioEffect
 			// Feedback (0-1)
 			EffectParam<float> feedback;
 		} phaser;
+
 		struct
 		{
 			// The duration in samples of how long a sample in the source audio gets reduced (creating square waves) (samples)
 			EffectParam<int32> reduction;
 		} bitcrusher;
+
 		struct
 		{
 			// Top frequency of the wobble (Hz)
@@ -180,21 +193,25 @@ struct AudioEffect
 			// Q factor for filter (>0)
 			EffectParam<float> q;
 		} wobble;
+
 		struct
 		{
 			// Ammount of echo (0-1)
 			EffectParam<float> feedback;
 		} echo;
-		struct  
+
+		struct
 		{
 			// Panning position, 0 is center (-1-1)
 			EffectParam<float> panning;
 		} panning;
-		struct  
+
+		struct
 		{
 			// Pitch shift amount, in semitones
 			EffectParam<float> amount;
 		} pitchshift;
+
 		struct
 		{
 			// Peak Q factor (>=0)
@@ -206,6 +223,7 @@ struct AudioEffect
 			// Cuttoff frequency (Hz)
 			EffectParam<float> freq;
 		} lpf;
+
 		struct
 		{
 			// Peak Q factor (>=0)
@@ -217,6 +235,7 @@ struct AudioEffect
 			// Cuttoff frequency (Hz)
 			EffectParam<float> freq;
 		} hpf;
+
 		struct
 		{
 			// Peak amplification (>=0)

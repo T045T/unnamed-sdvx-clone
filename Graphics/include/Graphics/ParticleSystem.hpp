@@ -1,5 +1,4 @@
 #pragma once
-#include <Graphics/ResourceTypes.hpp>
 #include <Graphics/ParticleEmitter.hpp>
 
 namespace Graphics
@@ -11,17 +10,22 @@ namespace Graphics
 	class ParticleSystemRes
 	{
 	public:
-		virtual ~ParticleSystemRes() = default;
-		static Ref<ParticleSystemRes> Create(class OpenGL* gl);
-	public:
+		ParticleSystemRes(shared_ptr<OpenGL> gl);
+
 		// Create a new emitter
-		virtual Ref<ParticleEmitter> AddEmitter() = 0;
-		virtual void Render(const class RenderState& rs, float deltaTime) = 0;
+		shared_ptr<ParticleEmitter> add_emitter();
+
+		void render(const class RenderState& rs, float deltaTime);
+
 		// Removes all active particle systems
-		virtual void Reset() = 0;
+		void reset();
+
+	private:
+		friend ParticleEmitter;
+
+		shared_ptr<OpenGL> m_gl;
+		Vector<shared_ptr<ParticleEmitter>> m_emitters;
 	};
 
-	typedef Ref<ParticleSystemRes> ParticleSystem;
-
-	DEFINE_RESOURCE_TYPE(ParticleSystem, ParticleSystemRes);
+	typedef shared_ptr<ParticleSystemRes> ParticleSystem;
 }

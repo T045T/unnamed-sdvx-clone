@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Transform.hpp"
+#include "Utility.hpp"
 #include <cmath>
 
 Transform ProjectionMatrix::CreatePerspective(float field_of_view, float aspect_ratio, float z_near, float z_far)
@@ -22,7 +23,9 @@ Transform ProjectionMatrix::CreatePerspective(float field_of_view, float aspect_
 	result[15] = 0;
 	return result;
 }
-Transform ProjectionMatrix::CreateOrthographic(float left, float right, float bottom, float top, float z_near, float z_far)
+
+Transform ProjectionMatrix::CreateOrthographic(float left, float right, float bottom, float top, float z_near,
+												float z_far)
 {
 	Transform result;
 	result[0] = 2 / (right - left);
@@ -40,43 +43,44 @@ Transform& Transform::operator=(const Transform& right)
 	memcpy(this, &right, sizeof(mat));
 	return *this;
 }
+
 Transform::Transform(std::initializer_list<float> values)
 {
 	auto it = values.begin();
-	for(size_t i = 0; i < Math::Max<size_t>(values.size(), 16); i++)
+	for (size_t i = 0; i < Math::Max<size_t>(values.size(), 16); i++)
 	{
 		mat[i] = *it++;
 	}
 }
+
 Transform::Transform(const Transform& other)
 {
 	memcpy(this, &other, sizeof(mat));
 }
-Transform::Transform()
-{
 
-}
 float& Transform::operator[](size_t idx)
 {
 	return mat[idx];
 }
+
 const float& Transform::operator[](size_t idx) const
 {
 	return mat[idx];
 }
+
 Transform& Transform::operator*=(const Transform& other)
 {
 	Transform result;
 
 	size_t index = 0;
-	for(size_t x = 0; x < 4; x++)
+	for (size_t x = 0; x < 4; x++)
 	{
-		for(size_t y = 0; y < 4; y++)
+		for (size_t y = 0; y < 4; y++)
 		{
 			result[index] = 0;
 			size_t left = y;
 			size_t top = x * 4;
-			for(size_t i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
 				result[index] += mat[left] * other.mat[top];
 				left += 4, top++;
@@ -87,19 +91,20 @@ Transform& Transform::operator*=(const Transform& other)
 
 	return *this = result;
 }
+
 Transform Transform::operator*(const Transform& other) const
 {
 	Transform result;
 
 	size_t index = 0;
-	for(size_t x = 0; x < 4; x++)
+	for (size_t x = 0; x < 4; x++)
 	{
-		for(size_t y = 0; y < 4; y++)
+		for (size_t y = 0; y < 4; y++)
 		{
 			result[index] = 0;
 			size_t left = y;
 			size_t top = x * 4;
-			for(size_t i = 0; i < 4; i++)
+			for (size_t i = 0; i < 4; i++)
 			{
 				result[index] += mat[left] * other.mat[top];
 				left += 4, top++;
@@ -110,6 +115,7 @@ Transform Transform::operator*(const Transform& other) const
 
 	return result;
 }
+
 void Transform::ScaleTransform(const Vector3& scale)
 {
 	Transform factor;
@@ -118,6 +124,7 @@ void Transform::ScaleTransform(const Vector3& scale)
 	factor[10] = scale.z;
 	*this *= factor;
 }
+
 void Transform::SetIdentity()
 {
 	Utility::MemsetZero(mat);
@@ -126,6 +133,7 @@ void Transform::SetIdentity()
 	mat[10] = 1.0f;
 	mat[15] = 1.0f;
 }
+
 Transform Transform::Translation(const Vector3& pos)
 {
 	Transform ret;
@@ -134,6 +142,7 @@ Transform Transform::Translation(const Vector3& pos)
 	ret.mat[14] = pos.z;
 	return ret;
 }
+
 Transform Transform::Rotation(const Vector3& euler)
 {
 	Transform ret;
@@ -167,6 +176,7 @@ Transform Transform::Rotation(const Vector3& euler)
 	ret.mat[15] = 1;
 	return ret;
 }
+
 Transform Transform::Scale(const Vector3& scale)
 {
 	Transform ret;
@@ -175,23 +185,26 @@ Transform Transform::Scale(const Vector3& scale)
 	ret.mat[10] = scale.z;
 	return ret;
 }
+
 Vector3 Transform::GetPosition() const
 {
 	return Vector3(this->mat[12], this->mat[13], this->mat[14]);
 }
+
 Vector3 Transform::GetScale() const
 {
 	return Vector3(
 		sqrt(this->mat[0] * this->mat[0] + this->mat[1] * this->mat[1] + this->mat[2] * this->mat[2]),
 		sqrt(this->mat[4] * this->mat[4] + this->mat[5] * this->mat[5] + this->mat[6] * this->mat[6]),
 		sqrt(this->mat[8] * this->mat[8] + this->mat[9] * this->mat[9] + this->mat[10] * this->mat[10])
-		);
+	);
 }
+
 Vector3 Transform::GetEuler() const
 {
 	Transform copy = *this;
 	const Vector3 currentScale = copy.GetScale();
-	copy.ScaleTransform({ 1 / currentScale.x, 1 / currentScale.y, 1 / currentScale.z });
+	copy.ScaleTransform({1 / currentScale.x, 1 / currentScale.y, 1 / currentScale.z});
 
 	Vector3 euler;
 
@@ -199,7 +212,7 @@ Vector3 Transform::GetEuler() const
 	const float cosine = cos(euler.y);
 
 	float n1, n2;
-	if(fabs(cosine) > float(0.0005))
+	if (fabs(cosine) > float(0.0005))
 	{
 		n1 = copy[10] / cosine;
 		n2 = -copy[6] / cosine;
@@ -222,18 +235,22 @@ Vector3 Transform::GetEuler() const
 
 	return euler;
 }
+
 Vector3 Transform::GetForward() const
 {
 	return Vector3(this->mat[8], this->mat[9], this->mat[10]).Normalized();
 }
+
 Vector3 Transform::GetUp() const
 {
 	return Vector3(this->mat[4], this->mat[5], this->mat[6]).Normalized();
 }
+
 Vector3 Transform::GetRight() const
 {
 	return Vector3(this->mat[0], this->mat[1], this->mat[2]).Normalized();
 }
+
 Vector3 Transform::TransformPoint(const Vector3& position) const
 {
 	const float w = this->mat[3] * position.x + this->mat[7] * position.y + this->mat[11] * position.z + this->mat[15];
@@ -241,15 +258,16 @@ Vector3 Transform::TransformPoint(const Vector3& position) const
 		this->mat[0] * position.x + this->mat[4] * position.y + this->mat[8] * position.z + this->mat[12],
 		this->mat[1] * position.x + this->mat[5] * position.y + this->mat[9] * position.z + this->mat[13],
 		this->mat[2] * position.x + this->mat[6] * position.y + this->mat[10] * position.z + this->mat[14]
-		) / w;
+	) / w;
 }
+
 Vector3 Transform::TransformDirection(const Vector3& direction) const
 {
 	return Vector3(
 		this->mat[0] * direction.x + this->mat[4] * direction.y + this->mat[8] * direction.z,
 		this->mat[1] * direction.x + this->mat[5] * direction.y + this->mat[9] * direction.z,
 		this->mat[2] * direction.x + this->mat[6] * direction.y + this->mat[10] * direction.z
-		);
+	);
 }
 
 Transform Transform::FromAxes(Vector3 bitangent, Vector3 tangent, Vector3 normal)

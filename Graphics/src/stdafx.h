@@ -9,14 +9,7 @@
 #include <windows.h>
 #endif
 
-// SDL header files
-#ifdef _WIN32
-#include <SDL.h>
-#else
 #include <SDL2/SDL.h>
-#endif
-
-// TODO: reference additional headers your program requires here
 #include <Shared/Shared.hpp>
 
 // Asset loading macro

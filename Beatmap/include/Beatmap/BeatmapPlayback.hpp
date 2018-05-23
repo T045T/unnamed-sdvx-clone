@@ -39,9 +39,12 @@ public:
 	const TimingPoint& GetCurrentTimingPoint() const;
 	// Get the timing point at a given time
 	const TimingPoint* GetTimingPointAt(MapTime time) const;
-	
+
 	// The beatmap this player is using
-	const Beatmap& GetBeatmap() { return *m_beatmap; }
+	const Beatmap& GetBeatmap()
+	{
+		return *m_beatmap;
+	}
 
 	// Counts the total amount of beats that have passed within <start, start+range>
 	// Returns the number of passed beats
@@ -68,7 +71,7 @@ public:
 	// Gets the currently set value of a value set by events in the beatmap
 	const EventData& GetEventData(EventKey key);
 	// Retrieve event data as any 32-bit type
-	template<typename T>
+	template <typename T>
 	const T& GetEventData(EventKey key)
 	{
 		assert(sizeof(T) <= 4);
@@ -109,7 +112,7 @@ private:
 	// End object pointer, this is not a valid pointer, but points to the element after the last element
 	bool IsEndTiming(TimingPoint** obj);
 	bool IsEndObject(ObjectState** obj);
-	bool IsEndLaneToggle(LaneHideTogglePoint ** obj);
+	bool IsEndLaneToggle(LaneHideTogglePoint** obj);
 	bool IsEndZoomPoint(ZoomControlPoint** obj);
 
 	// Current map position of this playback object
@@ -129,8 +132,8 @@ private:
 	ZoomControlPoint** m_currentZoomPoint = nullptr;
 
 	// Used to calculate track zoom
-	ZoomControlPoint* m_zoomStartPoints[2] = { nullptr };
-	ZoomControlPoint* m_zoomEndPoints[2] = { nullptr };
+	ZoomControlPoint* m_zoomStartPoints[2] = {nullptr};
+	ZoomControlPoint* m_zoomEndPoints[2] = {nullptr};
 
 	// Contains all the objects that are in the current valid timing area
 	Set<ObjectState*> m_hittableObjects;

@@ -8,19 +8,19 @@
 class Anchor
 {
 public:
-	Anchor(float all = 0.0f) : left(all), top(all), right(all), bottom(all)
-	{
-	}
+	Anchor(float all = 0.0f)
+		: left(all), top(all), right(all), bottom(all)
+	{ }
+
 	// Area anchor
 	Anchor(float left, float top, float right, float bottom)
-		: left(left), top(top), right(right), bottom(bottom) 
-	{
-	}
+		: left(left), top(top), right(right), bottom(bottom)
+	{ }
+
 	// Point anchor
 	Anchor(float x, float y)
 		: left(x), top(y), right(x), bottom(y)
-	{
-	}
+	{ }
 
 	// Apply anchor to an input rectangle
 	Rect Apply(const Rect& in)
@@ -28,7 +28,7 @@ public:
 		Vector2 delta = Delta();
 		Vector2 topLeft = in.pos + in.size * TopLeft();
 		Vector2 bottomRight = in.pos + in.size * BottomRight();
-		return Rect(topLeft, bottomRight-topLeft);
+		return Rect(topLeft, bottomRight - topLeft);
 	}
 
 	Vector2 GetAreaMultiplier() const;

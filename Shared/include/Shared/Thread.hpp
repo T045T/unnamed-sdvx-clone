@@ -17,5 +17,4 @@ public:
 	Mutex class to fit program naming convention
 */
 class Mutex : public std::mutex
-{
-};
+{};

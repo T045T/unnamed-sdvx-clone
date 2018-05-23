@@ -16,7 +16,7 @@ namespace Interpolation
 		EaseInOutExpo
 	};
 
-	/* 
+	/*
 		Cubic bezier spline
 		check http://cubic-bezier.com/ or http://easings.net/ for curves/predefined values
 	*/
@@ -42,10 +42,11 @@ namespace Interpolation
 	// Typedef for use with predefined functions
 	typedef CubicBezier TimeFunction;
 
-	template<typename T>
+	template <typename T>
 	T Lerp(T a, T b, float f, TimeFunction timeFunction = Linear)
 	{
 		return a + (b - a) * timeFunction(f);
 	}
+
 	int32 Lerp(int32 a, int32 b, float f, TimeFunction timeFunction = Linear);
 }

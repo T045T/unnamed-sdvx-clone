@@ -7,15 +7,16 @@ static const uint32 c_mapVersion = 1;
 Beatmap::~Beatmap()
 {
 	// Perform cleanup
-	for(auto tp : m_timingPoints)
+	for (auto tp : m_timingPoints)
 		delete tp;
-	for(auto obj : m_objectStates)
+	for (auto obj : m_objectStates)
 		delete obj;
 	for (auto z : m_zoomControlPoints)
 		delete z;
 	for (auto z : m_laneTogglePoints)
 		delete z;
 }
+
 Beatmap::Beatmap(Beatmap&& other)
 {
 	m_timingPoints = std::move(other.m_timingPoints);
@@ -24,14 +25,15 @@ Beatmap::Beatmap(Beatmap&& other)
 	m_laneTogglePoints = std::move(other.m_laneTogglePoints);
 	m_settings = std::move(other.m_settings);
 }
+
 Beatmap& Beatmap::operator=(Beatmap&& other)
 {
 	// Perform cleanup
-	for(auto tp : m_timingPoints)
+	for (auto tp : m_timingPoints)
 		delete tp;
-	for(auto obj : m_objectStates)
+	for (auto obj : m_objectStates)
 		delete obj;
-	for(auto z : m_zoomControlPoints)
+	for (auto z : m_zoomControlPoints)
 		delete z;
 	m_timingPoints = std::move(other.m_timingPoints);
 	m_objectStates = std::move(other.m_objectStates);
@@ -40,20 +42,22 @@ Beatmap& Beatmap::operator=(Beatmap&& other)
 	m_settings = std::move(other.m_settings);
 	return *this;
 }
+
 bool Beatmap::Load(BinaryStream& input, bool metadataOnly)
 {
 	ProfilerScope $("Load Beatmap");
 
-	if(!m_ProcessKShootMap(input, metadataOnly)) // Load KSH format first
+	if (!m_ProcessKShootMap(input, metadataOnly)) // Load KSH format first
 	{
 		// Load binary map format
 		input.Seek(0);
-		if(!m_Serialize(input, metadataOnly))
+		if (!m_Serialize(input, metadataOnly))
 			return false;
 	}
 
 	return true;
 }
+
 bool Beatmap::Save(BinaryStream& output) const
 {
 	ProfilerScope $("Save Beatmap");
@@ -70,18 +74,22 @@ const Vector<TimingPoint*>& Beatmap::GetLinearTimingPoints() const
 {
 	return m_timingPoints;
 }
+
 const Vector<ChartStop*>& Beatmap::GetLinearChartStops() const
 {
 	return m_chartStops;
 }
+
 const Vector<LaneHideTogglePoint*>& Beatmap::GetLaneTogglePoints() const
 {
 	return m_laneTogglePoints;
 }
+
 const Vector<ObjectState*>& Beatmap::GetLinearObjects() const
 {
 	return reinterpret_cast<const Vector<ObjectState*>&>(m_objectStates);
 }
+
 const Vector<ZoomControlPoint*>& Beatmap::GetZoomControlPoints() const
 {
 	return m_zoomControlPoints;
@@ -94,7 +102,7 @@ const Vector<String>& Beatmap::GetSamplePaths() const
 
 AudioEffect Beatmap::GetEffect(EffectType type) const
 {
-	if(type >= EffectType::UserDefined0)
+	if (type >= EffectType::UserDefined0)
 	{
 		const AudioEffect* fx = m_customEffects.Find(type);
 		assert(fx);
@@ -102,9 +110,10 @@ AudioEffect Beatmap::GetEffect(EffectType type) const
 	}
 	return AudioEffect::GetDefault(type);
 }
+
 AudioEffect Beatmap::GetFilter(EffectType type) const
 {
-	if(type >= EffectType::UserDefined0)
+	if (type >= EffectType::UserDefined0)
 	{
 		const AudioEffect* fx = m_customFilters.Find(type);
 		assert(fx);
@@ -112,14 +121,15 @@ AudioEffect Beatmap::GetFilter(EffectType type) const
 	}
 	return AudioEffect::GetDefault(type);
 }
+
 bool MultiObjectState::StaticSerialize(BinaryStream& stream, MultiObjectState*& obj)
 {
 	uint8 type = 0;
-	if(stream.IsReading())
+	if (stream.IsReading())
 	{
 		// Read type and create appropriate object
 		stream << type;
-		switch((ObjectType)type)
+		switch ((ObjectType)type)
 		{
 		case ObjectType::Single:
 			obj = (MultiObjectState*)new ButtonObjectState();
@@ -144,7 +154,7 @@ bool MultiObjectState::StaticSerialize(BinaryStream& stream, MultiObjectState*& 
 
 	// Pointer is always initialized here, serialize data
 	stream << obj->time; // Time always set
-	switch(obj->type)
+	switch (obj->type)
 	{
 	case ObjectType::Single:
 		stream << obj->button.index;
@@ -171,9 +181,10 @@ bool MultiObjectState::StaticSerialize(BinaryStream& stream, MultiObjectState*& 
 
 	return true;
 }
+
 bool TimingPoint::StaticSerialize(BinaryStream& stream, TimingPoint*& out)
 {
-	if(stream.IsReading())
+	if (stream.IsReading())
 		out = new TimingPoint();
 	stream << out->time;
 	stream << out->beatDuration;
@@ -208,6 +219,7 @@ BinaryStream& operator<<(BinaryStream& stream, BeatmapSettings& settings)
 	stream << (uint8&)settings.laserEffectType;
 	return stream;
 }
+
 bool Beatmap::m_Serialize(BinaryStream& stream, bool metadataOnly)
 {
 	static const uint32 c_magic = *(uint32*)"FXMM";
@@ -217,14 +229,14 @@ bool Beatmap::m_Serialize(BinaryStream& stream, bool metadataOnly)
 	stream << version;
 
 	// Validate headers when reading
-	if(stream.IsReading())
+	if (stream.IsReading())
 	{
-		if(magic != c_magic)
+		if (magic != c_magic)
 		{
 			Log("Invalid map format", Logger::Warning);
 			return false;
 		}
-		if(version != c_mapVersion)
+		if (version != c_mapVersion)
 		{
 			Logf("Incompatible map version [%d], loader is version %d", Logger::Warning, version, c_mapVersion);
 			return false;
@@ -236,16 +248,16 @@ bool Beatmap::m_Serialize(BinaryStream& stream, bool metadataOnly)
 	stream << reinterpret_cast<Vector<MultiObjectState*>&>(m_objectStates);
 
 	// Manually fix up laser next-prev pointers
-	LaserObjectState* prevLasers[2] = { 0 };
-	if(stream.IsReading())
+	LaserObjectState* prevLasers[2] = {0};
+	if (stream.IsReading())
 	{
-		for(ObjectState* obj : m_objectStates)
+		for (ObjectState* obj : m_objectStates)
 		{
-			if(obj->type == ObjectType::Laser)
+			if (obj->type == ObjectType::Laser)
 			{
 				LaserObjectState* laser = (LaserObjectState*)obj;
 				LaserObjectState*& prev = prevLasers[laser->index];
-				if(prev && (prev->time + prev->duration) == laser->time)
+				if (prev && (prev->time + prev->duration) == laser->time)
 				{
 					prev->next = laser;
 					laser->prev = prev;
@@ -261,7 +273,7 @@ bool Beatmap::m_Serialize(BinaryStream& stream, bool metadataOnly)
 
 bool BeatmapSettings::StaticSerialize(BinaryStream& stream, BeatmapSettings*& settings)
 {
-	if(stream.IsReading())
+	if (stream.IsReading())
 		settings = new BeatmapSettings();
 	stream << *settings;
 	return true;

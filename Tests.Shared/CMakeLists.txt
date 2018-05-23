@@ -4,7 +4,7 @@
 file(GLOB Main_src "*.cpp" "*.hpp")
 
 # Compiler stuff
-enable_cpp11()
+enable_cpp17()
 
 include_directories(.)
 add_executable(Tests.Shared ${Main_src})

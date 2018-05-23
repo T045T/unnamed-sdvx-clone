@@ -6,10 +6,12 @@
 class TestFailure
 {
 public:
-	TestFailure(String expression = String()) : expression(expression)
+	TestFailure(String expression = String())
+		: expression(expression)
 	{
 		trace = Debug::GetStackTrace();
 	}
+
 	String expression;
 	Debug::StackTrace trace;
 };
@@ -17,7 +19,7 @@ public:
 class TestEntry
 {
 public:
-	typedef void(*TestFunction)(class TestContext& context);
+	typedef void (*TestFunction)(class TestContext& context);
 
 	TestEntry(String name, TestFunction function);
 
@@ -63,10 +65,16 @@ private:
 class TestContext
 {
 public:
-	TestContext(String name, TestManager* mgr) : m_name(name), m_testManager(mgr) {};
+	TestContext(String name, TestManager* mgr)
+		: m_name(name), m_testManager(mgr)
+	{};
 	String GenerateTestFilePath() const;
 	String GetTestBasePath() const;
-	String GetName() const { return m_name; }
+
+	String GetName() const
+	{
+		return m_name;
+	}
 
 private:
 	TestManager* m_testManager;

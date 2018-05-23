@@ -4,43 +4,46 @@
 
 GUIElementBase::~GUIElementBase()
 {
-	if(m_rendererFocus)
+	if (m_rendererFocus)
 	{
 		m_rendererFocus->SetInputFocus(nullptr);
 	}
 }
+
 void GUIElementBase::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
-{
-}
+{}
+
 Vector2 GUIElementBase::GetDesiredSize(GUIRenderData rd)
 {
 	return Vector2();
 }
-bool GUIElementBase::AddAnimation(Ref<IGUIAnimation> anim, bool removeOld)
+
+bool GUIElementBase::AddAnimation(std::shared_ptr<IGUIAnimation> anim, bool removeOld)
 {
 	void* target = anim->GetTarget();
-	if(m_animationMap.Contains(target))
+	if (m_animationMap.Contains(target))
 	{
-		if(!removeOld)
+		if (!removeOld)
 			return false;
 		m_animationMap.erase(target);
 	}
 
-	m_animationMap.Add(target, anim);
+	m_animationMap.Add(target, std::move(anim));
 	return true;
 }
 
-Ref<IGUIAnimation> GUIElementBase::GetAnimation(uint32 uid)
+std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(uint32 uid)
 {
-	size_t suid = (size_t)uid;
-	return GetAnimation((void*)suid);
+	const auto suid = static_cast<size_t>(uid);
+	return GetAnimation(reinterpret_cast<void*>(suid));
 }
-Ref<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
+
+std::shared_ptr<IGUIAnimation> GUIElementBase::GetAnimation(void* target)
 {
-	Ref<IGUIAnimation>* found = m_animationMap.Find(target);
-	if(found)
+	const auto found = m_animationMap.Find(target);
+	if (found)
 		return *found;
-	return Ref<IGUIAnimation>();
+	return std::shared_ptr<IGUIAnimation>();
 }
 
 bool GUIElementBase::HasInputFocus() const
@@ -50,9 +53,9 @@ bool GUIElementBase::HasInputFocus() const
 
 bool GUIElementBase::OverlapTest(Rect rect, Vector2 point)
 {
-	if(point.x < rect.Left() || point.x > rect.Right())
+	if (point.x < rect.Left() || point.x > rect.Right())
 		return false;
-	if(point.y < rect.Top() || point.y > rect.Bottom())
+	if (point.y < rect.Top() || point.y > rect.Bottom())
 		return false;
 	return true;
 }
@@ -61,32 +64,33 @@ void GUIElementBase::m_OnRemovedFromParent()
 {
 	slot = nullptr;
 }
+
 void GUIElementBase::m_AddedToSlot(GUISlotBase* slot)
-{
-}
+{}
+
 void GUIElementBase::m_OnZOrderChanged(GUISlotBase* slot)
-{
-}
+{}
+
 void GUIElementBase::m_TickAnimations(float deltaTime)
 {
-	for(auto it = m_animationMap.begin(); it != m_animationMap.end();)
+	for (auto it = m_animationMap.begin(); it != m_animationMap.end();)
 	{
-		bool done = !it->second->Update(deltaTime);
-		if(done)
+		const bool done = !it->second->Update(deltaTime);
+		if (done)
 		{
 			it = m_animationMap.erase(it);
 			continue;
 		}
-		it++;
+		++it;
 	}
 }
+
 GUISlotBase::~GUISlotBase()
 {
-	if(element)
-	{
+	if (element)
 		element->m_OnRemovedFromParent();
-	}
 }
+
 void GUISlotBase::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	// Apply padding
@@ -106,69 +110,63 @@ void GUISlotBase::Render(GUIRenderData rd)
 	rd.guiRenderer->PushScissorRect(rd.area);
 	element->Render(rd);
 	rd.guiRenderer->PopScissorRect();
-
 }
 
-Vector2 GUISlotBase::GetDesiredSize(GUIRenderData rd)
+Vector2 GUISlotBase::GetDesiredSize(const GUIRenderData rd)
 {
-	Vector2 size = element->GetDesiredSize(rd);
+	const Vector2 size = element->GetDesiredSize(rd);
 	return size + padding.GetSize();
 }
+
 Rect GUISlotBase::ApplyFill(FillMode fillMode, const Vector2& inSize, const Rect& rect)
 {
-	if(fillMode == FillMode::None)
+	if (fillMode == FillMode::None)
 	{
 		return Rect(rect.pos, inSize);
 	}
-	else if(fillMode == FillMode::Stretch)
-		return rect;
-	else if(fillMode == FillMode::Fit)
+	else if (fillMode == FillMode::Stretch)
 	{
-		float rx = inSize.x / rect.size.x;
-		float ry = inSize.y / rect.size.y;
+		return rect;
+	}
+	else if (fillMode == FillMode::Fit)
+	{
+		const float rx = inSize.x / rect.size.x;
+		const float ry = inSize.y / rect.size.y;
 		float scale = 1.0f;
-		if(rx > ry)
-		{
-			{
-				scale = 1.0f / rx;
-			}
-		}
+
+		if (rx > ry)
+			scale = 1.0f / rx;
 		else // ry is largest
-		{
-			{
-				scale = 1.0f / ry;
-			}
-		}
+			scale = 1.0f / ry;
 
 		Rect ret = rect;
 		{
-			Vector2 newSize = inSize * scale;
+			const Vector2 newSize = inSize * scale;
 			ret.size = newSize;
 		}
 		return ret;
 	}
 	else // Fill
 	{
-		float rx = inSize.x / rect.size.x;
-		float ry = inSize.y / rect.size.y;
+		const float rx = inSize.x / rect.size.x;
+		const float ry = inSize.y / rect.size.y;
 		float scale = 1.0f;
-		if(rx < ry)
-		{
+
+		if (rx < ry)
 			scale = 1.0f / rx;
-		}
 		else // ry is smallest
-		{
 			scale = 1.0f / ry;
-		}
 
 		Rect ret = rect;
 		{
-			Vector2 newSize = inSize * scale;
+			const Vector2 newSize = inSize * scale;
 			ret.size = newSize;
 		}
+
 		return ret;
 	}
 }
+
 Rect GUISlotBase::ApplyAlignment(const Vector2& alignment, const Rect& rect, const Rect& parent)
 {
 	Vector2 remaining = parent.size - rect.size;
@@ -183,6 +181,7 @@ void GUISlotBase::SetZOrder(int32 zorder)
 	m_zorder = zorder;
 	parent->m_OnZOrderChanged(this);
 }
+
 int32 GUISlotBase::GetZOrder() const
 {
 	return m_zorder;

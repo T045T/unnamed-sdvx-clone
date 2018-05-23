@@ -6,7 +6,7 @@
 /*
 	Parses comma separated list into enum string<=>value mapping
 */
-template<typename EnumType>
+template <typename EnumType>
 class EnumStringMap
 {
 	Map<EnumType, String> names;
@@ -18,43 +18,46 @@ public:
 		String src = enumInit;
 		size_t split = 0;
 		size_t idLast = 0;
-		EnumType e;
-		for(uint32_t i = 0; split != -1 && !src.empty(); i++)
+		for (uint32_t i = 0; split != -1 && !src.empty(); i++)
 		{
 			split = src.find(',');
 			String seg = (split == -1) ? src : src.substr(0, split);
 			size_t assignment = seg.find("=");
-			if(assignment != -1)
+			if (assignment != -1)
 			{
-					String valueStr = seg.substr(assignment + 1);
-					seg = seg.substr(0, assignment);
-					size_t charValue = valueStr.find('\'');
-					if(charValue != -1) // Probably a char value
-						idLast = (size_t)valueStr[charValue + 1];
-					else // Hex or decimal value
-						idLast = strtol(*valueStr, NULL, 0);
+				String valueStr = seg.substr(assignment + 1);
+				seg = seg.substr(0, assignment);
+				size_t charValue = valueStr.find('\'');
+				if (charValue != -1) // Probably a char value
+					idLast = (size_t)valueStr[charValue + 1];
+				else // Hex or decimal value
+					idLast = strtol(*valueStr, NULL, 0);
 			}
-			e = (EnumType)idLast++;
+			EnumType e = (EnumType)idLast++;
 			seg.Trim();
 			names.Add(e, seg);
 			rev.Add(seg, e);
 			src = (split == -1) ? src : src.substr(split + 1);
 		}
 	}
-	auto begin()
+
+	auto begin() const
 	{
 		return names.begin();
 	}
-	auto end()
+
+	auto end() const
 	{
 		return names.end();
 	}
+
 	const String& ToString(EnumType e)
 	{
 		static String dummy = "<invalid>";
 		auto it = names.find(e);
 		return it == names.end() ? dummy : it->second;
 	}
+
 	EnumType FromString(const String& str)
 	{
 		auto it = rev.find(str);
@@ -65,7 +68,7 @@ public:
 /*
 Template class with helper functions to convert bitflag enums to string and parse them from a string
 */
-template<typename EnumType>
+template <typename EnumType>
 class BitflagEnumConversion
 {
 public:
@@ -73,11 +76,11 @@ public:
 	{
 		String result;
 		uint32 mask = 1;
-		for(uint32 i = 0; i < 32; i++)
+		for (uint32 i = 0; i < 32; i++)
 		{
-			if((uint32)e & mask)
+			if ((uint32)e & mask)
 			{
-				if(!result.empty())
+				if (!result.empty())
 					result += " | ";
 				result += stringMap.ToString((EnumType)mask);
 			}
@@ -85,15 +88,16 @@ public:
 		}
 		return result;
 	}
+
 	static EnumType FromString(EnumStringMap<EnumType>& stringMap, String str)
 	{
 		uint32 result = 0;
 		size_t next = 0;
-		while(next != -1)
+		while (next != -1)
 		{
 			next = str.find('|');
 			String current = str;
-			if(next != -1)
+			if (next != -1)
 			{
 				current = str.substr(0, next);
 				str = str.substr(next + 1);

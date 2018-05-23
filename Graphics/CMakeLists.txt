@@ -1,4 +1,5 @@
 # Graphics library
+message("> Configuring Graphics")
 
 # Find files used for project
 file(GLOB Graphics_src "src/*.cpp" "src/glew.c" "include/Graphics/*.hpp")
@@ -17,7 +18,7 @@ endif(WIN32)
 file(GLOB Graphics_src ${Graphics_src} ${Platform_src})
 
 # Compiler stuff
-enable_cpp11()
+enable_cpp17()
 enable_precompiled_headers("${Graphics_src}" src/stdafx.cpp)
 precompiled_header_exclude("src/glew.c")
 
@@ -31,26 +32,10 @@ target_include_directories(Graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include $
 add_definitions(-DGLEW_NO_GLU -DGLEW_STATIC)
 
 # Dependencies
-target_link_libraries(Graphics Shared)
-if(WIN32)
-	target_link_libraries(Graphics zlib)
-	target_link_libraries(Graphics freetype)
-	target_link_libraries(Graphics SDL2)
-	target_link_libraries(Graphics png)
-	target_link_libraries(Graphics jpeg)
-	target_include_directories(Graphics PUBLIC ${SDL2_SOURCE_DIR}/include/)
-else(WIN32)
-
-	set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third_party)
-	include(FindLibraries)
-	target_link_libraries(Graphics ${FREETYPE_LIBRARIES})
-	target_link_libraries(Graphics ${SDL2_LIBRARY})
-	target_link_libraries(Graphics ${JPEG_LIBRARIES})
-	target_link_libraries(Graphics ${PNG_LIBRARIES})
-	target_link_libraries(Graphics pthread) 
-	target_link_libraries(Graphics dl)
-	target_link_libraries(Graphics GL)   
-	find_package(X11 REQUIRED)
-	find_package(Freetype REQUIRED)
-	include_directories(${X11_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
-endif(WIN32)
+target_link_libraries(Graphics PUBLIC Shared)
+target_link_libraries(Graphics PUBLIC SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(Graphics PUBLIC ZLIB::ZLIB)
+target_link_libraries(Graphics PUBLIC Freetype::Freetype)
+target_link_libraries(Graphics PUBLIC ${JPEG_LIBRARIES})
+target_link_libraries(Graphics PUBLIC PNG::PNG)
+target_include_directories(Graphics PUBLIC ${JPEG_INCLUDE_DIR})

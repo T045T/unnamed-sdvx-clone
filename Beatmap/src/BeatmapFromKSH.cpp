@@ -7,12 +7,12 @@ struct TempButtonState
 {
 	TempButtonState(MapTime startTime)
 		: startTime(startTime)
-	{
-	}
+	{ }
+
 	MapTime startTime;
 	uint32 numTicks = 0;
 	EffectType effectType = EffectType::None;
-	uint16 effectParams[2] = { 0 };
+	uint16 effectParams[2] = {0};
 	// If using the smalles grid to indicate hold note duration
 	bool fineSnap = false;
 	// Set for hold continuations, this is where there is a hold right after an existing one but with different effects
@@ -20,14 +20,14 @@ struct TempButtonState
 
 	uint8 sampleIndex = 0xFF;
 	bool usingSample = false;
-
 };
+
 struct TempLaserState
 {
 	TempLaserState(MapTime startTime, uint32 effectType, TimingPoint* tpStart)
 		: startTime(startTime), effectType(effectType), tpStart(tpStart)
-	{
-	}
+	{ }
+
 	// Timing point at which this segment started
 	TimingPoint* tpStart;
 	MapTime startTime;
@@ -84,8 +84,9 @@ public:
 	Map<String, EffectType> effectTypes;
 };
 
-template<typename T>
-void AssignAudioEffectParameter(EffectParam<T>& param, const String& paramName, Map<String, float>& floatParams, Map<String, int>& intParams)
+template <typename T>
+void AssignAudioEffectParameter(EffectParam<T>& param, const String& paramName, Map<String, float>& floatParams,
+								Map<String, int>& intParams)
 {
 	float* fval = floatParams.Find(paramName);
 	if (fval)
@@ -109,42 +110,50 @@ struct MultiParam
 		Samples,
 		Int,
 	};
+
 	Type type;
+
 	union
 	{
 		float fval;
 		int32 ival;
 	};
 };
+
 struct MultiParamRange
 {
 	MultiParamRange() = default;
+
 	MultiParamRange(const MultiParam& a)
 	{
 		params[0] = a;
 	}
+
 	MultiParamRange(const MultiParam& a, const MultiParam& b)
 	{
 		params[0] = a;
 		params[1] = b;
 		isRange = true;
 	}
+
 	EffectParam<float> ToFloatParam()
 	{
-		auto r = params[0].type == MultiParam::Float ?
-			EffectParam<float>(params[0].fval, params[1].fval) :
-			EffectParam<float>((float)params[0].ival, (float)params[1].ival);
+		auto r = params[0].type == MultiParam::Float
+					? EffectParam<float>(params[0].fval, params[1].fval)
+					: EffectParam<float>((float)params[0].ival, (float)params[1].ival);
 		r.isRange = isRange;
 		return r;
 	}
+
 	EffectParam<EffectDuration> ToDurationParam()
 	{
-		auto r = params[0].type == MultiParam::Float ?
-			EffectParam<EffectDuration>(params[0].fval, params[1].fval) :
-			EffectParam<EffectDuration>(params[0].ival, params[1].ival);
+		auto r = params[0].type == MultiParam::Float
+					? EffectParam<EffectDuration>(params[0].fval, params[1].fval)
+					: EffectParam<EffectDuration>(params[0].ival, params[1].ival);
 		r.isRange = isRange;
 		return r;
 	}
+
 	EffectParam<int32> ToSamplesParam()
 	{
 		EffectParam<int32> r;
@@ -153,36 +162,39 @@ struct MultiParamRange
 		r.isRange = isRange;
 		return r;
 	}
+
 	MultiParam params[2];
 	bool isRange = false;
 };
+
 static MultiParam ParseParam(const String& in)
 {
 	MultiParam ret;
 	if (in.find('.') != -1)
 	{
 		ret.type = MultiParam::Float;
-		sscanf(*in, "%f", &ret.fval);
+		sscanf_s(*in, "%f", &ret.fval);
 	}
 	else if (in.find('/') != -1)
 	{
 		ret.type = MultiParam::Float;
 		String a, b;
 		in.Split("/", &a, &b);
-		ret.fval = (float)(atof(*a) / atof(*b));
+		ret.fval = static_cast<float>(atof(*a) / atof(*b));
 	}
 	else if (in.find("samples") != -1)
 	{
 		ret.type = MultiParam::Samples;
-		sscanf(*in, "%i", &ret.ival);
+		sscanf_s(*in, "%i", &ret.ival);
 	}
 	else
 	{
 		ret.type = MultiParam::Int;
-		sscanf(*in, "%i", &ret.ival);
+		sscanf_s(*in, "%i", &ret.ival);
 	}
 	return ret;
 }
+
 AudioEffect ParseCustomEffect(const KShootEffectDefinition& def)
 {
 	static EffectTypeMap defaultEffects;
@@ -214,7 +226,7 @@ AudioEffect ParseCustomEffect(const KShootEffectDefinition& def)
 				a = s.second.substr(0, split);
 				b = s.second.substr(split + 1);
 
-				MultiParamRange pr = { ParseParam(a), ParseParam(b) };
+				MultiParamRange pr = {ParseParam(a), ParseParam(b)};
 				if (pr.params[0].type != pr.params[1].type)
 				{
 					Logf("Non matching parameters types \"%s\" for key: %s", Logger::Warning, s, s.first);
@@ -411,7 +423,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 		{
 			m_settings.offset = atol(*s.second);
 		}
-		// TODO: Move initial laser effect settings to an event instead
+			// TODO: Move initial laser effect settings to an event instead
 		else if (s.first == "filtertype")
 		{
 			m_settings.laserEffectType = ParseFilterType(s.second);
@@ -424,7 +436,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 		{
 			m_settings.slamVolume = (float)atol(*s.second) / 100.0f;
 		}
-		// end TODO
+			// end TODO
 		else if (s.first == "level")
 		{
 			m_settings.level = atoi(*s.second);
@@ -491,18 +503,17 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 		return true;
 
 	// Button hold states
-	TempButtonState* buttonStates[6] = { nullptr };
+	TempButtonState* buttonStates[6] = {nullptr};
 	// Laser segment states
-	TempLaserState* laserStates[2] = { nullptr };
+	TempLaserState* laserStates[2] = {nullptr};
 
-	EffectType currentButtonEffectTypes[2] = { EffectType::None };
+	EffectType currentButtonEffectTypes[2] = {EffectType::None};
 	// 2 per button
-	int16 currentButtonEffectParams[4] = { -1 };
+	int16 currentButtonEffectParams[4] = {-1};
 	const uint32 maxEffectParamsPerButtons = 2;
-	float laserRanges[2] = { 1.0f, 1.0f };
+	float laserRanges[2] = {1.0f, 1.0f};
 
 	uint8 sampleIndex = 0;
-
 
 	for (KShootMap::TickIterator it(kshootMap); it; ++it)
 	{
@@ -587,7 +598,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 				if (effectName.empty())
 					return EffectType::None;
 
-				const  EffectType* type = effectTypeMap.FindEffectType(effectName);
+				const EffectType* type = effectTypeMap.FindEffectType(effectName);
 				if (type == nullptr)
 				{
 					Logf("Invalid custom effect name in ksh map: %s", Logger::Warning, effectName);
@@ -788,7 +799,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 				else
 				{
 					ButtonObjectState* obj = new ButtonObjectState();
-					
+
 					obj->time = state->startTime;
 					obj->index = i;
 					obj->hasSample = state->usingSample;
@@ -889,7 +900,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 						state->effectType = EffectType::TapeStop;
 						if (currentButtonEffectParams[i - 4] != -1)
 							memcpy(state->effectParams, currentButtonEffectParams + (i - 4) * maxEffectParamsPerButtons,
-								sizeof(state->effectParams));
+									sizeof(state->effectParams));
 						else
 							state->effectParams[0] = 50;
 					}
@@ -904,7 +915,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 						state->effectType = currentButtonEffectTypes[i - 4];
 						if (currentButtonEffectParams[(i - 4) * maxEffectParamsPerButtons] != -1)
 							memcpy(state->effectParams, currentButtonEffectParams + (i - 4) * maxEffectParamsPerButtons,
-								sizeof(state->effectParams));
+									sizeof(state->effectParams));
 						else
 						{
 							state->effectParams[0] = defaultEffectParams[state->effectType];
@@ -972,8 +983,6 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 				obj->points[0] = state->startPosition;
 				obj->points[1] = endPos;
 
-
-
 				if (laserRanges[i] > 1.0f)
 				{
 					obj->flags |= LaserObjectState::flag_Extended;
@@ -1026,7 +1035,6 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 						obj->prev->duration = actualPrevDuration;
 					}
 					obj->prev->next = obj;
-
 				}
 
 				// Add to list of objects
@@ -1089,7 +1097,6 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 					state->spinType = tick.add[1];
 					state->spinDuration = std::stoi(tick.add.substr(2));
 				}
-
 			}
 		}
 	}

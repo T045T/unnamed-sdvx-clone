@@ -13,14 +13,13 @@ class AudioOutput : public Unique
 {
 public:
 	AudioOutput();
-	~AudioOutput();
 
-	bool Init();
+	bool Init() const;
 
 	// Safe to start mixing
-	void Start(IMixer* mixer);
+	void Start(IMixer* mixer) const;
 	// Should stop mixing
-	void Stop();
+	void Stop() const;
 
 	uint32_t GetNumChannels() const;
 	uint32_t GetSampleRate() const;
@@ -29,5 +28,5 @@ public:
 	double GetBufferLength() const;
 
 private:
-	class AudioOutput_Impl* m_impl;
+	shared_ptr<class AudioOutput_Impl> m_impl;
 };

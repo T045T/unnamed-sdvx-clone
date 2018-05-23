@@ -1,10 +1,11 @@
 # GUI library
+message("> Configuring GUI")
 
 # Find files used for project
 file(GLOB GUI_src "src/*.cpp" "include/GUI/*.hpp")
 
 # Compiler stuff
-enable_cpp11()
+enable_cpp17()
 enable_precompiled_headers("${GUI_src}" src/stdafx.cpp)
 
 include_directories(include/GUI)

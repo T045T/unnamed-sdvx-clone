@@ -32,17 +32,20 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(_In_ LPCWSTR pwstrDeviceId, _In_ DWORD dwNewState);
 	virtual HRESULT STDMETHODCALLTYPE OnDeviceAdded(_In_ LPCWSTR pwstrDeviceId);
 	virtual HRESULT STDMETHODCALLTYPE OnDeviceRemoved(_In_ LPCWSTR pwstrDeviceId);
-	virtual HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(_In_ EDataFlow flow, _In_ ERole role, _In_ LPCWSTR pwstrDefaultDeviceId);
+	virtual HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(_In_ EDataFlow flow, _In_ ERole role,
+																_In_																LPCWSTR pwstrDefaultDeviceId);
 	virtual HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(_In_ LPCWSTR pwstrDeviceId, _In_ const PROPERTYKEY key);
 
-	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject)
+	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject)
 	{
 		return E_NOINTERFACE;
 	}
+
 	virtual ULONG STDMETHODCALLTYPE AddRef(void)
 	{
 		return 0;
 	}
+
 	virtual ULONG STDMETHODCALLTYPE Release(void)
 	{
 		return 0;
@@ -85,8 +88,8 @@ public:
 	AudioOutput_Impl()
 	{
 		m_notificationClient.output = this;
-
 	}
+
 	~AudioOutput_Impl()
 	{
 		// Stop thread
@@ -95,7 +98,7 @@ public:
 		CloseDevice();
 
 		SAFE_RELEASE(m_pendingDevice);
-		if(m_deviceEnumerator)
+		if (m_deviceEnumerator)
 		{
 			m_deviceEnumerator->UnregisterEndpointNotificationCallback(&m_notificationClient);
 			SAFE_RELEASE(m_deviceEnumerator);
@@ -104,20 +107,21 @@ public:
 
 	void Start()
 	{
-		if(m_runAudioThread)
+		if (m_runAudioThread)
 			return;
 
 		m_runAudioThread = true;
 		m_audioThread = Thread(&AudioOutput_Impl::AudioThread, this);
 	}
+
 	void Stop()
 	{
-		if(!m_runAudioThread)
+		if (!m_runAudioThread)
 			return;
 
 		// Join audio thread
 		m_runAudioThread = false;
-		if(m_audioThread.joinable())
+		if (m_audioThread.joinable())
 			m_audioThread.join();
 	}
 
@@ -129,10 +133,11 @@ public:
 		const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 		CoInitialize(nullptr);
 
-		if(!m_deviceEnumerator)
+		if (!m_deviceEnumerator)
 		{
-			res = CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_deviceEnumerator);
-			if(res != S_OK)
+			res = CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL, IID_IMMDeviceEnumerator,
+									(void**)&m_deviceEnumerator);
+			if (res != S_OK)
 				throw _com_error(res);
 
 			// Register change handler
@@ -141,39 +146,43 @@ public:
 
 		// Select default device
 		IMMDevice* defaultDevice = nullptr;
-		m_deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender, ERole::eMultimedia, &defaultDevice);		
+		m_deviceEnumerator->GetDefaultAudioEndpoint(EDataFlow::eRender, ERole::eMultimedia, &defaultDevice);
 		return OpenDevice(defaultDevice);
-	}	
+	}
+
 	void CloseDevice()
 	{
-		if(m_audioClient)
+		if (m_audioClient)
 			m_audioClient->Stop();
 		SAFE_RELEASE(m_device);
 		SAFE_RELEASE(m_audioClient);
 		SAFE_RELEASE(m_audioRenderClient);
 	}
+
 	IMMDevice* FindDevice(LPCWSTR devId)
 	{
 		assert(m_deviceEnumerator);
 		IMMDevice* newDevice = nullptr;
-		if(m_deviceEnumerator->GetDevice(devId, &newDevice) != S_OK)
+		if (m_deviceEnumerator->GetDevice(devId, &newDevice) != S_OK)
 		{
 			SAFE_RELEASE(newDevice);
 			return nullptr;
 		}
 		return newDevice;
 	}
+
 	bool OpenDevice(LPCWSTR devId)
 	{
 		return OpenDevice(FindDevice(devId));
 	}
+
 	bool OpenDevice(IMMDevice* device)
 	{
 		// Close old device first
 		CloseDevice();
 
 		// Open dummy device when no device specified
-		if(!device)
+		if (!device)
 			return OpenNullDevice();
 
 		HRESULT res = 0;
@@ -181,7 +190,7 @@ public:
 		// Obtain audio client
 		m_device = device;
 		res = m_device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&m_audioClient);
-		if(res != S_OK)
+		if (res != S_OK)
 			throw _com_error(res);
 
 		// Aquire format and initialize device for shared mode
@@ -190,14 +199,14 @@ public:
 
 		// Init client
 		res = m_audioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0,
-			bufferDuration, 0, mixFormat, nullptr);
+										bufferDuration, 0, mixFormat, nullptr);
 
 		// Store selected format
 		m_format = *mixFormat;
 		CoTaskMemFree(mixFormat);
 
 		// Check if initialization was succesfull
-		if(res != S_OK)
+		if (res != S_OK)
 		{
 			Log("Failed to initialize audio client with the selected settings", Logger::Error);
 			SAFE_RELEASE(device);
@@ -207,7 +216,7 @@ public:
 
 		// Get the audio render client
 		res = m_audioClient->GetService(__uuidof(IAudioRenderClient), (void**)&m_audioRenderClient);
-		if(res != S_OK)
+		if (res != S_OK)
 		{
 			Log("Failed to get audio render client service.", Logger::Error);
 			SAFE_RELEASE(device);
@@ -223,6 +232,7 @@ public:
 		res = m_audioClient->Start();
 		return true;
 	}
+
 	bool OpenNullDevice()
 	{
 		m_format.nSamplesPerSec = freq;
@@ -231,15 +241,16 @@ public:
 		m_dummyTimerPos = 0;
 		return true;
 	}
+
 	bool NullBegin(float*& buffer, uint32_t& numSamples)
 	{
-		if(m_dummyTimer.Milliseconds() > 2)
+		if (m_dummyTimer.Milliseconds() > 2)
 		{
 			m_dummyTimerPos += m_dummyTimer.SecondsAsDouble();
 			m_dummyTimer.Restart();
 
 			uint32 availableSamples = (uint32)(m_dummyTimerPos * (double)m_format.nSamplesPerSec);
-			if(availableSamples > 0)
+			if (availableSamples > 0)
 			{
 				numSamples = Math::Min(m_dummyBufferLength, availableSamples);
 
@@ -254,12 +265,12 @@ public:
 
 	bool Begin(float*& buffer, uint32_t& numSamples)
 	{
-		if(m_pendingDeviceChange)
+		if (m_pendingDeviceChange)
 		{
 			OpenDevice(m_pendingDevice);
 			m_pendingDeviceChange = false;
 		}
-		if(!m_device)
+		if (!m_device)
 			return NullBegin(buffer, numSamples);
 
 		// See how much buffer space is available.
@@ -267,13 +278,13 @@ public:
 		m_audioClient->GetCurrentPadding(&numFramesPadding);
 		numSamples = m_numBufferFrames - numFramesPadding;
 
-		if(numSamples > 0)
+		if (numSamples > 0)
 		{
 			// Grab all the available space in the shared buffer.
 			HRESULT hr = m_audioRenderClient->GetBuffer(numSamples, (BYTE**)&buffer);
-			if(hr != S_OK)
+			if (hr != S_OK)
 			{
-				if(hr == AUDCLNT_E_DEVICE_INVALIDATED)
+				if (hr == AUDCLNT_E_DEVICE_INVALIDATED)
 				{
 					Logf("Audio device unplugged", Logger::Warning);
 					return false;
@@ -287,12 +298,13 @@ public:
 		}
 		return false;
 	}
+
 	void End(uint32_t numSamples)
 	{
-		if(!m_device)
+		if (!m_device)
 			return;
 
-		if(numSamples > 0)
+		if (numSamples > 0)
 		{
 			m_audioRenderClient->ReleaseBuffer(numSamples, 0);
 		}
@@ -301,14 +313,14 @@ public:
 	// Main mixer thread
 	void AudioThread()
 	{
-		while(m_runAudioThread)
+		while (m_runAudioThread)
 		{
 			int32 sleepDuration = 1;
 			float* data;
 			uint32 numSamples;
-			if(Begin(data, numSamples))
+			if (Begin(data, numSamples))
 			{
-				if(m_mixer)
+				if (m_mixer)
 					m_mixer->Mix(data, numSamples);
 				End(numSamples);
 			}
@@ -322,58 +334,66 @@ HRESULT STDMETHODCALLTYPE NotificationClient::OnDeviceStateChanged(_In_ LPCWSTR 
 {
 	return S_OK;
 }
+
 HRESULT STDMETHODCALLTYPE NotificationClient::OnDeviceAdded(_In_ LPCWSTR pwstrDeviceId)
 {
 	return S_OK;
 }
+
 HRESULT STDMETHODCALLTYPE NotificationClient::OnDeviceRemoved(_In_ LPCWSTR pwstrDeviceId)
 {
 	return S_OK;
 }
-HRESULT STDMETHODCALLTYPE NotificationClient::OnDefaultDeviceChanged(_In_ EDataFlow flow, _In_ ERole role, _In_ LPCWSTR pwstrDefaultDeviceId)
+
+HRESULT STDMETHODCALLTYPE NotificationClient::OnDefaultDeviceChanged(
+	_In_		EDataFlow flow, _In_ ERole role, _In_ LPCWSTR pwstrDefaultDeviceId)
 {
-	if(flow == EDataFlow::eRender && role == ERole::eMultimedia)
+	if (flow == EDataFlow::eRender && role == ERole::eMultimedia)
 	{
 		output->m_pendingDeviceChange = true;
 		output->m_pendingDevice = output->FindDevice(pwstrDefaultDeviceId);
 	}
 	return S_OK;
 }
-HRESULT STDMETHODCALLTYPE NotificationClient::OnPropertyValueChanged(_In_ LPCWSTR pwstrDeviceId, _In_ const PROPERTYKEY key)
+
+HRESULT STDMETHODCALLTYPE NotificationClient::OnPropertyValueChanged(
+	_In_		LPCWSTR pwstrDeviceId, _In_ const PROPERTYKEY key)
 {
 	return S_OK;
 }
 
 AudioOutput::AudioOutput()
 {
-	m_impl = new AudioOutput_Impl();
+	m_impl = make_unique<AudioOutput_Impl>();
 }
-AudioOutput::~AudioOutput()
-{
-	delete m_impl;
-}
-bool AudioOutput::Init()
+
+bool AudioOutput::Init() const
 {
 	return m_impl->Init();
 }
-void AudioOutput::Start(IMixer* mixer)
+
+void AudioOutput::Start(IMixer* mixer) const
 {
 	m_impl->m_mixer = mixer;
 	m_impl->Start();
 }
-void AudioOutput::Stop()
+
+void AudioOutput::Stop() const
 {
 	m_impl->Stop();
 	m_impl->m_mixer = nullptr;
 }
+
 uint32_t AudioOutput::GetNumChannels() const
 {
 	return m_impl->m_format.nChannels;
 }
+
 uint32_t AudioOutput::GetSampleRate() const
 {
 	return m_impl->m_format.nSamplesPerSec;
 }
+
 double AudioOutput::GetBufferLength() const
 {
 	return m_impl->m_bufferLength;

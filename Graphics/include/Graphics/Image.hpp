@@ -1,5 +1,5 @@
 #pragma once
-#include <Graphics/ResourceTypes.hpp>
+#include "OpenGL.hpp"
 
 namespace Graphics
 {
@@ -10,15 +10,26 @@ namespace Graphics
 	class ImageRes
 	{
 	public:
-		virtual ~ImageRes() = default;
-		static Ref<ImageRes> Create(const String& assetPath);
-		static Ref<ImageRes> Create(Vector2i size = Vector2i());
-	public:
-		virtual void SetSize(Vector2i size) = 0;
-		virtual void ReSize(Vector2i size) = 0;
-		virtual Vector2i GetSize() const = 0;
-		virtual Colori* GetBits() = 0;
-		virtual const Colori* GetBits() const = 0;
+		ImageRes(const String& assetPath);
+		ImageRes(Vector2i size = Vector2i());
+		~ImageRes();
+
+		void SetSize(Vector2i size);
+		void ReSize(Vector2i size);
+		Vector2i GetSize() const;
+		Colori* GetBits();
+		const Colori* GetBits() const;
+
+	private:
+		Vector2i m_size;
+		Colori* m_pData = nullptr;
+		size_t m_nDataLength;
+
+		bool Load(const String& fullPath);
+		bool load_jpeg(Buffer& in);
+		bool load_png(Buffer& in);
+		void Allocate();
+		void clear();
 	};
 
 	/*
@@ -29,22 +40,46 @@ namespace Graphics
 		!! The packing is not optimal as the images are stacked for bottom to top and placed in columns based on their width
 	*/
 	class TextureRes;
+
+	struct Category
+	{
+		uint32 width = 0;
+		Vector2i offset;
+		Vector<uint32> segments;
+	};
+
+	struct Segment
+	{
+		Recti coords;
+	};
+
 	class SpriteMapRes
 	{
 	public:
-		virtual ~SpriteMapRes() = default;
-		static Ref<SpriteMapRes> Create();
-	public:
-		virtual uint32 AddSegment(Ref<ImageRes> image) = 0;
-		virtual void Clear() = 0;
-		virtual Ref<ImageRes> GetImage() = 0;
-		virtual Ref<class TextureRes> GenerateTexture(class OpenGL* gl) = 0;
-		virtual Recti GetCoords(uint32 nIndex) = 0;
+		SpriteMapRes();
+		~SpriteMapRes();
+
+		uint32 AddSegment(shared_ptr<ImageRes> image);
+		void clear();
+		shared_ptr<class TextureRes> GenerateTexture();
+		Recti GetCoords(uint32 nIndex);
+
+	private:
+		// The image that contains the current data
+		shared_ptr<ImageRes> m_image;
+
+		// Used size over the X axis
+		int32 m_usedSize = 0;
+
+		// Linear index of al segements
+		Vector<Segment*> m_segments;
+		Vector<Category> m_widths;
+		std::multimap<uint32, uint32> m_categoryByWidth;
+
+		Category& AssignCategory(Vector2i requestedSize);
+		void CopySubImage(ImageRes* dst, ImageRes* src, Vector2i dstPos);
 	};
 
-	typedef Ref<ImageRes> Image;
-	typedef Ref<SpriteMapRes> SpriteMap;
-
-	DEFINE_RESOURCE_TYPE(Image, ImageRes);
-	DEFINE_RESOURCE_TYPE(SpriteMap, SpriteMapRes);
+	typedef shared_ptr<ImageRes> Image;
+	typedef shared_ptr<SpriteMapRes> SpriteMap;
 }

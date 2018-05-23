@@ -26,7 +26,7 @@ namespace Debug
 	Debug::Debug()
 	{
 		BOOL ret = SymInitialize(processHandle, nullptr, TRUE);
-		if(ret == FALSE)
+		if (ret == FALSE)
 		{
 			Logf("SymInitialize failed", Logger::Warning);
 		}
@@ -35,12 +35,15 @@ namespace Debug
 
 		char symFileOut[256];
 		char dbgFileOut[256];
-		ret = SymGetSymbolFile(processHandle, nullptr, *executablePath, sfPdb, symFileOut, sizeof(symFileOut), dbgFileOut, sizeof(dbgFileOut));
+		ret = SymGetSymbolFile(processHandle, nullptr, *executablePath, sfPdb, symFileOut, sizeof(symFileOut), dbgFileOut,
+								sizeof(dbgFileOut));
 	}
+
 	Debug::~Debug()
 	{
 		SymCleanup(processHandle);
 	}
+
 	Debug& Debug::Main()
 	{
 		static Debug inst;
@@ -69,14 +72,14 @@ namespace Debug
 		static IMAGEHLP_LINE64 lineInfo;
 		lineInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-		for(uint32_t i = offset + 1; i < frameCount; i++)
+		for (uint32_t i = offset + 1; i < frameCount; i++)
 		{
 			StackFrame frame;
 			DWORD64 addr = (DWORD64)stack[i];
 			BOOL br = SymFromAddr(processHandle, addr, nullptr, symInfo);
 			DWORD displ;
 			frame.address = (void*)addr;
-			if(SymGetLineFromAddr64(processHandle, addr, &displ, &lineInfo))
+			if (SymGetLineFromAddr64(processHandle, addr, &displ, &lineInfo))
 			{
 				frame.line = (uint32)lineInfo.LineNumber;
 				frame.file = lineInfo.FileName;
@@ -104,6 +107,7 @@ namespace Debug
 		BOOL br = SymFromAddr(processHandle, (uint64_t)address, nullptr, symInfo);
 		return symInfo->Name;
 	}
+
 	String GetLineInfoFromAddress(void* address, uint32& lineNumber)
 	{
 		static IMAGEHLP_LINE64 lineInfo;

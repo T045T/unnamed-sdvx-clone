@@ -31,6 +31,7 @@ class KShootBlock
 public:
 	Vector<KShootTick> ticks;
 };
+
 class KShootTime
 {
 public:
@@ -40,7 +41,6 @@ public:
 	uint32_t block;
 	uint32_t tick;
 };
-
 
 
 struct KShootEffectDefinition
@@ -87,5 +87,4 @@ public:
 
 private:
 	static const char* c_sep;
-
 };

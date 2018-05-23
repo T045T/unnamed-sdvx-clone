@@ -6,8 +6,7 @@
 class CommonGUIStyle
 {
 public:
-	CommonGUIStyle() = default;
-	CommonGUIStyle(class OpenGL* gl, String skin = "Default");
+	CommonGUIStyle(String skin = "Default");
 
 	Margini buttonPadding = Margini(5);
 	Margini buttonBorder = Margini(5);
