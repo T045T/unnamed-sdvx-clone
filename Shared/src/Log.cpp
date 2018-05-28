@@ -109,7 +109,11 @@ void Logger::WriteHeader(Severity severity)
 	char timeStr[64];
 	time_t currentTime = time(0);
 	tm currentLocalTime;
+#ifdef __APPLE__
+	localtime_r(&currentTime, &currentLocalTime);
+#else
 	localtime_s(&currentLocalTime, &currentTime);
+#endif
 	strftime(timeStr, sizeof(timeStr), "%T", &currentLocalTime);
 
 	// Write the formated header
