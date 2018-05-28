@@ -5,6 +5,94 @@
 
 namespace Graphics
 {
+	void glTextureImage2DWrapper(
+		GLuint texture,
+		GLint level,
+		GLint internalFormat,
+		GLsizei width,
+		GLsizei height,
+		GLint border,
+		GLenum format,
+		GLenum type,
+		const GLvoid * data)
+	{
+		if (glTextureImage2DEXT)
+		{
+			glTextureImage2DEXT(texture, GL_TEXTURE_2D, level, internalFormat,
+					    width, height,
+					    border, format, type,
+					    data);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexImage2D(GL_TEXTURE_2D, level, internalFormat,
+				     width, height,
+				     border, format, type,
+				     data);
+		}
+	}
+
+	void glTextureParameteriWrapper(
+		GLuint texture,
+		GLenum pname,
+		GLint param)
+	{
+		if (glTextureParameteri)
+		{
+			glTextureParameteri(texture, pname, param);
+		}
+		else if (glTextureParameteriEXT)
+		{
+			glTextureParameteriEXT(texture, GL_TEXTURE_2D, pname, param);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexParameteri(GL_TEXTURE_2D, pname, param);
+		}
+	}
+
+	void glTextureParameterfWrapper(
+		GLuint texture,
+		GLenum pname,
+		GLint param)
+	{
+		if (glTextureParameterf)
+		{
+			glTextureParameterf(texture, pname, param);
+		}
+		else if (glTextureParameterfEXT)
+		{
+			glTextureParameterfEXT(texture, GL_TEXTURE_2D, pname, param);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexParameterf(GL_TEXTURE_2D, pname, param);
+		}
+	}
+
+	void glGenerateTextureMipmapWrapper(
+		GLuint texture)
+	{
+		if (glGenerateTextureMipmap)
+		{
+			glGenerateTextureMipmap(texture);
+		}
+		else if (glGenerateTextureMipmapEXT)
+		{
+			glGenerateTextureMipmapEXT(texture, GL_TEXTURE_2D);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+	}
+
+
+
 	/**
 	 * \throws std::runtime_error if failed to generate opengl texture
 	 */
@@ -58,7 +146,7 @@ namespace Graphics
 			assert(false);
 		}
 
-		glTextureImage2DEXT(m_texture, GL_TEXTURE_2D, 0, ifmt, size.x, size.y, 0, fmt, type, nullptr);
+		glTextureImage2DWrapper(m_texture, 0, ifmt, size.x, size.y, 0, fmt, type, nullptr);
 		update_filter_state();
 	}
 
@@ -66,7 +154,7 @@ namespace Graphics
 	{
 		m_format = TextureFormat::RGBA8;
 		m_size = size;
-		glTextureImage2DEXT(m_texture, GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
+		glTextureImage2DWrapper(m_texture, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 		update_filter_state();
 	}
 
@@ -74,10 +162,7 @@ namespace Graphics
 	{
 		if (enabled)
 		{
-			if (glGenerateTextureMipmap)
-				glGenerateTextureMipmap(m_texture);
-			else
-				glGenerateTextureMipmapEXT(m_texture, GL_TEXTURE_2D);
+			glGenerateTextureMipmapWrapper(m_texture);
 		}
 		m_mipmaps = enabled;
 		update_filter_state();
@@ -130,16 +215,8 @@ namespace Graphics
 			GL_CLAMP_TO_EDGE,
 		};
 
-		if (glTextureParameteri)
-		{
-			glTextureParameteri(m_texture, GL_TEXTURE_WRAP_S, wmode[static_cast<size_t>(u)]);
-			glTextureParameteri(m_texture, GL_TEXTURE_WRAP_T, wmode[static_cast<size_t>(v)]);
-		}
-		else
-		{
-			glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wmode[static_cast<size_t>(u)]);
-			glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wmode[static_cast<size_t>(v)]);
-		}
+		glTextureParameteriWrapper(m_texture, GL_TEXTURE_WRAP_S, wmode[static_cast<size_t>(u)]);
+		glTextureParameteriWrapper(m_texture, GL_TEXTURE_WRAP_T, wmode[static_cast<size_t>(v)]);
 	}
 
 	TextureFormat TextureRes::GetFormat() const
@@ -149,49 +226,24 @@ namespace Graphics
 
 	void TextureRes::update_filter_state() const
 	{
-		if (glTextureParameteri)
+		if (!m_mipmaps)
 		{
-			if (!m_mipmaps)
-			{
-				glTextureParameteri(m_texture, GL_TEXTURE_MIN_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-				glTextureParameteri(m_texture, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-			}
-			else
-			{
-				if (m_mipFilter)
-					glTextureParameteri(m_texture, GL_TEXTURE_MIN_FILTER,
-						m_filter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR);
-				else
-					glTextureParameteri(m_texture, GL_TEXTURE_MIN_FILTER,
-						m_filter ? GL_LINEAR_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
-				glTextureParameteri(m_texture, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-			}
-			if (GL_TEXTURE_MAX_ANISOTROPY_EXT)
-			{
-				glTextureParameterf(m_texture, GL_TEXTURE_MAX_ANISOTROPY_EXT, m_anisotropic);
-			}
+			glTextureParameteriWrapper(m_texture, GL_TEXTURE_MIN_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
+			glTextureParameteriWrapper(m_texture, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
 		}
-		else /* Sigh */
+		else
 		{
-			if (!m_mipmaps)
-			{
-				glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-				glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-			}
+			if (m_mipFilter)
+				glTextureParameteriWrapper(m_texture, GL_TEXTURE_MIN_FILTER,
+							   m_filter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR);
 			else
-			{
-				if (m_mipFilter)
-					glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-						m_filter ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR);
-				else
-					glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-						m_filter ? GL_LINEAR_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
-				glTextureParameteriEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
-			}
-			if (GL_TEXTURE_MAX_ANISOTROPY_EXT)
-			{
-				glTextureParameterfEXT(m_texture, GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, m_anisotropic);
-			}
+				glTextureParameteriWrapper(m_texture, GL_TEXTURE_MIN_FILTER,
+							   m_filter ? GL_LINEAR_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_NEAREST);
+			glTextureParameteriWrapper(m_texture, GL_TEXTURE_MAG_FILTER, m_filter ? GL_LINEAR : GL_NEAREST);
+		}
+		if (GL_TEXTURE_MAX_ANISOTROPY_EXT)
+		{
+			glTextureParameterfWrapper(m_texture, GL_TEXTURE_MAX_ANISOTROPY_EXT, m_anisotropic);
 		}
 	}
 }
