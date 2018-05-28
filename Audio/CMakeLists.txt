@@ -35,6 +35,6 @@ target_include_directories(Audio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Dependencies
 target_link_libraries(Audio Shared)
-target_link_libraries(Audio SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(Audio ${SDL2_LIBRARIES})
 target_link_libraries(Audio ${VORBIS_LIBRARY} ${VORBIS_FILE_LIBRARY} ${VORBIS_ENC_LIBRARY})
 target_link_libraries(Audio ${OGG_LIBRARY})

@@ -37,3 +37,5 @@ target_link_libraries(Main Audio)
 target_link_libraries(Main GUI)
 target_link_libraries(Main Beatmap)
 target_link_libraries(Main Online)
+
+target_link_libraries(Main "-L${SDL2_LIBDIR} -lSDL2main")
