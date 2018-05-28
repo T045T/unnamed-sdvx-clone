@@ -62,7 +62,6 @@ if(APPLE)
     COMMAND bash -c "set -e && PREFIX=`brew --prefix`; echo $PREFIX/include"
     RESULT_VARIABLE BREW_FOUND
     OUTPUT_VARIABLE BREW_INCLUDE)
-  message("------- ${BREW_FOUND} ----- ${BREW_INCLUDE}")
   if(NOT ${BREW_FOUND} EQUAL 0 OR "${BREW_INCLUDE}" STREQUAL "" OR "${BREW_INCLUDE}" STREQUAL "/include")
     message(FATAL_ERROR "Homebrew not found!\n"
       "Please install Homebrew and use it to install the dependencies:\n"
