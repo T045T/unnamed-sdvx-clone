@@ -202,7 +202,6 @@ bool Application::m_Init()
 	g_aspectRatio = static_cast<float>(g_resolution.x) / static_cast<float>(g_resolution.y);
 	g_gameWindow = make_shared<Window>(g_resolution);
 	g_gameWindow->Show();
-	m_OnWindowResized(g_resolution);
 	g_gameWindow->OnKeyPressed.Add(this, &Application::m_OnKeyPressed);
 	g_gameWindow->OnKeyReleased.Add(this, &Application::m_OnKeyReleased);
 	g_gameWindow->OnResized.Add(this, &Application::m_OnWindowResized);

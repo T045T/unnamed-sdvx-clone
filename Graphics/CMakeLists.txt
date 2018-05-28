@@ -42,3 +42,7 @@ target_link_libraries(Graphics PUBLIC ${JPEG_LIBRARIES})
 target_include_directories(Graphics PUBLIC ${JPEG_INCLUDE_DIR})
 target_link_libraries(Graphics PUBLIC ${PNG_LIBRARIES})
 
+#if(APPLE)
+find_package(OpenGL)
+target_link_libraries(Graphics PUBLIC ${OPENGL_LIBRARIES})
+#endif(APPLE)
