@@ -308,6 +308,10 @@ AudioEffect ParseCustomEffect(const KShootEffectDefinition& def)
 	case EffectType::TapeStop:
 		AssignDurationIfSet(effect.duration, "speed");
 		break;
+	default:
+		Logf("Unexpected effect type for custom effect, not setting defaults",
+		     Logger::Warning);
+		break;
 	}
 
 	return effect;

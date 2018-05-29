@@ -108,6 +108,10 @@ static AudioEffect CreateDefault(EffectType type)
 		ret.flanger.offset = IntRange(10);
 		ret.flanger.depth = IntRange(40);
 		break;
+	default:
+		// Nothing to do here
+		Logf("Unimplemented effect type, not applying any defaults!", Logger::Warning);
+		break;
 	}
 
 	return ret;
