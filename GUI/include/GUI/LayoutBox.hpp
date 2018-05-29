@@ -38,7 +38,7 @@ public:
 
 		Vector2 alignment = Vector2(0.0f, 0.0f);
 
-		virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement);
+		virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 		virtual void Render(GUIRenderData rd) override;
 	};
 

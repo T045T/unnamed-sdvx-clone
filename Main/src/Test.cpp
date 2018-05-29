@@ -50,7 +50,7 @@ public:
 		return arg * 2;
 	}
 
-	bool Init()
+	bool Init() override
 	{
 		m_guiStyle = g_commonGUIStyle;
 

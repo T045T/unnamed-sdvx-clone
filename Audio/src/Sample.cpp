@@ -191,17 +191,17 @@ public:
 		m_lock.unlock();
 	}
 
-	const Buffer& GetData() const
+	const Buffer& GetData() const override
 	{
 		return m_pcm;
 	}
 
-	uint32 GetBitsPerSample() const
+	uint32 GetBitsPerSample() const override
 	{
 		return m_format.nBitsPerSample;
 	}
 
-	uint32 GetNumChannels() const
+	uint32 GetNumChannels() const override
 	{
 		return m_format.nChannels;
 	}

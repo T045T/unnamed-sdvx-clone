@@ -16,7 +16,7 @@ public:
 	class Slot : public GUISlotBase
 	{
 	public:
-		virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement);
+		virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 		virtual void Render(GUIRenderData rd) override;
 
 		void SetScrollPercent(float percent);
