@@ -24,6 +24,8 @@ namespace Graphics
 		virtual T Sample(float duration) = 0;
 		virtual T GetMax() = 0;
 		virtual IParticleParameter<T>* Duplicate() const = 0;
+
+		virtual ~IParticleParameter() {}
 	};
 
 	// Macro for implementing the Duplicate() function
