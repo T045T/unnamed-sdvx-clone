@@ -27,22 +27,27 @@ include_directories(BEFORE include include/Graphics src include/Graphics/glew)
 add_library(Graphics ${Graphics_src})
 
 # Public include paths for library
-target_include_directories(Graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/Graphics/glew
-  ${FREETYPE_INCLUDE_DIR_freetype2})
+target_include_directories(Graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/Graphics/glew)
 
 # GLEW is included statically and also doesn't need GLU(Which doesn't even exist on linux)
 add_definitions(-DGLEW_NO_GLU -DGLEW_STATIC)
 
 # Dependencies
 target_link_libraries(Graphics PUBLIC Shared)
-target_link_libraries(Graphics PUBLIC ${SDL2_LIBRARIES})
-target_link_libraries(Graphics PUBLIC ${ZLIB_LIBS})
-target_link_libraries(Graphics PUBLIC ${FREETYPE_LIBRARIES})
+if(APPLE)
+  target_link_libraries(Graphics PUBLIC ${SDL2_LIBRARIES})
+  target_link_libraries(Graphics PUBLIC ${ZLIB_LIBS})
+  target_link_libraries(Graphics PUBLIC ${FREETYPE_LIBRARIES})
+
+  find_package(OpenGL)
+  target_link_libraries(Graphics PUBLIC ${OPENGL_LIBRARIES})
+  target_include_directories(Graphics PUBLIC  ${FREETYPE_INCLUDE_DIR_freetype2})
+else(APPLE)
+  target_link_libraries(Graphics PUBLIC SDL2::SDL2)
+  target_link_libraries(Graphics PUBLIC ZLIB::ZLIB)
+  target_link_libraries(Graphics PUBLIC Freetype::Freetype)
+endif(APPLE)
 target_link_libraries(Graphics PUBLIC ${JPEG_LIBRARIES})
 target_include_directories(Graphics PUBLIC ${JPEG_INCLUDE_DIR})
-target_link_libraries(Graphics PUBLIC ${PNG_LIBRARIES})
+target_link_libraries(Graphics PUBLIC PNG::PNG)
 
-#if(APPLE)
-find_package(OpenGL)
-target_link_libraries(Graphics PUBLIC ${OPENGL_LIBRARIES})
-#endif(APPLE)
