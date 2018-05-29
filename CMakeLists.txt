@@ -57,12 +57,27 @@ macro(set_output_postfixes projectName)
 		OUTPUT_NAME_RELEASE ${projectName}_Release)
 endmacro(set_output_postfixes)
 
+if(APPLE)
+  execute_process(
+    COMMAND bash -c "set -e && PREFIX=`brew --prefix`; echo $PREFIX/include"
+    RESULT_VARIABLE BREW_FOUND
+    OUTPUT_VARIABLE BREW_INCLUDE)
+  if(NOT ${BREW_FOUND} EQUAL 0 OR "${BREW_INCLUDE}" STREQUAL "" OR "${BREW_INCLUDE}" STREQUAL "/include")
+    message(FATAL_ERROR "Homebrew not found!\n"
+      "Please install Homebrew and use it to install the dependencies:\n"
+      "/usr/bin/ruby -e \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"")
+  else()
+    include_directories(${BREW_INCLUDE})
+  endif()
+endif(APPLE)
+
 # Find all libraries
 find_package(sdl2 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
+
 find_package(CURL REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_library(VORBIS_LIBRARY vorbis)

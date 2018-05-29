@@ -113,13 +113,9 @@ public:
 
 AudioOutput::AudioOutput()
 {
-	m_impl = new AudioOutput_Impl();
+	m_impl = std::make_unique<AudioOutput_Impl>();
 }
-AudioOutput::~AudioOutput()
-{
-	delete m_impl;
-}
-bool AudioOutput::Init()
+bool AudioOutput::Init() const
 {
 	return m_impl->Init();
 }
@@ -135,11 +131,11 @@ double AudioOutput::GetBufferLength() const
 {
 	return 0;
 }
-void AudioOutput::Start(IMixer* mixer)
+void AudioOutput::Start(IMixer* mixer) const
 {
 	m_impl->m_mixer = mixer;
 }
-void AudioOutput::Stop()
+void AudioOutput::Stop() const
 {
 	m_impl->m_mixer = nullptr;
 }

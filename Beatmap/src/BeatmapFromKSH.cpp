@@ -173,7 +173,7 @@ static MultiParam ParseParam(const String& in)
 	if (in.find('.') != -1)
 	{
 		ret.type = MultiParam::Float;
-		sscanf_s(*in, "%f", &ret.fval);
+		sscanf(*in, "%f", &ret.fval);
 	}
 	else if (in.find('/') != -1)
 	{
@@ -185,12 +185,12 @@ static MultiParam ParseParam(const String& in)
 	else if (in.find("samples") != -1)
 	{
 		ret.type = MultiParam::Samples;
-		sscanf_s(*in, "%i", &ret.ival);
+		sscanf(*in, "%i", &ret.ival);
 	}
 	else
 	{
 		ret.type = MultiParam::Int;
-		sscanf_s(*in, "%i", &ret.ival);
+		sscanf(*in, "%i", &ret.ival);
 	}
 	return ret;
 }
@@ -229,7 +229,7 @@ AudioEffect ParseCustomEffect(const KShootEffectDefinition& def)
 				MultiParamRange pr = {ParseParam(a), ParseParam(b)};
 				if (pr.params[0].type != pr.params[1].type)
 				{
-					Logf("Non matching parameters types \"%s\" for key: %s", Logger::Warning, s, s.first);
+					Logf("Non matching parameters types \"%s\" for key: %s", Logger::Warning, s.second, s.first);
 					continue;
 				}
 				params.Add(s.first, pr);

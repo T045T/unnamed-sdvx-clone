@@ -20,5 +20,7 @@
 #ifdef _WIN32
 #include <Graphics/glew/GL/wglew.h>
 #else
+#if !defined(__APPLE__)
 #include <Graphics/glew/GL/glxew.h>
+#endif
 #endif
