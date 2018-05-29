@@ -143,6 +143,8 @@ bool MultiObjectState::StaticSerialize(BinaryStream& stream, MultiObjectState*& 
 		case ObjectType::Event:
 			obj = (MultiObjectState*)new EventObjectState();
 			break;
+		case ObjectType::Invalid:
+			return false;
 		}
 	}
 	else
@@ -177,6 +179,8 @@ bool MultiObjectState::StaticSerialize(BinaryStream& stream, MultiObjectState*& 
 		stream << (uint8&)obj->event.key;
 		stream << *&obj->event.data;
 		break;
+	case ObjectType::Invalid:
+		return false;
 	}
 
 	return true;

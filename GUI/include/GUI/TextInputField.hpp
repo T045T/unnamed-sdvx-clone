@@ -10,7 +10,7 @@ public:
 	virtual void PreRender(GUIRenderData rd, GUIElementBase*& inputElement) override;
 	virtual void Render(GUIRenderData rd) override;
 
-	virtual Vector2 GetDesiredSize(GUIRenderData rd);
+	virtual Vector2 GetDesiredSize(GUIRenderData rd) override;
 
 	// Set text of input field
 	virtual void SetText(const WString& newText);

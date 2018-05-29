@@ -24,10 +24,12 @@ namespace Graphics
 		virtual T Sample(float duration) = 0;
 		virtual T GetMax() = 0;
 		virtual IParticleParameter<T>* Duplicate() const = 0;
+
+		virtual ~IParticleParameter() {}
 	};
 
 	// Macro for implementing the Duplicate() function
-#define IMPLEMENT_DUPLICATE(__type, __self) IParticleParameter<__type>* Duplicate() const { return new __self(*this); }
+#define IMPLEMENT_DUPLICATE(__type, __self) IParticleParameter<__type>* Duplicate() const override { return new __self(*this); }
 
 	/* A constant value at all times */
 	template <typename T>
@@ -43,7 +45,7 @@ namespace Graphics
 			return val;
 		}
 
-		virtual T GetMax()
+		virtual T GetMax() override
 		{
 			return val;
 		}
@@ -74,7 +76,7 @@ namespace Graphics
 			return (max - min) * in + min;
 		}
 
-		virtual T GetMax()
+		virtual T GetMax() override
 		{
 			return Math::Max(max, min);
 		}
@@ -101,7 +103,7 @@ namespace Graphics
 			return (max - min) * in + min;
 		}
 
-		virtual T GetMax()
+		virtual T GetMax() override
 		{
 			return Math::Max(max, min);
 		}
@@ -136,7 +138,7 @@ namespace Graphics
 			}
 		}
 
-		virtual T GetMax()
+		virtual T GetMax() override
 		{
 			return Math::Max(max, min);
 		}
@@ -163,7 +165,7 @@ namespace Graphics
 							Random::FloatRange(-1.0f, 1.0f)) * radius;
 		}
 
-		virtual Vector3 GetMax()
+		virtual Vector3 GetMax() override
 		{
 			return Vector3(radius);
 		}
@@ -190,7 +192,7 @@ namespace Graphics
 			return offset;
 		}
 
-		virtual Vector3 GetMax()
+		virtual Vector3 GetMax() override
 		{
 			return size;
 		}
@@ -242,7 +244,7 @@ namespace Graphics
 			return v;
 		}
 
-		virtual Vector3 GetMax()
+		virtual Vector3 GetMax() override
 		{
 			return Vector3(0, 0, lengthMax);
 		}

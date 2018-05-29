@@ -123,7 +123,8 @@ bool Game::AsyncLoad()
 	String jacketPath = m_mapRootPath + "/" + mapSettings.jacketPath;
 	m_jacketImage = make_shared<ImageRes>(jacketPath);
 
-	m_gaugeSamples[256] = {0.0f};
+	std::fill(std::begin(m_gaugeSamples), std::end(m_gaugeSamples), 0.0f);
+
 	MapTime firstObjectTime = m_beatmap->GetLinearObjects().front()->time;
 	ObjectState*const* lastObj = &m_beatmap->GetLinearObjects().back();
 	MapTime lastObjectTime = (*lastObj)->time;

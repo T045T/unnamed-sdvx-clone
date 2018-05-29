@@ -71,8 +71,10 @@ namespace Utility
 	{
 		static char buffer[8000];
 #ifdef _WIN32
+#pragma GCC diagnostic ignored "-Wformat-security"
 		sprintf_s(buffer, fmt, SprintfArgFilter(args)...);
 #else
+#pragma GCC diagnostic ignored "-Wformat-security"
 		snprintf(buffer, 8000-1, fmt, SprintfArgFilter(args)...);
 #endif
 		return String(buffer);

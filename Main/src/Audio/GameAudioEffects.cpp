@@ -120,6 +120,11 @@ DSP* GameAudioEffect::CreateDSP(class AudioBase* audioTrack, AudioPlayback& play
 		ret = ps;
 		break;
 	}
+	default:
+	{
+		Logf("Unimplemented effect type, cannot create DSP", Logger::Warning);
+		break;
+	}
 	}
 
 	if (!ret)
@@ -187,6 +192,11 @@ void GameAudioEffect::SetParams(DSP* dsp, AudioPlayback& playback, HoldObjectSta
 	{
 		PitchShiftDSP* ps = (PitchShiftDSP*)dsp;
 		ps->amount = (float)object->effectParams[0];
+		break;
+	}
+	default:
+	{
+		Logf("Unimplemented effect type.", Logger::Warning);
 		break;
 	}
 	}

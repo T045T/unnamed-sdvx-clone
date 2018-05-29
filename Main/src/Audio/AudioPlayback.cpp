@@ -333,6 +333,12 @@ void AudioPlayback::m_SetLaserEffectParameter(float input)
 		ps->amount = m_laserEffect.pitchshift.amount.Sample(input);
 		break;
 	}
+	default:
+	{
+		// Nothing to do here
+		Logf("Unknown Laser effect type, not doing anything.", Logger::Warning);
+		break;
+	}
 	}
 }
 

@@ -928,7 +928,7 @@ void Scoring::m_UpdateLasers(float deltaTime)
 				{
 					laserPositions[i] = Math::Min(laserPositions[i] + input, laserTargetPositions[i]);
 				}
-				else if (laserDir < 0 && positionDelta > 0 || laserDir > 0 && positionDelta < 0)
+				else if ((laserDir < 0 && positionDelta > 0) || (laserDir > 0 && positionDelta < 0))
 				{
 					laserPositions[i] = laserPositions[i] + input;
 				}

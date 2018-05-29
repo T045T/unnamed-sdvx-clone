@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 
-#include "Shared/Types.hpp"
+#include "Shared/Shared.hpp"
 
 #include <memory>
 using std::shared_ptr;
