@@ -104,7 +104,7 @@ void Input::Update(float deltaTime)
 	{
 		for (uint32 i = 0; i < 2; i++)
 		{
-			if (m_mouseAxisMapping[i] < 0 || m_mouseAxisMapping[i] > 1)
+			if (m_mouseAxisMapping[i] > 1)
 			{
 				// INVALID MAPPING
 				m_laserStates[i] = 0.0f;

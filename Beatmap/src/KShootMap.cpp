@@ -248,7 +248,7 @@ bool KShootMap::GetTick(const KShootTime& time, KShootTick*& tickOut)
 	if (time.block >= blocks.size())
 		return false;
 	KShootBlock& b = blocks[time.block];
-	if (time.tick >= b.ticks.size() || time.tick < 0)
+	if (time.tick >= b.ticks.size())
 		return false;
 	tickOut = &b.ticks[time.tick];
 	return true;
