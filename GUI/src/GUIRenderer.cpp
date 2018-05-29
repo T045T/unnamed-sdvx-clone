@@ -4,14 +4,6 @@
 #include "GUI.hpp"
 #include <SDL2/SDL_keycode.h>
 
-// Asset loading macro
-#define CheckedLoad(__stmt)\
-	if(!(__stmt))\
-	{\
-		Logf("Failed to load asset [%s]", Logger::Error, #__stmt);\
-		throw runtime_error("Failed to load asset");\
-	}
-
 /**
  * \throws std::runtime_error on asset not found
  */

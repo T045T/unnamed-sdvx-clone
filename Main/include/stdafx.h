@@ -25,11 +25,3 @@
 #include <Graphics/Font.hpp>
 #include <Graphics/Framebuffer.hpp>
 using namespace Graphics;
-
-// Asset loading macro
-#define CheckedLoad(__stmt)\
-	if(!(__stmt))\
-	{\
-		Logf("Failed to load asset [%s]", Logger::Error, #__stmt);\
-		throw runtime_error("Failed to load asset");\
-	}

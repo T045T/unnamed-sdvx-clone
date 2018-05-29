@@ -1,6 +1,14 @@
 /* Shared library main include file */
 #pragma once
 
+// Asset loading macro
+#define CheckedLoad(__stmt)\
+	if(!(__stmt))\
+	{\
+		Logf("Failed to load asset [%s]", Logger::Error, #__stmt);\
+		throw runtime_error("Failed to load asset");\
+	}
+
 // Types
 #include "Types.hpp"
 #include <string>
