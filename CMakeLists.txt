@@ -98,6 +98,6 @@ add_subdirectory(GUI)
 add_subdirectory(Online)
 
 # Unit test projects
-#add_subdirectory(Tests)
-#add_subdirectory(Tests.Shared)
-#add_subdirectory(Tests.Game)
+add_subdirectory(Tests)
+add_subdirectory(Tests.Shared)
+add_subdirectory(Tests.Game)

@@ -79,7 +79,7 @@ bool TestManager::m_Begin()
 		throw TestFailure();
 	};
 
-	void (*oldSigHandler)(int) = 0;
+	// void (*oldSigHandler)(int) = 0;
 	if (!Debug::IsDebuggerAttached())
 	{
 		m_oldSigHandler = signal(SIGSEGV, SignalHandler);

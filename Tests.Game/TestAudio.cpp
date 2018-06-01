@@ -7,41 +7,48 @@
 #include <thread>
 using namespace std;
 
-static String testSamplePath = Path::Normalize("audio/laser_slam1.wav");
+static String testSamplePath = Path::Normalize("skins/Default/audio/laser_slam1.wav");
 
 // Test for music player
 //static String testSongPath = Path::Normalize("songs/CHNLDiVR/mix1.ogg");
 //static uint32 testSongOffset = 180000;
-static String testSongPath = Path::Normalize("songs/noise/noise.ogg");
+static String testSongPath = Path::Normalize("skins/Default/audio/applause.wav");
 static uint32 testSongOffset = 0;
 
 Test("Audio.Playback")
 {
+	Logf("### %s", Logger::Info, testSamplePath);
 	Audio* audio = new Audio();
-	TestEnsure(audio->Init());
+	//TestEnsure(audio->Init());
 
 	Sample testSample = audio->CreateSample(testSamplePath);
-	TestEnsure(testSample.IsValid());
+	TestEnsure(testSample != nullptr);
 
 	testSample->set_volume(1.0f);
 
 	Timer t;
-	float time = FLT_MAX;
+	float time = 0.0;
+	bool played = false;
 	while (true)
 	{
 		float deltaTime = t.SecondsAsFloat();
 		t.Restart();
 		time += deltaTime;
 		t.Restart();
-		if (time > 3.0f)
+		if (time > 1.5f)
 		{
+			if (played)
+			{
+				break;
+			}
 			Logf("Playing sample", Logger::Info);
 			testSample->Play();
 			time = 0.0;
+			played = true;
 		}
 		this_thread::sleep_for(chrono::milliseconds(5));
 	}
-
+	testSample.reset();
 	delete audio;
 }
 
@@ -59,6 +66,7 @@ Test("Audio.Music.Phaser")
 			phaser->dmin = 800.0f;
 			phaser->dmax = 1000.0f;
 			phaser->fb = 0.8f;
+			assert(song != nullptr);
 			song->AddDSP(phaser);
 			phaser->SetLength(1000);
 		}

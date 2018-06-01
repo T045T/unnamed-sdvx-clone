@@ -77,6 +77,6 @@ public:
 	}
 
 private:
-	TestManager* m_testManager;
 	String m_name;
+	TestManager* m_testManager;
 };

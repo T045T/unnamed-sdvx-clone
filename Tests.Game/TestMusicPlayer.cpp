@@ -12,10 +12,9 @@ TestMusicPlayer::TestMusicPlayer()
 void TestMusicPlayer::Init(const String& songPath, uint32 startOffset)
 {
 	audio = new Audio();
-	TestEnsure(audio->Init());
 
 	song = audio->CreateStream(songPath);
-	TestEnsure(song.IsValid());
+	TestEnsure(song != nullptr);
 
 	song->Play();
 	song->SetPosition(startOffset);
