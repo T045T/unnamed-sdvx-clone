@@ -90,7 +90,7 @@ static Vector<FileInfo> _ScanFiles(String rootFolder, String extFilter, bool rec
 		closedir(dir);
 	}
 
-	return move(ret);
+	return ret;
 }
 
 Vector<FileInfo> Files::ScanFiles(const String& folder, String extFilter, bool* interrupt)

@@ -29,10 +29,10 @@ struct TempLaserState
 	{ }
 
 	// Timing point at which this segment started
-	TimingPoint* tpStart;
 	MapTime startTime;
-	uint32 numTicks = 0;
 	uint32 effectType = 0;
+	TimingPoint* tpStart;
+	uint32 numTicks = 0;
 	char spinType = 0;
 	uint32 spinDuration = 0;
 	uint8 effectParams = 0;
@@ -840,7 +840,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 			{
 				// Create new hold state
 				state = new TempButtonState(mapTime);
-				uint32 div = (uint32)block.ticks.size();
+				// uint32 div = (uint32)block.ticks.size();
 
 				if (lastHoldObject)
 					state->lastHoldObject = lastHoldObject;
@@ -937,7 +937,7 @@ bool Beatmap::m_ProcessKShootMap(BinaryStream& input, bool metadataOnly)
 
 					// Create new hold state
 					state = new TempButtonState(mapTime);
-					uint32 div = (uint32)block.ticks.size();
+					// uint32 div = (uint32)block.ticks.size();
 
 					if (i < 4)
 					{

@@ -64,7 +64,7 @@ private:
 	//Text m_title;
 	//Text m_artist;
 	BeatmapSettings m_settings;
-	float m_progress = 0.5f;
+	// float m_progress = 0.5f;
 	String m_jacketPath;
 	Texture m_jacketImage;
 };

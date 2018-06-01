@@ -112,7 +112,7 @@ private:
 	uint32 m_length = 0;
 	Vector<float> m_sampleBuffer;
 	float m_sampleIdx = 0.0f;
-	uint32 m_lastSample = 0;
+	// uint32 m_lastSample = 0;
 	uint32 m_currentSample = 0;
 };
 

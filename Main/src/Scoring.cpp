@@ -449,7 +449,7 @@ void Scoring::m_OnObjectEntered(ObjectState* obj)
 	}
 	else if (obj->type == ObjectType::Hold)
 	{
-		const TimingPoint* tp = m_playback->GetTimingPointAt(obj->time);
+		// const TimingPoint* tp = m_playback->GetTimingPointAt(obj->time);
 		HoldObjectState* hold = (HoldObjectState*)obj;
 
 		// Add all hold ticks
@@ -533,7 +533,7 @@ void Scoring::m_UpdateTicks()
 		{
 			ScoreTick* tick = ticks[i];
 			MapTime delta = currentTime - ticks[i]->time;
-			bool shouldMiss = delta > tick->GetHitWindow();
+			// bool shouldMiss = delta > tick->GetHitWindow();
 			bool processed = false;
 			if (delta >= 0)
 			{
@@ -1010,7 +1010,7 @@ MapTotals Scoring::CalculateMapTotals() const
 	for (auto& _obj : objects)
 	{
 		MultiObjectState* obj = *_obj;
-		const TimingPoint* tp = m_playback->GetTimingPointAt(obj->time);
+		// const TimingPoint* tp = m_playback->GetTimingPointAt(obj->time);
 		if (obj->type == ObjectType::Single)
 		{
 			ret.maxScore += (uint32)ScoreHitRating::Perfect;

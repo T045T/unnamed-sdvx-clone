@@ -15,7 +15,6 @@ FilterSelection::FilterSelection(shared_ptr<SongSelectionWheel> selectionWheel)
 
 bool FilterSelection::IsAll()
 {
-	bool isFiltered = false;
 	for (auto& m_currentFilter : m_currentFilters)
 	{
 		if (!m_currentFilter->IsAll())

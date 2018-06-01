@@ -183,8 +183,6 @@ bool Track::AsyncFinalize()
 	trackOverlay->opaque = false;
 
 	// Combo number meshes for the combo sprite sheet
-	Vector2i comboFontSize = comboSpriteSheet->GetSize();
-	Vector2i comboFontSizePerCharacter = comboFontSize / Vector2i(10, 1);
 	Vector2 comboFontTexCoordSize = Vector2(1.0f / 10.0f, 1.0f);
 	for (uint32 i = 0; i < 10; i++)
 	{
@@ -231,7 +229,7 @@ void Track::Tick(class BeatmapPlayback& playback, float deltaTime)
 	}
 
 	// Calculate track origin transform
-	uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
+	// uint8 portrait = g_aspectRatio > 1.0f ? 0 : 1;
 
 	// Button Hit FX
 	for (auto it = m_hitEffects.begin(); it != m_hitEffects.end();)
@@ -348,7 +346,7 @@ void Track::DrawObjectState(RenderQueue& rq, class BeatmapPlayback& playback, Ob
 	// Calculate height based on time on current track
 	float viewRange = trackViewRange.y - trackViewRange.x;
 	float position = playback.TimeToViewDistance(obj->time) / viewRange;
-	float glow = 0.0f;
+	// float glow = 0.0f;
 
 	if (obj->type == ObjectType::Single || obj->type == ObjectType::Hold)
 	{

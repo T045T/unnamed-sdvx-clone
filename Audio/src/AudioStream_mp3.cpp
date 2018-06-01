@@ -15,7 +15,6 @@ class AudioStreamMP3_Impl : public AudioStreamBase
 	uint8* m_dataSource = 0;
 
 	Map<int32, size_t> m_frameIndices;
-	uint32 m_largetsFrameIndex;
 
 	bool m_firstFrame = true;
 
@@ -81,12 +80,12 @@ public:
 				if ((m_dataSource[i + 1] & 0xE0) == 0xE0) // Frame Sync
 				{
 					uint8 version = (m_dataSource[i + 1] & 0x18) >> 3;
-					uint8 layer = (m_dataSource[i + 1] & 0x06) >> 1;
-					bool crc = (m_dataSource[i + 1] & 0x01) != 0;
+					// uint8 layer = (m_dataSource[i + 1] & 0x06) >> 1;
+					// bool crc = (m_dataSource[i + 1] & 0x01) != 0;
 					uint8 bitrateIndex = (m_dataSource[i + 2] & 0xF0) >> 4;
 					uint8 rateIndex = (m_dataSource[i + 2] & 0x0C) >> 2;
 					bool paddingEnabled = ((m_dataSource[i + 2] & 0x02) >> 1) != 0;
-					uint8 channelFlags = ((m_dataSource[i + 3] & 0xC0) >> 6);
+					// uint8 channelFlags = ((m_dataSource[i + 3] & 0xC0) >> 6);
 					if (bitrateIndex == 0xF || rateIndex > 2) // bad
 					{
 						return false;
@@ -94,7 +93,7 @@ public:
 						continue;
 					}
 
-					uint8 channels = ((channelFlags & 0x3) == 0x3) ? 1 : 2;
+					// uint8 channels = ((channelFlags & 0x3) == 0x3) ? 1 : 2;
 
 					uint32 linearVersion = version == 0x03 ? 0 : 1; // Version 1/2
 					uint32 bitrate = mp3_bitrate_tab[linearVersion][bitrateIndex] * 1000;

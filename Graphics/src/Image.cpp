@@ -136,7 +136,7 @@ namespace Graphics
 		{
 			jpeg_create_decompress(&cinfo);
 			jpeg_mem_src(&cinfo, in.data(), (uint32)in.size());
-			int res = jpeg_read_header(&cinfo, TRUE);
+			(void) jpeg_read_header(&cinfo, TRUE);
 
 			jpeg_start_decompress(&cinfo);
 			int row_stride = cinfo.output_width * cinfo.output_components;

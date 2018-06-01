@@ -251,8 +251,8 @@ namespace Graphics
 
 		IMPLEMENT_DUPLICATE(Vector3, PPCone);
 	private:
-		float lengthMin, lengthMax;
 		float angle;
+		float lengthMin, lengthMax;
 		Transform mat;
 	};
 

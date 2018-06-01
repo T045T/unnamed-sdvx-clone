@@ -175,7 +175,7 @@ bool Database::Open(const String& path)
 DBStatement Database::Query(const String& queryString)
 {
 	DBStatement statement(queryString, this);
-	return std::move(statement);
+	return statement;
 }
 
 bool Database::Exec(const String& queryString)

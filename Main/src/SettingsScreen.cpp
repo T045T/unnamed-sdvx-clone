@@ -264,7 +264,7 @@ bool SettingsScreen::Init()
 			auto lpanel = std::make_shared<Panel>();
 			m_laserColorPanels[0] = lpanel;
 			lpanel->texture = m_whiteTex;
-			LayoutBox::Slot* lslot = colorBox->Add(lpanel);
+			(void) colorBox->Add(lpanel);
 		}
 
 		{

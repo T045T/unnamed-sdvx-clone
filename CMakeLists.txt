@@ -86,6 +86,8 @@ find_library(VORBIS_ENC_LIBRARY vorbisenc)
 find_library(OGG_LIBRARY ogg)
 find_library(DISCORD_RPC_LIBRARY discord-rpc)
 
+add_definitions(-Wall)
+
 # Sub-Project directories
 add_subdirectory(Shared)
 add_subdirectory(Graphics)

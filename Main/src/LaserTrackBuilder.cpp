@@ -306,7 +306,7 @@ void LaserTrackBuilder::m_RecalculateConstants()
 	assert(laserTextureSize.x == laserTextureSize.y); // Use Square texture
 	const float laserCenterAmount = ((float)laserTextureSize.x - ((float)laserBorderPixels * 2)) / (float)(laserTextureSize
 		.x);
-	const float laserBorderAmount = (1.0f - laserCenterAmount);
+	// const float laserBorderAmount = (1.0f - laserCenterAmount);
 
 	// The uv coordinates to sample the laser without the border, or only the border
 	textureBorder = (float)laserBorderPixels / laserTextureSize.x;

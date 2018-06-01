@@ -268,8 +268,8 @@ public:
 			m_playbackPointer -= m_playbackPointer % m_format.nBlockAlign;
 			decoded.resize(m_format.nBlockAlign * m_format.nChannels * sizeof(short));
 			uint32 decodedCount = m_decode_ms_adpcm(m_Internaldata, &decoded, m_playbackPointer);
-			uint32 samplesInserted = 0;
-			uint64 bufferOffset = 0;
+			// uint32 samplesInserted = 0;
+			// uint64 bufferOffset = 0;
 			for (uint32 i = 0; i < decodedCount; i++)
 			{
 				int16* src = ((int16*)decoded.data()) + (i * 2);

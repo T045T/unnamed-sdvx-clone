@@ -20,7 +20,7 @@ namespace Graphics
 	{
 	public:
 		OpenGL() = default;
-		~OpenGL();
+		virtual ~OpenGL();
 		bool Init(Window& window);
 		void UnbindFramebuffer();
 

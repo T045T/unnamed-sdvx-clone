@@ -314,7 +314,7 @@ shared_ptr<SongSelectItem> SongSelectionWheel::m_GetMapGUIElement(SongSelectInde
 	shared_ptr<SongSelectItem> newItem = make_shared<SongSelectItem>(m_style);
 
 	// Send first map as metadata settings
-	const BeatmapSettings& firstSettings = index.GetDifficulties()[0]->settings;
+	// const BeatmapSettings& firstSettings = index.GetDifficulties()[0]->settings;
 	newItem->SetIndex(index);
 	m_guiElements.Add(index.id, newItem);
 	return newItem;

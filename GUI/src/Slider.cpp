@@ -29,7 +29,6 @@ void Slider::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 
 	m_cachedButtonRect = m_CalculateButtonRect(m_value);
 
-	bool lastHovered = m_hovered;
 	m_hovered = rd.OverlapTest(m_cachedButtonRect);
 	if (m_hovered && rd.guiRenderer->GetMouseButtonPressed(MouseButton::Left) && showButton)
 	{
@@ -79,7 +78,6 @@ void Slider::Render(GUIRenderData rd)
 {
 	m_TickAnimations(rd.deltaTime);
 
-	float actualValue = m_value;
 	Rect buttonRect = m_cachedButtonRect;
 
 	if (m_held)

@@ -10,7 +10,7 @@ void HealthGauge::Render(GUIRenderData rd)
 {
 	// Calculate bar placement to fit parent rectangle
 	Rect barArea = GUISlotBase::ApplyFill(FillMode::Fit, frontTexture->GetSize(), rd.area);
-	float elementScale = barArea.size.x / frontTexture->GetSize().x; // Scale of the original bar
+	// float elementScale = barArea.size.x / frontTexture->GetSize().x; // Scale of the original bar
 	GUISlotBase::ApplyAlignment(Vector2(0.5f), barArea, rd.area);
 
 	// Optional Bg?

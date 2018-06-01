@@ -25,7 +25,6 @@ public:
 	// Apply anchor to an input rectangle
 	Rect Apply(const Rect& in)
 	{
-		Vector2 delta = Delta();
 		Vector2 topLeft = in.pos + in.size * TopLeft();
 		Vector2 bottomRight = in.pos + in.size * BottomRight();
 		return Rect(topLeft, bottomRight - topLeft);

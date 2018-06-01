@@ -33,7 +33,7 @@ public:
 			return false;
 		}
 
-		vorbis_comment* comments = ov_comment(&m_ovf, 0);
+		// vorbis_comment* comments = ov_comment(&m_ovf, 0);
 		m_info = ov_info(&m_ovf, 0);
 		if (!m_info)
 			return false;

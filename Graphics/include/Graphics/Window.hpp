@@ -48,7 +48,7 @@ namespace Graphics
 		void SetCursor(shared_ptr<class ImageRes> image, Vector2i hotspot = Vector2i(0, 0));
 		void SetCursorVisible(bool visible) const;
 
-		void SetWindowStyle(WindowStyle style) const;
+		void SetWindowStyle(WindowStyle style);
 
 		Vector2i get_window_pos() const;
 		void set_window_pos(const Vector2i& pos) const;

@@ -51,8 +51,6 @@ shared_ptr<SettingBarSetting> SettingsBar::AddSetting(float* target, float min, 
 {
 	auto setting = make_shared<SettingBarSetting>();
 	setting->name = Utility::ConvertToWString(name);
-	const wchar_t* nw = *setting->name;
-	const char* na = *name;
 	setting->floatSetting.target = target;
 	setting->floatSetting.min = min;
 	setting->floatSetting.max = max;
@@ -87,8 +85,6 @@ shared_ptr<SettingBarSetting> SettingsBar::AddSetting(int* target, Vector<String
 {
 	auto setting = make_shared<SettingBarSetting>();
 	setting->name = Utility::ConvertToWString(name);
-	const wchar_t* nw = *setting->name;
-	const char* na = *name;
 	setting->textSetting.target = target;
 	setting->textSetting.options = new Vector<String>(options);
 	setting->textSetting.optionsCount = optionsCount;

@@ -9,4 +9,7 @@
 #define _EXPAND(__x) __x
 #define EXPAND(__x) _EXPAND(__x)
 
+#if !defined(_CONCAT)
+#define _CONCAT(__a, __b) __a##__b
+#endif
 #define CONCAT(__a, __b) _CONCAT(__a, __b)

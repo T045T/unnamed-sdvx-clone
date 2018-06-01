@@ -155,7 +155,7 @@ bool ScoreScreen::AsyncLoad()
 			auto label = std::make_shared<Label>();
 			label->SetText(Utility::ConvertToWString(text));
 			label->SetFontSize(48 * scale);
-			LayoutBox::Slot* slot = metadataContainer->Add(label);
+			(void) metadataContainer->Add(label);
 		};
 
 		// Title/Artist/Effector/Etc.

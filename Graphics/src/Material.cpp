@@ -155,7 +155,6 @@ namespace Graphics
 			const uint32 loc = glGetUniformLocation(handle, name);
 
 			// Select type
-			uint32 textureID = 0;
 			String typeName = "Unknown";
 			if (type == GL_SAMPLER_2D)
 			{
@@ -186,7 +185,7 @@ namespace Graphics
 					targetID = m_mappedParameters.Add(name, m_userID++);
 			}
 
-			BoundParameterInfo& param = m_boundParameters.FindOrAdd(targetID).Add(BoundParameterInfo(t, type, loc));
+			(void) m_boundParameters.FindOrAdd(targetID).Add(BoundParameterInfo(t, type, loc));
 
 #ifdef _DEBUG
 			Logf("Uniform [%d, loc=%d, %s] = %s", Logger::Info,

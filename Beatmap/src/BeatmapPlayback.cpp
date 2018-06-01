@@ -41,7 +41,7 @@ bool BeatmapPlayback::Reset(MapTime startTime)
 
 void BeatmapPlayback::Update(MapTime newTime)
 {
-	MapTime delta = newTime - m_playbackTime;
+	// MapTime delta = newTime - m_playbackTime;
 	if (newTime < m_playbackTime)
 	{
 		// Don't allow backtracking
@@ -60,8 +60,8 @@ void BeatmapPlayback::Update(MapTime newTime)
 	}
 
 	// Count bars
-	int32 beatID = 0;
-	uint32 nBeats = CountBeats(m_playbackTime - delta, delta, beatID);
+	// int32 beatID = 0;
+	// uint32 nBeats = CountBeats(m_playbackTime - delta, delta, beatID);
 	const TimingPoint& tp = GetCurrentTimingPoint();
 	double effectiveTime = ((double)newTime - tp.time); // Time with offset applied
 	m_barTime = (float)fmod(effectiveTime / (tp.beatDuration * tp.numerator), 1.0);
@@ -274,10 +274,10 @@ Set<ObjectState*>& BeatmapPlayback::GetHittableObjects()
 
 Vector<ObjectState*> BeatmapPlayback::GetObjectsInRange(MapTime range)
 {
-	static const uint32 earlyVisiblity = 200;
-	const TimingPoint& tp = GetCurrentTimingPoint();
+	// static const uint32 earlyVisiblity = 200;
+	// const TimingPoint& tp = GetCurrentTimingPoint();
 	MapTime end = m_playbackTime + range;
-	MapTime begin = m_playbackTime - earlyVisiblity;
+	// MapTime begin = m_playbackTime - earlyVisiblity;
 	Vector<ObjectState*> ret;
 
 	// Add hold objects

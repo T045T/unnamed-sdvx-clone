@@ -109,7 +109,7 @@ TimedHitEffect::TimedHitEffect(bool late)
 void TimedHitEffect::Draw(class RenderQueue& rq)
 {
 	float x = 0.0f;
-	float w = track->buttonWidth * 2;
+	// float w = track->buttonWidth * 2;
 	float y = 0.5f;
 
 	float iScale = 1.0f;

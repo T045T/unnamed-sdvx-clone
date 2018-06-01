@@ -128,7 +128,7 @@ bool SongSelect::Init()
 		m_filterStatus = std::make_shared<Label>();
 		m_filterStatus->SetFontSize(40);
 		m_filterStatus->SetText(L"All / All");
-		LayoutBox::Slot* filterLabelSlot = box->Add(m_filterStatus);
+		(void) box->Add(m_filterStatus);
 
 		m_selectionWheel = std::make_shared<SongSelectionWheel>(m_style);
 		LayoutBox::Slot* selectionSlot = box->Add(std::dynamic_pointer_cast<GUIElementBase>(m_selectionWheel));

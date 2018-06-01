@@ -150,7 +150,7 @@ SongSelectItem::SongSelectItem(std::shared_ptr<SongSelectStyle> style)
 	{
 		m_mainVert = std::make_shared<LayoutBox>();
 		m_mainVert->layoutDirection = LayoutBox::Vertical;
-		Slot* slot = Add(m_mainVert);
+		(void) Add(m_mainVert);
 	}
 
 	// Add Titles

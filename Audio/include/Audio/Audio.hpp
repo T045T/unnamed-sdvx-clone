@@ -1,5 +1,6 @@
 #pragma once
 #include "AudioStream.hpp"
+#include "DSP.hpp"
 #include "Sample.hpp"
 #include "AudioOutput.hpp"
 #include <thread>
@@ -16,7 +17,7 @@ class Audio : Unique, IMixer
 {
 public:
 	Audio();
-	~Audio();
+	virtual ~Audio();
 
 	void start();
 	void stop();
@@ -55,12 +56,11 @@ private:
 	float globalVolume = 1.0f;
 
 	thread audioThread;
-	bool runAudioThread = false;
-	
+
 	Vector<AudioBase*> itemsToRender;
 	Vector<DSP*> globalDSPs;
 
-	class LimiterDSP* limiter = nullptr;
+	LimiterDSP* limiter = nullptr;
 
 	// Calculated audio latency by the audio driver (currently unused)
 	int64 audioLatency;

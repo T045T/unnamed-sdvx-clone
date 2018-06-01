@@ -308,9 +308,22 @@ namespace Graphics
 	/**
 	 * \brief Switches between borderless and windowed
 	 */
-	void Window::SetWindowStyle(WindowStyle style) const
+	void Window::SetWindowStyle(WindowStyle style)
 	{
-		SetWindowStyle(style);
+		if (!m_fullscreen)
+		{
+			switch(style)
+			{
+				case WindowStyle::Windowed:
+					SDL_SetWindowFullscreen(m_window, 0);
+					m_fullscreen = false;
+					break;
+				case WindowStyle::Borderless:
+					SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+					m_fullscreen = false;
+					break;
+			}
+		}
 	}
 
 	/**

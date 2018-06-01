@@ -125,7 +125,7 @@ bool Game::AsyncLoad()
 
 	std::fill(std::begin(m_gaugeSamples), std::end(m_gaugeSamples), 0.0f);
 
-	MapTime firstObjectTime = m_beatmap->GetLinearObjects().front()->time;
+	// MapTime firstObjectTime = m_beatmap->GetLinearObjects().front()->time;
 	ObjectState*const* lastObj = &m_beatmap->GetLinearObjects().back();
 	MapTime lastObjectTime = (*lastObj)->time;
 
@@ -748,7 +748,7 @@ void Game::TickGameplay(float deltaTime)
 		}
 	}
 
-	const BeatmapSettings& beatmapSettings = m_beatmap->GetMapSettings();
+	// const BeatmapSettings& beatmapSettings = m_beatmap->GetMapSettings();
 
 	// Update beatmap playback
 	MapTime playbackPositionMs = m_audioPlayback.GetPosition() - m_audioOffset;
@@ -1136,7 +1136,7 @@ void Game::ApplyAudioLeadin()
 void Game::RenderDebugHUD(float deltaTime)
 {
 	// Render debug overlay elements
-	RenderQueue& debugRq = g_guiRenderer->Begin();
+	// RenderQueue& debugRq = g_guiRenderer->Begin();
 	auto RenderText = [&](const String& text, const Vector2& pos, const Color& color = Color::White)
 	{
 		return g_guiRenderer->RenderText(text, pos, color);
@@ -1145,7 +1145,7 @@ void Game::RenderDebugHUD(float deltaTime)
 	Vector2 canvasRes = GUISlotBase::ApplyFill(FillMode::Fit, Vector2(640, 480),
 		Rect(0, 0, g_resolution.x, g_resolution.y)).size;
 	Vector2 topLeft = Vector2(g_resolution / 2 - canvasRes / 2);
-	Vector2 bottomRight = topLeft + canvasRes;
+	// Vector2 bottomRight = topLeft + canvasRes;
 	topLeft.y = Math::Min(topLeft.y, g_resolution.y * 0.2f);
 
 	const BeatmapSettings& bms = m_beatmap->GetMapSettings();
@@ -1181,7 +1181,7 @@ void Game::RenderDebugHUD(float deltaTime)
 		textPos.y += RenderText("Autoplay enabled", textPos, Color::Blue).y;
 
 	// List recent hits and their delay
-	Vector2 tableStart = textPos;
+	// Vector2 tableStart = textPos;
 	uint32 hitsShown = 0;
 	// Show all hit debug info on screen (up to a maximum)
 	for (auto it = m_scoring.hitStats.rbegin(); it != m_scoring.hitStats.rend(); it++)

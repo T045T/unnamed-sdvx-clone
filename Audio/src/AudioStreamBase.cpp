@@ -37,7 +37,6 @@ void AudioStreamBase::InitSampling(uint32 sampleRate)
 	// Calculate the sample step if the rate is not the same as the output rate
 	double sampleStep = (double)sampleRate / (double)m_audio->GetSampleRate();
 	m_sampleStepIncrement = (uint64)(sampleStep * (double)fp_sampleStep);
-	double stepCheck = (double)m_sampleStepIncrement / (double)fp_sampleStep;
 
 	m_numChannels = 2;
 	m_readBuffer = new float*[m_numChannels];

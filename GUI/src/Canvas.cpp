@@ -35,7 +35,6 @@ void Canvas::Render(GUIRenderData rd)
 
 class Canvas::Slot* Canvas::Add(GUIElement element)
 {
-	bool found = false;
 	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
 		if ((*it)->element == element)

@@ -5,9 +5,6 @@
 
 namespace Graphics
 {
-	static uint32 maxHeight = 1024;
-	static uint32 border = 2;
-
 	SpriteMapRes::SpriteMapRes()
 	{
 		m_image = make_shared<ImageRes>();
@@ -104,8 +101,6 @@ namespace Graphics
 				}
 				else
 				{
-					int32 remainingX = (m_image->GetSize().x - m_usedSize);
-
 					// Resize image
 					int32 largestDim = Math::Max(m_usedSize + requestedSize.x,
 						Math::Max(m_image->GetSize().y, requestedSize.y));
@@ -134,6 +129,8 @@ namespace Graphics
 	{
 		Vector2i dstSize = dst->GetSize();
 		Vector2i srcSize = src->GetSize();
+
+		assert(dstSize.x >= srcSize.x && dstSize.y >= srcSize.y);
 
 		Colori* pSrc = src->GetBits();
 		uint32 nDstPitch = dst->GetSize().x;

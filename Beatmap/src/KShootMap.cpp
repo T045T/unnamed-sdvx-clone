@@ -28,7 +28,7 @@ KShootTime::operator bool() const
 }
 
 KShootMap::TickIterator::TickIterator(KShootMap& map, KShootTime start /*= KShootTime(0, 0)*/)
-	: m_time(start), m_map(map)
+	: m_map(map), m_time(start)
 {
 	if (!m_map.GetBlock(m_time, m_currentBlock))
 		m_currentBlock = nullptr;

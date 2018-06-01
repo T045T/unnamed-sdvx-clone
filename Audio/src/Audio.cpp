@@ -16,8 +16,6 @@ void Audio::Mix(float* data, uint32& numSamples)
 
 	// Per-Channel data buffer
 	auto tempData = new float[m_sampleBufferLength * 2 + guardBand];
-	uint32* guardBuffer = reinterpret_cast<uint32*>(tempData) + 2 * m_sampleBufferLength;
-	double adv = get_seconds_per_sample();
 
 	uint32 outputChannels = this->output->GetNumChannels();
 	memset(data, 0, numSamples * sizeof(float) * outputChannels);
@@ -32,42 +30,43 @@ void Audio::Mix(float* data, uint32& numSamples)
 			memset(m_sampleBuffer, 0, sizeof(float) * 2 * m_sampleBufferLength);
 
 			// Render items
-			lock.lock();
-			for (auto& item : itemsToRender)
 			{
-				// Clearn per-channel data (and guard buffer in debug mode)
-				memset(tempData, 0, sizeof(float) * (2 * m_sampleBufferLength + guardBand));
-				item->Process(tempData, m_sampleBufferLength);
-#if _DEBUG
-				// Check for memory corruption
-				for (uint32 i = 0; i < guardBand; i++)
+				std::scoped_lock l(lock);
+				for (auto& item : itemsToRender)
 				{
-					assert(guardBuffer[i] == 0);
-				}
+					// Clearn per-channel data (and guard buffer in debug mode)
+					memset(tempData, 0, sizeof(float) * (2 * m_sampleBufferLength + guardBand));
+					item->Process(tempData, m_sampleBufferLength);
+#if _DEBUG
+					// Check for memory corruption
+					for (uint32 i = 0; i < guardBand; i++)
+					{
+						assert(guardBuffer[i] == 0);
+					}
 #endif
-				item->ProcessDSPs(tempData, m_sampleBufferLength);
+					item->ProcessDSPs(tempData, m_sampleBufferLength);
 #if _DEBUG
-				// Check for memory corruption
-				for (uint32 i = 0; i < guardBand; i++)
-				{
-					assert(guardBuffer[i] == 0);
-				}
+					// Check for memory corruption
+					for (uint32 i = 0; i < guardBand; i++)
+					{
+						assert(guardBuffer[i] == 0);
+					}
 #endif
 
-				// Mix into buffer and apply volume scaling
-				for (uint32 i = 0; i < m_sampleBufferLength; i++)
+					// Mix into buffer and apply volume scaling
+					for (uint32 i = 0; i < m_sampleBufferLength; i++)
+					{
+						m_sampleBuffer[i * 2 + 0] += tempData[i * 2] * item->get_volume();
+						m_sampleBuffer[i * 2 + 1] += tempData[i * 2 + 1] * item->get_volume();
+					}
+				}
+
+				// Process global DSPs
+				for (auto dsp : globalDSPs)
 				{
-					m_sampleBuffer[i * 2 + 0] += tempData[i * 2] * item->get_volume();
-					m_sampleBuffer[i * 2 + 1] += tempData[i * 2 + 1] * item->get_volume();
+					dsp->Process(m_sampleBuffer, m_sampleBufferLength);
 				}
 			}
-
-			// Process global DSPs
-			for (auto dsp : globalDSPs)
-			{
-				dsp->Process(m_sampleBuffer, m_sampleBufferLength);
-			}
-			lock.unlock();
 
 			// Apply volume levels
 			for (uint32 i = 0; i < m_sampleBufferLength; i++)
@@ -103,6 +102,11 @@ void Audio::Mix(float* data, uint32& numSamples)
 
 void Audio::start()
 {
+	std::scoped_lock l(lock);
+	if (m_sampleBuffer || limiter) {
+		Logf("Audio.start() called twice!", Logger::Error);
+		return;
+	}
 	m_sampleBuffer = new float[2 * m_sampleBufferLength];
 
 	limiter = new LimiterDSP();
@@ -114,9 +118,11 @@ void Audio::start()
 
 void Audio::stop()
 {
+	std::scoped_lock l(lock);
 	output->Stop();
-	delete limiter;
+	delete (LimiterDSP*) limiter;
 	globalDSPs.Remove(limiter);
+	limiter = nullptr;
 
 	delete[] m_sampleBuffer;
 	m_sampleBuffer = nullptr;
@@ -124,18 +130,16 @@ void Audio::stop()
 
 void Audio::Register(AudioBase* audio)
 {
-	lock.lock();
+	std::scoped_lock l(lock);
 	itemsToRender.AddUnique(audio);
 	audio->audio = this;
-	lock.unlock();
 }
 
 void Audio::Deregister(AudioBase* audio)
 {
-	lock.lock();
+	std::scoped_lock l(lock);
 	itemsToRender.Remove(audio);
 	audio->audio = nullptr;
-	lock.unlock();
 }
 
 /**

@@ -138,7 +138,7 @@ Vector<String> Path::SplitCommandLine(const String& input)
 Vector<String> Path::SplitCommandLine(int argc, char** argv)
 {
 	Vector<String> res;
-	for (int i = 0; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		String a = argv[i];
 		a.Trim();

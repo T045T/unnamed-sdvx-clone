@@ -164,7 +164,6 @@ void ScrollBox::m_OnSetScroll(float val)
 void ScrollBox::Slot::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	// Apply scrolling
-	ScrollBox* sb = (ScrollBox*)parent;
 	rd.area.pos.y -= m_scroll;
 	m_cachedArea = rd.area;
 	element->PreRender(rd, inputElement);

@@ -77,7 +77,6 @@ Vector2 LayoutBox::GetDesiredSize(GUIRenderData rd)
 
 LayoutBox::Slot* LayoutBox::Add(GUIElement element)
 {
-	bool found = false;
 	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{
 		if ((*it)->element == element)
@@ -142,7 +141,6 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 		fixedSize *= fixedScale;
 	}
 
-	float offset = 0.0f;
 	Vector<float> ret;
 	for (auto it = m_children.begin(); it != m_children.end(); it++)
 	{

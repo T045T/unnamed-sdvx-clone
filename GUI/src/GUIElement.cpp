@@ -94,7 +94,7 @@ GUISlotBase::~GUISlotBase()
 void GUISlotBase::PreRender(GUIRenderData rd, GUIElementBase*& inputElement)
 {
 	// Apply padding
-	Rect scissorRect = rd.area = padding.Apply(rd.area);
+	rd.area = padding.Apply(rd.area);
 
 	// Store area
 	m_cachedArea = rd.area;
