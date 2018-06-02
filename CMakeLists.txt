@@ -23,7 +23,9 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 add_definitions(-DUNICODE -D_UNICODE)
 
 # Explicitly set _DEBUG define, since non-Windows platforms don't have it
-set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG")
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG")
+endif()
 
 # Precompiled header macro
 #	src 	= Path to source files
