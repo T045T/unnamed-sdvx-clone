@@ -22,6 +22,9 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 #	this is mainly for windows functions either being defined to call A or W prefixed functions
 add_definitions(-DUNICODE -D_UNICODE)
 
+# Explicitly set _DEBUG define, since non-Windows platforms don't have it
+set(CMAKE_CXX_FLAGS_DEBUG "-D_DEBUG")
+
 # Precompiled header macro
 #	src 	= Path to source files
 #	pchSrc 	= Path to precompiled header source file

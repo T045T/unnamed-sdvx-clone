@@ -16,6 +16,9 @@ void Audio::Mix(float* data, uint32& numSamples)
 
 	// Per-Channel data buffer
 	auto tempData = new float[m_sampleBufferLength * 2 + guardBand];
+#if _DEBUG
+	uint32* guardBuffer = reinterpret_cast<uint32*>(tempData) + 2 * m_sampleBufferLength;
+#endif
 
 	uint32 outputChannels = this->output->GetNumChannels();
 	memset(data, 0, numSamples * sizeof(float) * outputChannels);
