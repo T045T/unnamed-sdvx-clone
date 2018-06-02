@@ -149,9 +149,9 @@ RenderState Camera::CreateRenderState(bool clipped)
 	track->trackOrigin *= Transform::Translation(Vector3(0.0f, -targetHeight, -targetNear));
 
 	// Calculate clipping distances
-	// Vector3 cameraPos = cameraTransform.TransformDirection(-Vector3(cameraTransform.GetPosition()));
-	// Vector3 cameraDir = cameraTransform.TransformDirection(Vector3(0.0f, 0.0f, 1.0f));
-	// float offset = VectorMath::Dot(cameraPos, cameraDir);
+	Vector3 cameraPos = cameraTransform.TransformDirection(-Vector3(cameraTransform.GetPosition()));
+	Vector3 cameraDir = cameraTransform.TransformDirection(Vector3(0.0f, 0.0f, 1.0f));
+	float offset = VectorMath::Dot(cameraPos, cameraDir);
 
 	Vector3 toTrackEnd = Vector3(0, 0, 0) - Vector3(0.0f, targetNear + track->trackLength, -targetHeight);
 	float distToTrackEnd = sqrtf(toTrackEnd.x * toTrackEnd.x + toTrackEnd.y * toTrackEnd.y + toTrackEnd.z * toTrackEnd.z);
@@ -166,11 +166,15 @@ RenderState Camera::CreateRenderState(bool clipped)
 
 	m_pitch = base_pitch - pitchOffset;
 
-	// float d0 = VectorMath::Dot(Vector3(0.0f, 0.0f, 0.0f), cameraDir) + offset;
+	float d0 = VectorMath::Dot(Vector3(0.0f, 0.0f, 1.0f), cameraDir) + offset;
 	float d1 = fabsf(cosf(angleToTrackEnd - (Math::degToRad * m_pitch)) * distToTrackEnd);
 	rs.cameraTransform = cameraTransform;
 
-	rs.projectionTransform = ProjectionMatrix::CreatePerspective(fov, g_aspectRatio, 0.1f, d1 + viewRangeExtension);
+	rs.projectionTransform = ProjectionMatrix::CreatePerspective(
+		fov,
+		g_aspectRatio,
+		d0, // z_near
+		d1 + viewRangeExtension); // z_far
 
 	m_rsLast = rs;
 
