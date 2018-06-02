@@ -104,7 +104,7 @@ void Audio::start()
 {
 	std::scoped_lock l(lock);
 	if (m_sampleBuffer || limiter) {
-		Logf("Audio.start() called twice!", Logger::Error);
+		Log("Audio.start() called twice!", Logger::Error);
 		return;
 	}
 	m_sampleBuffer = new float[2 * m_sampleBufferLength];
@@ -120,7 +120,7 @@ void Audio::stop()
 {
 	std::scoped_lock l(lock);
 	output->Stop();
-	delete (LimiterDSP*) limiter;
+	delete limiter;
 	globalDSPs.Remove(limiter);
 	limiter = nullptr;
 
