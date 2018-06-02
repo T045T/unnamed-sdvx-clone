@@ -35,10 +35,12 @@ void Canvas::Render(GUIRenderData rd)
 
 class Canvas::Slot* Canvas::Add(GUIElement element)
 {
-	for (auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto& c : m_children)
 	{
-		if ((*it)->element == element)
-			return (*it); // Already exists
+		if (c->element == element)
+		{
+			return c; // Already exists
+		}
 	}
 
 	Slot* slot = CreateSlot<Canvas::Slot>(element);

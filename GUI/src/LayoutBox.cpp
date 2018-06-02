@@ -6,9 +6,9 @@
 
 LayoutBox::~LayoutBox()
 {
-	for (auto s : m_children)
+	for (auto& c : m_children)
 	{
-		delete s;
+		delete c;
 	}
 }
 
@@ -58,9 +58,9 @@ Vector2 LayoutBox::GetDesiredSize(GUIRenderData rd)
 		return Vector2();
 
 	Vector2 sizeOut;
-	for (auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto& it : m_children)
 	{
-		Vector2 elemSize = (*it)->GetDesiredSize(rd);
+		Vector2 elemSize = it->GetDesiredSize(rd);
 		if (layoutDirection == Vertical)
 		{
 			sizeOut.y += elemSize.y;
@@ -77,11 +77,11 @@ Vector2 LayoutBox::GetDesiredSize(GUIRenderData rd)
 
 LayoutBox::Slot* LayoutBox::Add(GUIElement element)
 {
-	for (auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto& c : m_children)
 	{
-		if ((*it)->element == element)
+		if (c->element == element)
 		{
-			return *it; // Already exists
+			return c; // Already exists
 		}
 	}
 
@@ -92,16 +92,14 @@ LayoutBox::Slot* LayoutBox::Add(GUIElement element)
 
 void LayoutBox::Remove(GUIElement element)
 {
-	for (auto it = m_children.begin(); it != m_children.end();)
+	for (auto it = m_children.begin(); it != m_children.end(); ++it)
 	{
 		if ((*it)->element == element)
 		{
+			// TODO: Canvas deletes the child too, but
+			// LayoutBox doesn't?
 			m_children.erase(it);
-			break;
-		}
-		else
-		{
-			it++;
+			return;
 		}
 	}
 }
@@ -112,15 +110,15 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 	float minSize = 0.0f;
 	float fixedSize = 0.0f;
 	float fillCount = 0;
-	for (auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto& c : m_children)
 	{
-		Vector2 size = (*it)->GetDesiredSize(rd);
+		Vector2 size = c->GetDesiredSize(rd);
 		float currentSize = (layoutDirection == Horizontal) ? size.x : size.y;
-		bool currentFill = (layoutDirection == Horizontal) ? (*it)->fillX : (*it)->fillY;
+		bool currentFill = (layoutDirection == Horizontal) ? c->fillX : c->fillY;
 		minSize += currentSize;
 		if (currentFill)
 		{
-			fillCount += (*it)->fillAmount;
+			fillCount += c->fillAmount;
 		}
 		else
 		{
@@ -142,15 +140,15 @@ Vector<float> LayoutBox::CalculateSizes(const GUIRenderData& rd) const
 	}
 
 	Vector<float> ret;
-	for (auto it = m_children.begin(); it != m_children.end(); it++)
+	for (auto& c : m_children)
 	{
-		Vector2 size = (*it)->GetDesiredSize(rd);
+		Vector2 size = c->GetDesiredSize(rd);
 		float currentSize = (layoutDirection == Horizontal) ? size.x : size.y;
-		bool currentFill = (layoutDirection == Horizontal) ? (*it)->fillX : (*it)->fillY;
+		bool currentFill = (layoutDirection == Horizontal) ? c->fillX : c->fillY;
 		float mySize;
 		if (currentFill)
 		{
-			float fillMult = (*it)->fillAmount / fillCount;
+			float fillMult = c->fillAmount / fillCount;
 			mySize = fillSpace * fillMult;
 		}
 		else
